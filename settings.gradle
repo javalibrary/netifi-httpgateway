@@ -10,7 +10,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = 'proteus-httpgateway'
+rootProject.name = 'netifi-httpgateway'
 
-include 'proteus-httpgateway'
-include 'proteus-httpgateway-idl'
+include 'netifi-httpgateway'
+include 'netifi-httpgateway-idl'

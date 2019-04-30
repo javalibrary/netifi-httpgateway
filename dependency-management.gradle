@@ -2,7 +2,7 @@ apply plugin: 'io.spring.dependency-management'
 
 dependencyManagement {
   imports {
-    mavenBom "io.netifi.proteus:proteus-bom:${proteusBomVersion}"
+    mavenBom "com.netifi:netifi-bom:${netifiBomVersion}"
     mavenBom "io.projectreactor:reactor-bom:${reactorBomVersion}"
     mavenBom "org.apache.logging.log4j:log4j-bom:${log4j2Version}"
     mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"

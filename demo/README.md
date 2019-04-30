@@ -1,19 +1,19 @@
-# Netifi Proteus HTTP Gateway Demo
-Demonstration of proxying HTTP requests to a [Proteus](https://www.netifi.com/proteus.html) service using [Proteus HTTP Gateway](https://github.com/netifi-proteus/proteus-httpgateway).
+# Netifi HTTP Gateway Demo
+Demonstration of proxying HTTP requests to a [Netifi](https://www.netifi.com) service using [Netifi HTTP Gateway](https://github.com/netifi/netifi-httpgateway).
 
 The demo consists of a single Hello World service defined as follows:
 
-* Proteus Group: `hello.services`
+* Netifi Group: `hello.services`
 
-* Proteus Service: `com.netifi.proteus.demo.helloworld.HelloWorldService`
+* Netifi Service: `com.netifi.demo.helloworld.HelloWorldService`
 
-* Proteus IDL:
+* Netifi IDL:
     
         syntax = "proto3";
         
-        package com.netifi.proteus.demo.helloworld;
+        package com.netifi.demo.helloworld;
         
-        option java_package = "com.netifi.proteus.demo.helloworld";
+        option java_package = "com.netifi.demo.helloworld";
         option java_outer_classname = "HelloWorldServiceProto";
         option java_multiple_files = true;
         
@@ -30,20 +30,20 @@ The demo consists of a single Hello World service defined as follows:
         }
 
 ## Prerequisites
-This example requires that you have a running Proteus broker.
+This example requires that you have a running Netifi broker.
 
-You can pull the latest Proteus Broker from DockerHub using the following command:
+You can pull the latest Netifi Broker from DockerHub using the following command:
 
-        $ docker pull netifi/proteus
+        $ docker pull netifi/netifi-broker
 
-Start the Proteus Broker by running the following command:
+Start the Netifi Broker by running the following command:
 
-        $ docker run -p 8001:8001 -p 7001:7001 -e BROKER_SERVER_OPTS='-Dnetifi.authentication.0.accessKey=3006839580103245170 -Dnetifi.authentication.0.accessToken=SkOlZxqQcTboZE3fni4OVXVC0e0=' netifi/proteus
+        $ docker run -p 8001:8001 -p 7001:7001 -e BROKER_SERVER_OPTS='-Dnetifi.authentication.0.accessKey=3006839580103245170 -Dnetifi.authentication.0.accessToken=SkOlZxqQcTboZE3fni4OVXVC0e0=' netifi/netifi-broker
         
 ## Running the Demo
 Follow the steps below to run the demo:
 
-1. Ensure you have a running Proteus Broker by following the instructions under Prerequisites.
+1. Ensure you have a running Netifi Broker by following the instructions under Prerequisites.
 
 2. Build the Demo project by running the following command:
 
@@ -51,7 +51,7 @@ Follow the steps below to run the demo:
         
 3. Create a directory to hold idl jars somewhere on your system.
 
-    This temporary directory will serve as a place where Proteus IDL jars can be dropped and auto-detected by the HTTP Gateway.
+    This temporary directory will serve as a place where Netifi IDL jars can be dropped and auto-detected by the HTTP Gateway.
     
 4. Copy the `helloworld-idl.jar` jar file created during the build process into the idl directory you just created.
 
@@ -61,13 +61,13 @@ Follow the steps below to run the demo:
 
         $ ./gradlew demo:helloworld-service:bootRun
 
-6. Start the Proteus HTTP Gateway by running the following command in a new terminal:
+6. Start the Netifi HTTP Gateway by running the following command in a new terminal:
 
         $ ./gradlew -Dnetifi.httpgateway.registrydir={idl directory you created} run
 
 7. Run the following curl command to test that the HTTP Gateway is working:
 
-        $ curl -X "POST" "http://localhost:8080/hello.services/com.netifi.proteus.demo.helloworld.HelloWorldService/sayHello" \
+        $ curl -X "POST" "http://localhost:8080/hello.services/com.netifi.demo.helloworld.HelloWorldService/sayHello" \
              -H 'Content-Type: application/json; charset=utf-8' \
              -d $'{ "name": "World" }'
              
@@ -75,7 +75,7 @@ Follow the steps below to run the demo:
    
         * TCP_NODELAY set
         * Connected to localhost (::1) port 8080 (#0)
-        > POST /hello.services/com.netifi.proteus.demo.helloworld.HelloWorldService/sayHello HTTP/1.1
+        > POST /hello.services/com.netifi.demo.helloworld.HelloWorldService/sayHello HTTP/1.1
         > Host: localhost:8080
         > User-Agent: curl/7.54.0
         > Accept: */*

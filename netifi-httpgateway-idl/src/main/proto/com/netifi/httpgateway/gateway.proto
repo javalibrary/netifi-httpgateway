@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package netifi_gateway;
+
+import "google/protobuf/descriptor.proto";
+
+option java_package = "com.netifi.httpgateway";
+option java_outer_classname = "BrokerClientOptions";
+option java_multiple_files = true;
+
+extend google.protobuf.FileOptions {
+  BrokerClientFileOptions global = 50000;
+}
+
+extend google.protobuf.ServiceOptions {
+  BrokerClientServiceOptions service = 50000;
+}
+
+extend google.protobuf.MethodOptions {
+  BrokerClientMethodOptions method = 50000;
+}
+
+message BrokerClientFileOptions {
+  string group = 1;
+}
+
+message BrokerClientMethodOptions {
+  string url            = 1;
+  int64 timeout_millis  = 2;
+  int32 max_concurrency = 3;
+}
+
+message BrokerClientServiceOptions {
+  string url                   = 1;
+  int64 global_timeout_millis  = 2;
+  int32 global_max_concurrency = 3;
+}

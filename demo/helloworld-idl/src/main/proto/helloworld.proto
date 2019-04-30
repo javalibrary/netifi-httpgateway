@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package com.netifi.proteus.demo.helloworld;
+package com.netifi.demo.helloworld;
 
-option java_package = "com.netifi.proteus.demo.helloworld";
+option java_package = "com.netifi.demo.helloworld";
 option java_outer_classname = "HelloWorldServiceProto";
 option java_multiple_files = true;
 
