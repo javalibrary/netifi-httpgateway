@@ -1,7 +1,9 @@
-package com.netifi.httpgateway.endpoint.source;
+package com.netifi.httpgateway.rsocket.endpoint.source;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import com.netifi.httpgateway.endpoint.source.EndpointSource;
+import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
 import com.netifi.httpgateway.util.WatchEventFluxFactory;
 import io.netty.buffer.ByteBuf;
 import org.apache.logging.log4j.LogManager;

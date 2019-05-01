@@ -11,7 +11,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netifi.httpgateway.endpoint;
+package com.netifi.httpgateway.rsocket.endpoint;
 
 import com.google.protobuf.Descriptors.Descriptor;
 import com.google.protobuf.Empty;
@@ -37,7 +37,7 @@ public abstract class HttpAbstractEndpoint<T> implements Endpoint {
   private final Descriptor              request;
   private final Descriptor              response;
   private final String                  defaultGroup;
-  private final RSocketSupplier         rSocketSupplier;
+  private final RSocketSupplier rSocketSupplier;
   private final boolean                 hasTimeout;
   private final Duration                timeout;
   private final int                     maxConcurrency;

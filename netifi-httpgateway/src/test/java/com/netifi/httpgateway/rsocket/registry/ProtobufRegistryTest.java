@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netifi.httpgateway.registry;
+package com.netifi.httpgateway.rsocket.registry;
 
 import com.google.protobuf.Descriptors;
 import com.netifi.demo.helloworld.HelloRequest;

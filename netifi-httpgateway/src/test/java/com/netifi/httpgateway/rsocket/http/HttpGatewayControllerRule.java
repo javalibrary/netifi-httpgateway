@@ -1,13 +1,13 @@
-package com.netifi.httpgateway.http;
+package com.netifi.httpgateway.rsocket.http;
 
 import com.google.protobuf.Empty;
 import com.netifi.broker.BrokerClient;
 import com.netifi.demo.helloworld.HelloWorldServiceServer;
 import com.netifi.httpgateway.config.BrokerClientSettings;
-import com.netifi.httpgateway.endpoint.factory.DefaultEndpointFactory;
-import com.netifi.httpgateway.endpoint.factory.EndpointFactory;
-import com.netifi.httpgateway.endpoint.registry.DefaultEndpointRegistry;
-import com.netifi.httpgateway.endpoint.registry.EndpointRegistry;
+import com.netifi.httpgateway.rsocket.endpoint.factory.DefaultEndpointFactory;
+import com.netifi.httpgateway.rsocket.endpoint.factory.EndpointFactory;
+import com.netifi.httpgateway.rsocket.endpoint.registry.DefaultEndpointRegistry;
+import com.netifi.httpgateway.rsocket.endpoint.registry.EndpointRegistry;
 import com.netifi.httpgateway.endpoint.source.EndpointSource;
 import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
 import com.netifi.httpgateway.rsocket.BrokerClientRSocketSupplier;

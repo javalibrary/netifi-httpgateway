@@ -11,9 +11,9 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netifi.httpgateway.endpoint.registry;
+package com.netifi.httpgateway.rsocket.endpoint.registry;
 
-import com.netifi.httpgateway.endpoint.Endpoint;
+import com.netifi.httpgateway.rsocket.endpoint.Endpoint;
 
 public interface EndpointRegistry {
   Endpoint lookup(String uri);

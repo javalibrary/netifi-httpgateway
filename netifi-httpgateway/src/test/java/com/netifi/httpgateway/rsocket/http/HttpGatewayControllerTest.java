@@ -1,4 +1,4 @@
-package com.netifi.httpgateway.http;
+package com.netifi.httpgateway.rsocket.http;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.util.JsonFormat;

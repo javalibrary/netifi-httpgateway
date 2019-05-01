@@ -1,4 +1,4 @@
-package com.netifi.httpgateway.endpoint;
+package com.netifi.httpgateway.rsocket.endpoint;
 
 import com.google.protobuf.Empty;
 import com.netifi.httpgateway.endpoint.source.BlockingEndpointSource;

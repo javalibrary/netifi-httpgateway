@@ -11,11 +11,11 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netifi.httpgateway.endpoint.registry;
+package com.netifi.httpgateway.rsocket.endpoint.registry;
 
-import com.netifi.httpgateway.endpoint.Endpoint;
-import com.netifi.httpgateway.endpoint.factory.EndpointEvent;
-import com.netifi.httpgateway.endpoint.factory.EndpointFactory;
+import com.netifi.httpgateway.rsocket.endpoint.Endpoint;
+import com.netifi.httpgateway.rsocket.endpoint.factory.EndpointEvent;
+import com.netifi.httpgateway.rsocket.endpoint.factory.EndpointFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

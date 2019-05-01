@@ -11,9 +11,9 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netifi.httpgateway.endpoint.factory;
+package com.netifi.httpgateway.rsocket.endpoint.factory;
 
-import com.netifi.httpgateway.endpoint.Endpoint;
+import com.netifi.httpgateway.rsocket.endpoint.Endpoint;
 
 public class EndpointEvent {
   private String   url;

@@ -1,7 +1,6 @@
-package com.netifi.httpgateway.endpoint;
+package com.netifi.httpgateway.rsocket.endpoint;
 
 import com.google.protobuf.Descriptors;
-import com.google.protobuf.Empty;
 import com.google.protobuf.Message;
 import com.google.protobuf.util.JsonFormat;
 import com.netifi.httpgateway.rsocket.RSocketSupplier;
@@ -12,7 +11,6 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.rsocket.Payload;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServerResponse;
 import reactor.netty.http.websocket.WebsocketInbound;
 import reactor.netty.http.websocket.WebsocketOutbound;
@@ -21,11 +19,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RequestStreamEndpoint implements Endpoint {
+public class RequestChannelEndpoint implements Endpoint {
   private final Descriptors.Descriptor  request;
   private final Descriptors.Descriptor  response;
   private final String                  defaultGroup;
-  private final RSocketSupplier         rSocketSupplier;
+  private final RSocketSupplier rSocketSupplier;
   private final boolean                 hasTimeout;
   private final Duration                timeout;
   private final int                     maxConcurrency;
@@ -33,9 +31,8 @@ public class RequestStreamEndpoint implements Endpoint {
   private final String                  service;
   private final String                  method;
   private final JsonFormat.TypeRegistry typeRegistry;
-  private final boolean                 requestEmpty;
 
-  public RequestStreamEndpoint(
+  public RequestChannelEndpoint(
       String service,
       String method,
       Descriptors.Descriptor request,
@@ -57,7 +54,6 @@ public class RequestStreamEndpoint implements Endpoint {
     this.service = service;
     this.method = method;
     this.typeRegistry = typeRegistry;
-    this.requestEmpty = ProtoUtil.EMPTY_MESSAGE.equals(request.getFullName());
   }
 
   private ByteBuf payloadToString(Payload payload) {
@@ -71,47 +67,41 @@ public class RequestStreamEndpoint implements Endpoint {
       HttpHeaders headers, String _j, HttpServerResponse httpServerResponse) {
     return httpServerResponse.sendWebsocket(
         (WebsocketInbound inbound, WebsocketOutbound outbound) -> {
-          if (isRequestEmpty()) {
-            Message message = Empty.getDefaultInstance();
-            Payload p = ProtoUtil.messageToPayload(message, service, method);
-            return Flux.merge(inbound.receiveFrames().then(), requestStream(headers, p, outbound));
-          } else {
-            return inbound
-                .receiveFrames()
-                .take(1)
-                .concatMap(
-                    frame -> {
-                      String s = frame.content().toString(StandardCharsets.UTF_8);
-                      Message m = ProtoUtil.jsonToMessage(s, request);
-                      Payload p = ProtoUtil.messageToPayload(m, service, method);
+          Flux<Payload> payloadFlux =
+              inbound
+                  .receiveFrames()
+                  .map(
+                      frame -> {
+                        String s = frame.content().toString(StandardCharsets.UTF_8);
+                        Message m = ProtoUtil.jsonToMessage(s, request);
+                        return ProtoUtil.messageToPayload(m, service, method);
+                      });
 
-                      return requestStream(headers, p, outbound);
-                    },
-                    256);
-          }
+          return rSocketSupplier
+              .apply(defaultGroup, headers)
+              .requestChannel(payloadFlux)
+              .flatMap(
+                  r -> {
+                    ByteBuf byteBuf = payloadToString(r);
+                    TextWebSocketFrame f = new TextWebSocketFrame(byteBuf);
+                    return outbound.sendObject(f);
+                  })
+              .then();
         });
-  }
-
-  Mono<Void> requestStream(HttpHeaders headers, Payload p, WebsocketOutbound outbound) {
-    return rSocketSupplier
-        .apply(defaultGroup, headers)
-        .requestStream(p)
-        .flatMap(
-            r -> {
-              ByteBuf byteBuf = payloadToString(r);
-              TextWebSocketFrame f = new TextWebSocketFrame(byteBuf);
-              return outbound.sendObject(f);
-            })
-        .then();
   }
 
   @Override
   public boolean isRequestEmpty() {
-    return requestEmpty;
+    return false;
   }
 
   @Override
   public boolean isResponseStreaming() {
+    return true;
+  }
+
+  @Override
+  public boolean isRequestStreaming() {
     return true;
   }
 }

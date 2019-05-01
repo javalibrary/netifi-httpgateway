@@ -1,4 +1,4 @@
-package com.netifi.httpgateway.http;
+package com.netifi.httpgateway.rsocket.http;
 
 import com.google.protobuf.Empty;
 import com.netifi.demo.helloworld.HelloRequest;

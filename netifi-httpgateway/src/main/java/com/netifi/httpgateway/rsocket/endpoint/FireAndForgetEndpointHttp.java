@@ -11,23 +11,20 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netifi.httpgateway.endpoint;
+package com.netifi.httpgateway.rsocket.endpoint;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.util.JsonFormat;
 import com.netifi.httpgateway.rsocket.RSocketSupplier;
-import io.netty.buffer.ByteBuf;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServerResponse;
 
 import java.time.Duration;
 
-public class RequestResponseEndpointHttp extends HttpAbstractEndpoint<Payload> {
-  public RequestResponseEndpointHttp(
+public class FireAndForgetEndpointHttp extends HttpAbstractEndpoint<Void> {
+  public FireAndForgetEndpointHttp(
       String service,
       String method,
       Descriptors.Descriptor request,
@@ -52,21 +49,12 @@ public class RequestResponseEndpointHttp extends HttpAbstractEndpoint<Payload> {
   }
 
   @Override
-  protected Publisher<Payload> doApply(RSocket rSocket, Payload request) {
-    return rSocket.requestResponse(request);
+  Publisher<Void> doApply(RSocket rSocket, Payload request) {
+    return rSocket.fireAndForget(request);
   }
 
   @Override
-  Publisher<Void> doHandleResponse(Payload source, HttpServerResponse response) {
-    try {
-      response.header("Content-Type","application/json");
-      ByteBuf byteBuf = source.sliceData();
-      String json = parseResponseToJson(byteBuf);
-      return response.sendString(Mono.just(json));
-    } catch (Throwable t) {
-      return Flux.error(t);
-    } finally {
-      source.release();
-    }
+  Publisher<Void> doHandleResponse(Void source, HttpServerResponse response) {
+    return response.send();
   }
 }

@@ -11,23 +11,23 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netifi.httpgateway.endpoint.factory;
+package com.netifi.httpgateway.rsocket.endpoint.factory;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.UnknownFieldSet;
 import com.google.protobuf.util.JsonFormat;
-import com.netifi.httpgateway.endpoint.Endpoint;
-import com.netifi.httpgateway.endpoint.FireAndForgetEndpointHttp;
-import com.netifi.httpgateway.endpoint.RequestChannelEndpoint;
-import com.netifi.httpgateway.endpoint.RequestResponseEndpointHttp;
-import com.netifi.httpgateway.endpoint.RequestStreamEndpoint;
+import com.netifi.httpgateway.rsocket.endpoint.Endpoint;
+import com.netifi.httpgateway.rsocket.endpoint.FireAndForgetEndpointHttp;
+import com.netifi.httpgateway.rsocket.endpoint.RequestChannelEndpoint;
+import com.netifi.httpgateway.rsocket.endpoint.RequestResponseEndpointHttp;
+import com.netifi.httpgateway.rsocket.endpoint.RequestStreamEndpoint;
 import com.netifi.httpgateway.endpoint.source.EndpointSource;
 import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
+import com.netifi.httpgateway.rsocket.RSocketSupplier;
 import com.netifi.httpgateway.util.HttpUtil;
 import com.netifi.httpgateway.util.ProtoUtil;
-import com.netifi.httpgateway.rsocket.RSocketSupplier;
 import io.netty.buffer.Unpooled;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

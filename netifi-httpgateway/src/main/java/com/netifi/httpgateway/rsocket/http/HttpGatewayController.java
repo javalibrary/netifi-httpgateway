@@ -11,10 +11,10 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.netifi.httpgateway.http;
+package com.netifi.httpgateway.rsocket.http;
 
-import com.netifi.httpgateway.endpoint.Endpoint;
-import com.netifi.httpgateway.endpoint.registry.EndpointRegistry;
+import com.netifi.httpgateway.rsocket.endpoint.Endpoint;
+import com.netifi.httpgateway.rsocket.endpoint.registry.EndpointRegistry;
 import com.netifi.httpgateway.util.HttpUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;

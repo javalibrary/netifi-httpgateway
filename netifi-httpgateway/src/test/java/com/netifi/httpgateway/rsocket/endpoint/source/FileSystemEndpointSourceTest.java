@@ -1,4 +1,4 @@
-package com.netifi.httpgateway.endpoint.source;
+package com.netifi.httpgateway.rsocket.endpoint.source;
 
 import com.google.common.io.Files;
 import com.google.protobuf.ByteString;
