@@ -31,10 +31,10 @@ ext {
 jar {
     manifest {
         attributes(
-                'Main-Class':             "${mainClassName}",
-                'Implementation-Title':   "${project.name}",
-                'Implementation-Version': "${project.version}",
-                'Implementation-Vendor':  "Netifi Inc."
+            'Main-Class':             "${mainClassName}",
+            'Implementation-Title':   "${project.name}",
+            'Implementation-Version': "${project.version}",
+            'Implementation-Vendor':  "Netifi Inc."
         )
     }
 }
@@ -162,42 +162,22 @@ configurations {
 // Docker Publishing
 import com.bmuschko.gradle.docker.tasks.image.*
 
-//docker {
-//    registryCredentials {
-//        if (version.endsWith('SNAPSHOT') || version.endsWith('RC')) {
-//            // Private Docker Repo
-//            url = 'https://netifi.azurecr.io'
-//            username = "${netifiPrivateDockerRegistryUsername}"
-//            password = "${netifiPrivateDockerRegistryPassword}"
-//        } else {
-//            // Public Docker Repo
-//            username = "${netifiDockerHubUsername}"
-//            password = "${netifiDockerHubPassword}"
-//        }
-//    }
-//}
-
-task buildImage(type: DockerBuildImage, dependsOn: build) {
-    dockerFile = new File("${projectDir}/src/docker/Dockerfile")
-    inputDir = new File("${projectDir}")
-
-    if (version.endsWith('SNAPSHOT') || version.endsWith('RC')) {
-        tags = [ "netifi.azurecr.io/netifi-httpgateway:${artifactVersion}".toString() ]
-    } else {
-        if (project.hasProperty('tagLatest') && project.property('tagLatest').toBoolean()) {
-            tags = [ 'netifi/netifi-httpgateway:latest', "netifi/netifi-httpgateway:${version}".toString() ]
-        } else {
-            tags = [ "netifi/netifi-httpgateway:${version}".toString() ]
-        }
+docker {
+    registryCredentials {
+        url = 'https://docker-snapshots.netifiinc.com'
+        username = "${netifiPublishUsername}"
+        password = "${netifiPublishPassword}"
     }
 }
 
-task pushImage(type: DockerPushImage, dependsOn: buildImage) {
-    if (version.endsWith('SNAPSHOT') || version.endsWith('RC')) {
-        imageName = "netifi.azurecr.io/netifi-httpgateway"
-    } else {
-        imageName = "netifi/netifi-httpgateway"
-    }
+task buildDockerImage(type: DockerBuildImage, dependsOn: build) {
+    dockerFile = new File("${projectDir}/src/docker/Dockerfile")
+    inputDir = new File("${projectDir}")
+    tags = [ "docker-snapshots.netifiinc.com/netifi/httpgateway:${artifactVersion}".toString() ]
+}
+
+task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {
+    imageName = "docker-snapshots.netifiinc.com/netifi/httpgateway"
 }
 
 // Docker Configuration
