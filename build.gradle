@@ -164,4 +164,5 @@ subprojects {
         archives sourcesJar
         archives javadocJar
     }
+    task allDeps(type: DependencyReportTask) {}
 }
