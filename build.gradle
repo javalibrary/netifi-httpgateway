@@ -77,21 +77,14 @@ allprojects {
             }
         }
         maven {
+            url 'https://sonatype.netifiinc.com/repository/netifi-maven-releases/'
+            credentials {
+                username = "${netifiReadOnlyUsername}"
+                password = "${netifiReadOnlyPassword}"
+            }
+        }
+        maven {
             url 'https://sonatype.netifiinc.com/repository/netifi-maven-snapshots/'
-            credentials {
-                username = "${netifiReadOnlyUsername}"
-                password = "${netifiReadOnlyPassword}"
-            }
-        }
-        maven {
-            url 'https://sonatype.netifiinc.com/repository/netifi-artifactory-libs-release-local/'
-            credentials {
-                username = "${netifiReadOnlyUsername}"
-                password = "${netifiReadOnlyPassword}"
-            }
-        }
-        maven {
-            url 'https://sonatype.netifiinc.com/repository/netifi-artifactory-libs-snapshot-local/'
             credentials {
                 username = "${netifiReadOnlyUsername}"
                 password = "${netifiReadOnlyPassword}"
