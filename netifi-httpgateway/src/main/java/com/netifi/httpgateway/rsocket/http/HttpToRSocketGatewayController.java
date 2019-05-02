@@ -34,8 +34,8 @@ import reactor.netty.http.server.HttpServerResponse;
 import java.nio.charset.Charset;
 
 @Component
-public class HttpGatewayController implements CommandLineRunner {
-  private static final Logger logger = LogManager.getLogger(HttpGatewayController.class);
+public class HttpToRSocketGatewayController {
+  private static final Logger logger = LogManager.getLogger(HttpToRSocketGatewayController.class);
   private static final Charset CHARSET = Charset.forName("UTF-8");
 
   private final String bindAddress;
@@ -45,7 +45,7 @@ public class HttpGatewayController implements CommandLineRunner {
   private final EndpointRegistry registry;
 
   @Autowired
-  public HttpGatewayController(
+  public HttpToRSocketGatewayController(
       @Value("${netifi.client.gateway.bindAddress}") String bindAddress,
       @Value("${netifi.client.gateway.bindPort}") int bindPort,
       EndpointRegistry registry) {
@@ -54,7 +54,6 @@ public class HttpGatewayController implements CommandLineRunner {
     this.registry = registry;
   }
 
-  @Override
   public void run(String... args) throws Exception {
     logger.info("Starting Netifi HTTP Gateway");
     logger.info("Binding to Address {}", bindAddress);

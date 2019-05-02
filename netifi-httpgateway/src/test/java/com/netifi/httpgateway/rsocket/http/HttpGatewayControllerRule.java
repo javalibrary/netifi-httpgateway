@@ -25,7 +25,7 @@ public class HttpGatewayControllerRule extends ExternalResource {
   private static final long ACCESS_KEY = 9007199254740991L;
   private static final String ACCESS_TOKEN = "kTBDVtfRBO4tHOnZzSyY5ym2kfY=";
 
-  private final HttpGatewayController httpGatewayController;
+  private final HttpToRSocketGatewayController httpToRSocketGatewayController;
   private final DirectProcessor<ProtoDescriptor> processor;
   private final int bindPort;
 
@@ -44,12 +44,12 @@ public class HttpGatewayControllerRule extends ExternalResource {
     EndpointFactory endpointFactory = new DefaultEndpointFactory(endpointSource, rSocketSupplier);
     EndpointRegistry endpointRegistry = new DefaultEndpointRegistry(endpointFactory);
 
-    this.httpGatewayController = new HttpGatewayController("0.0.0.0", bindPort, endpointRegistry);
+    this.httpToRSocketGatewayController = new HttpToRSocketGatewayController("0.0.0.0", bindPort, endpointRegistry);
   }
 
   @Override
   protected void before() throws Throwable {
-    httpGatewayController.run((String[]) null);
+    httpToRSocketGatewayController.run((String[]) null);
 
     Thread.sleep(1_000);
 

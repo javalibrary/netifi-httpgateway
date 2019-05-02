@@ -21,7 +21,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Ignore
-public class HttpGatewayControllerTest {
+public class HttpToRSocketGatewayControllerTest {
   @ClassRule public static HttpGatewayControllerRule rule = new HttpGatewayControllerRule();
 
   @BeforeClass

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package netifi_gateway;
+
+import "google/protobuf/empty.proto";
+
+option java_package = "com.netifi.httpgateway.bridge.endpoint.source";
+option java_outer_classname = "BridgeEndpointService";
+option java_multiple_files = true;
+
+message EndpointJoinEvent {
+  string service = 1;
+}
+
+message EndpointLeaveEvent {
+  string service = 1;
+}
+
+message Event {
+  oneof event {
+    EndpointJoinEvent joinEvent = 1;
+    EndpointLeaveEvent leaveEvent = 2;
+  }
+}
+
+
+service BridgeEndpointSource {
+    rpc StreamProtoDescriptors (google.protobuf.Empty) returns (stream Event) {}
+}

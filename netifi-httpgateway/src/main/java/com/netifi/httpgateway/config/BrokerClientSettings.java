@@ -27,6 +27,8 @@ public class BrokerClientSettings {
     public static final String DEFAULT_BROKER_HOSTNAME = "localhost";
     public static final Integer DEFAULT_BROKER_PORT = 8001;
     public static final Boolean DEFAULT_SSL_DISABLED = false;
+    public static final Integer DEFAULT_LOW_PORT = 20_000;
+    public static final Integer DEFAULT_HIGH_PORT = 60_000;
 
     private String brokerHostname;
 
