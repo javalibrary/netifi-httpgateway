@@ -54,6 +54,8 @@ dependencies {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
 
+    compile "com.netifi:netifi-spring-boot-starter"
+
     compile "com.netifi:netifi-metrics-micrometer"
 
     compile "com.google.protobuf:protobuf-java"

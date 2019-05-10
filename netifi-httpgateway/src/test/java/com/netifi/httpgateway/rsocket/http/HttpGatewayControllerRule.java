@@ -1,27 +1,11 @@
 package com.netifi.httpgateway.rsocket.http;
 
-import com.google.protobuf.Empty;
-import com.netifi.broker.BrokerClient;
-import com.netifi.demo.helloworld.HelloWorldServiceServer;
-import com.netifi.httpgateway.config.BrokerClientSettings;
-import com.netifi.httpgateway.rsocket.endpoint.factory.DefaultEndpointFactory;
-import com.netifi.httpgateway.rsocket.endpoint.factory.EndpointFactory;
-import com.netifi.httpgateway.rsocket.endpoint.registry.DefaultEndpointRegistry;
-import com.netifi.httpgateway.rsocket.endpoint.registry.EndpointRegistry;
-import com.netifi.httpgateway.endpoint.source.EndpointSource;
-import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
-import com.netifi.httpgateway.rsocket.BrokerClientRSocketSupplier;
-import com.netifi.httpgateway.rsocket.RSocketSupplier;
-import io.netty.buffer.ByteBuf;
 import org.junit.Ignore;
 import org.junit.rules.ExternalResource;
-import reactor.core.publisher.DirectProcessor;
-
-import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Ignore
 public class HttpGatewayControllerRule extends ExternalResource {
+  /*
   private static final long ACCESS_KEY = 9007199254740991L;
   private static final String ACCESS_TOKEN = "kTBDVtfRBO4tHOnZzSyY5ym2kfY=";
 
@@ -75,5 +59,5 @@ public class HttpGatewayControllerRule extends ExternalResource {
 
   public void emitProtoDescriptior(ProtoDescriptor descriptor) {
     processor.onNext(descriptor);
-  }
+  }*/
 }

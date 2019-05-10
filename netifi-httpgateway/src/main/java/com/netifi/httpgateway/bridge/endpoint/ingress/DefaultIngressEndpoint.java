@@ -4,6 +4,8 @@ import com.netifi.httpgateway.bridge.codec.HttpRequestEncoder;
 import com.netifi.httpgateway.bridge.codec.HttpResponseDecoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpResponse;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
@@ -26,13 +28,13 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
 
   private final String serviceName;
 
+  private final ByteBuf serviceNameByteBuf;
+
   private final int port;
 
   private final RSocket target;
 
   private final MonoProcessor<Void> onClose;
-
-  private final SslContextFactory sslContextFactory;
 
   public DefaultIngressEndpoint(
       SslContextFactory sslContextFactory,
@@ -40,11 +42,13 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
       boolean disableSSL,
       int port,
       RSocket target) {
-    this.sslContextFactory = sslContextFactory;
     this.serviceName = serviceName;
     this.port = port;
     this.target = target;
     this.onClose = MonoProcessor.create();
+    this.serviceNameByteBuf = Unpooled.buffer();
+
+    ByteBufUtil.writeUtf8(serviceNameByteBuf, serviceName);
 
     HttpServer httpServer = HttpServer.create().port(port).handle(this::handle);
 
@@ -90,7 +94,7 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
 
               return ByteBufFlux.fromInbound(in)
                   .aggregate()
-                  .map(buf -> ByteBufPayload.create(buf.retain()))
+                  .map(buf -> ByteBufPayload.create(buf.retain(), serviceNameByteBuf.retain()))
                   .flatMap(target::requestResponse)
                   .map(Payload::sliceData)
                   .flatMap(

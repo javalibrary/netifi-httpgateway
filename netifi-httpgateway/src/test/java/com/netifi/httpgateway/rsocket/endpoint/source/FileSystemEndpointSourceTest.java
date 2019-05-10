@@ -3,6 +3,7 @@ package com.netifi.httpgateway.rsocket.endpoint.source;
 import com.google.common.io.Files;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
 import io.netty.buffer.Unpooled;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -18,6 +19,7 @@ import java.time.Duration;
 
 @Ignore
 public class FileSystemEndpointSourceTest {
+  /*
   @Test
   public void testPathToByteString() throws Exception {
 
@@ -128,5 +130,5 @@ public class FileSystemEndpointSourceTest {
           Assert.assertEquals(ProtoDescriptor.EventType.DELETE, protoDescriptor.getType()))
       .thenCancel()
       .verify();
-  }
+  }*/
 }

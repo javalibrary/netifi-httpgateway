@@ -1,27 +1,10 @@
 package com.netifi.httpgateway.rsocket.http;
 
-import com.google.protobuf.ByteString;
-import com.google.protobuf.util.JsonFormat;
-import com.netifi.demo.helloworld.HelloRequest;
-import com.netifi.demo.helloworld.HelloResponse;
-import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import org.apache.commons.io.FileUtils;
-import org.junit.*;
-import reactor.core.Exceptions;
-
-import java.io.File;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.WebSocket;
-import java.nio.ByteBuffer;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.junit.Ignore;
 
 @Ignore
 public class HttpToRSocketGatewayControllerTest {
+  /*
   @ClassRule public static HttpGatewayControllerRule rule = new HttpGatewayControllerRule();
 
   @BeforeClass
@@ -279,4 +262,5 @@ public class HttpToRSocketGatewayControllerTest {
 
     System.out.println(body);
   }
+  */
 }

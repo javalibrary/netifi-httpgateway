@@ -15,12 +15,8 @@
  */
 package com.netifi.httpgateway.rsocket.registry;
 
-import com.google.protobuf.Descriptors;
-import com.netifi.demo.helloworld.HelloRequest;
-import org.junit.Test;
-
 public class ProtobufRegistryTest {
-  @Test
+/*  @Test
   public void testingStuff() throws Exception {
     HelloRequest hi = HelloRequest
                         .newBuilder()
@@ -33,6 +29,6 @@ public class ProtobufRegistryTest {
     
     Descriptors.FileDescriptor file = descriptorForType.getFile();
     System.out.println(file.toString());
-  }
+  }*/
 
 }

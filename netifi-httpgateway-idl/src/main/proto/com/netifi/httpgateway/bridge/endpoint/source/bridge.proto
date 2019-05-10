@@ -9,11 +9,11 @@ option java_outer_classname = "BridgeEndpointService";
 option java_multiple_files = true;
 
 message EndpointJoinEvent {
-  string service = 1;
+  string serviceName = 1;
 }
 
 message EndpointLeaveEvent {
-  string service = 1;
+  string serviceName = 1;
 }
 
 message Event {
@@ -25,5 +25,5 @@ message Event {
 
 
 service BridgeEndpointSource {
-    rpc StreamProtoDescriptors (google.protobuf.Empty) returns (stream Event) {}
+    rpc StreamEndpointEvents (google.protobuf.Empty) returns (stream Event) {}
 }

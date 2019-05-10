@@ -55,6 +55,7 @@ allprojects {
     }
 
     repositories {
+        mavenLocal()
         maven {
             url 'https://sonatype.netifiinc.com/repository/jcenter/'
             credentials {
