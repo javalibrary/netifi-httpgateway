@@ -173,7 +173,7 @@ docker {
 task buildDockerImage(type: DockerBuildImage, dependsOn: build) {
     dockerFile = new File("${projectDir}/src/docker/Dockerfile")
     inputDir = new File("${projectDir}")
-    tags = [ "docker-snapshots.netifiinc.com/netifi/httpgateway:${artifactVersion}".toString() ]
+    tags = [ "docker-snapshots.netifiinc.com/netifi/httpgateway:${uniqueVersion}".toString() ]
 }
 
 task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {
