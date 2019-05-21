@@ -63,7 +63,7 @@ dependencies {
 
     compile "org.apache.logging.log4j:log4j-api"
     compile "org.apache.logging.log4j:log4j-core"
-    compile "org.apache.logging.log4j:log4j-slf4j-impl"
+    compile "org.apache.logging.log4j:log4j-slf4j18-impl"
 
     compile "com.lmax:disruptor"
 
@@ -175,7 +175,7 @@ docker {
 task buildDockerImage(type: DockerBuildImage, dependsOn: build) {
     dockerFile = new File("${projectDir}/src/docker/Dockerfile")
     inputDir = new File("${projectDir}")
-    tags = [ "docker-snapshots.netifiinc.com/netifi/httpgateway:${artifactVersion}".toString() ]
+    tags = [ "docker-snapshots.netifiinc.com/netifi/httpgateway:${uniqueVersion}".toString() ]
 }
 
 task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {

@@ -56,11 +56,44 @@ publishing {
             from components.java
             artifact sourcesJar
             artifact javadocJar
+            pom {
+                name = 'Netifi HTTP Gateway'
+                description = 'Allows bridging HTTP and Netifi Brokers'
+                url = 'https://www.netifi.com/'
+                organization {
+                    name = 'Netifi, Inc.'
+                    url = 'https://www.netifi.com'
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'Support'
+                        name = 'Netifi Engineering'
+                        email = 'support@netifi.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/netifi/netifi-httpgateway.git'
+                    developerConnection = 'scm:git:ssh://github.com/netifi/netifi-httpgateway.git'
+                    url = 'http://github.com/netifi/netifi-httpgateway/'
+                }
+                issueManagement {
+                    system = "GitHub Issues"
+                    url = "https://github.com/netifi/netifi-httpgateway/issues"
+                }
+            }
         }
     }
     repositories {
         maven {
-            url 'https://sonatype.netifiinc.com/repository/netifi-maven-snapshots/'
+            def releasesRepoUrl = 'https://sonatype.netifiinc.com/repository/netifi-maven-releases/'
+            def snapshotsRepoUrl = 'https://sonatype.netifiinc.com/repository/netifi-maven-snapshots/'
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
             credentials {
                 username = "${netifiPublishUsername}"
                 password = "${netifiPublishPassword}"
