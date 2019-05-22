@@ -55,8 +55,8 @@ javax.inject:javax.inject:1
 javax.validation:validation-api:2.0.1.Final
 org.apache.logging.log4j:log4j-api:2.11.2
 org.apache.logging.log4j:log4j-core:2.11.2
-org.apache.logging.log4j:log4j-slf4j18-impl:2.11.2
-org.apache.logging.log4j:log4j-to-slf4j:2.11.2
+org.apache.logging.log4j:log4j-jul:2.11.2
+org.apache.logging.log4j:log4j-slf4j-impl:2.11.2
 org.apache.tomcat.embed:tomcat-embed-el:9.0.17
 org.codehaus.mojo:animal-sniffer-annotations:1.14
 org.hdrhistogram:HdrHistogram:2.1.9
@@ -67,7 +67,7 @@ org.reactivestreams:reactive-streams:1.0.2
 org.slf4j:jul-to-slf4j:1.7.26
 org.slf4j:slf4j-api:1.7.26
 org.springframework.boot:spring-boot-autoconfigure:2.1.4.RELEASE
-org.springframework.boot:spring-boot-starter-logging:2.1.4.RELEASE
+org.springframework.boot:spring-boot-starter-log4j2:2.1.4.RELEASE
 org.springframework.boot:spring-boot-starter-validation:2.1.4.RELEASE
 org.springframework.boot:spring-boot-starter:2.1.4.RELEASE
 org.springframework.boot:spring-boot:2.1.4.RELEASE

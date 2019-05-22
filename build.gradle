@@ -12,18 +12,18 @@ buildscript {
         }
     }
     dependencies {
-        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1"
-        classpath 'com.google.gradle:osdetector-gradle-plugin:1.6.2'
+        classpath 'com.bmuschko:gradle-docker-plugin:4.8.1'
+        classpath 'com.gradle:build-scan-plugin:2.3'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8'
+        classpath 'gradle.plugin.com.palantir.gradle.gitversion:gradle-git-version:0.12.0-rc2'
+        classpath 'io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE'
+        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1'
     }
 }
 
-plugins {
-    id 'com.gradle.build-scan' version '2.0.2' // declare before any other plugin
-    id 'io.spring.dependency-management' version '1.0.7.RELEASE' apply false
-    id "com.github.hierynomus.license" version '0.15.0'
-    id 'com.palantir.git-version' version '0.12.0-rc2'
-}
+apply plugin: 'com.gradle.build-scan'
+apply plugin: 'com.palantir.git-version'
 
 buildScan {
     termsOfServiceUrl = 'https://gradle.com/terms-of-service'
@@ -33,17 +33,17 @@ buildScan {
 
 // TODO: make this a Gradle plugin someday
 def details = versionDetails()
-def versionSuffix = ""
-def buildNumber = "${System.getenv("BUILD_NUMBER") ?: "dev"}"
+def versionSuffix = ''
+def buildNumber = "${System.getenv('BUILD_NUMBER') ?: 'dev'}"
 def tmpUniqueVersion = "${project.version}"
 
 if (details.branchName != null) {
-    if (details.branchName == "master") {
-        // Master should never have a postfix
-    } else if (details.branchName == "develop") {
-        versionSuffix = "-SNAPSHOT"
+    if (details.branchName == 'master') {
+        // Master should never have a suffix
+    } else if (details.branchName == 'develop') {
+        versionSuffix = '-SNAPSHOT'
         tmpUniqueVersion += "-${buildNumber}-SNAPSHOT"
-    } else if (details.branchName.startsWith("release")) {
+    } else if (details.branchName.startsWith('release')) {
         versionSuffix = "-${buildNumber}-RC"
         tmpUniqueVersion += "-${buildNumber}-RC"
     } else {
@@ -56,6 +56,27 @@ if (details.branchName != null) {
 allprojects {
     dependencyLocking {
         lockAllConfigurations()
+    }
+
+    project.version += versionSuffix
+    ext {
+        uniqueVersion = "${tmpUniqueVersion}"
+    }
+}
+
+subprojects {
+    apply from: '../dependency-management.gradle'
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+    apply plugin: 'com.google.protobuf'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    compileTestJava {
+        sourceCompatibility = 11
+        targetCompatibility = 11
     }
 
     repositories {
@@ -117,44 +138,18 @@ allprojects {
             }
         }
     }
-}
 
-subprojects {
-    apply plugin: 'idea'
-    apply plugin: 'java'
-    apply plugin: 'maven'
-    apply plugin: 'maven-publish'
-    apply plugin: 'com.google.osdetector'
-    apply from: '../dependency-management.gradle'
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    compileTestJava {
-        sourceCompatibility = 11
-        targetCompatibility = 11
-    }
-
-    project.version += versionSuffix
-    ext {
-        uniqueVersion = "${tmpUniqueVersion}"
-    }
-
-    // Build Source Jarst
-    def sourcesJarMap = [name: 'sourcesJar', type: Jar, dependsOn: classes]
-    project.tasks.create(sourcesJarMap, {
+    task sourcesJar( type: Jar, dependsOn: classes) {
         classifier = 'sources'
         from sourceSets.main.allSource
         version = "${project.version}"
-    })
+    }
 
-    // Build Javadoc Jars
-    def javadocJarMap = [name: 'javadocJar', type: Jar, dependsOn: javadoc]
-    project.tasks.create(javadocJarMap, {
+    task javadocJar(type: Jar, dependsOn: javadoc) {
         classifier = 'javadoc'
         from javadoc.destinationDir
         version = "${project.version}"
-    })
+    }
 
     artifacts {
         archives sourcesJar
