@@ -14,11 +14,9 @@ buildscript {
     dependencies {
         classpath 'com.bmuschko:gradle-docker-plugin:4.8.1'
         classpath 'com.gradle:build-scan-plugin:2.3'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
         classpath 'gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8'
         classpath 'gradle.plugin.com.palantir.gradle.gitversion:gradle-git-version:0.12.0-rc2'
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE'
-        classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.8.1'
     }
 }
 
@@ -140,13 +138,13 @@ subprojects {
     }
 
     task sourcesJar( type: Jar, dependsOn: classes) {
-        classifier = 'sources'
+        archiveClassifier = 'sources'
         from sourceSets.main.allSource
         version = "${project.version}"
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
+        archiveClassifier = 'javadoc'
         from javadoc.destinationDir
         version = "${project.version}"
     }
