@@ -16,7 +16,7 @@ package com.netifi.httpgateway.rsocket;
 import com.netifi.broker.BrokerClient;
 import com.netifi.common.tags.Tag;
 import com.netifi.common.tags.Tags;
-import com.netifi.httpgateway.config.BrokerClientSettings;
+import com.netifi.httpgateway.config.HTTPGatewaySettings;
 import com.netifi.httpgateway.util.HttpUtil;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.rsocket.RSocket;
@@ -32,7 +32,7 @@ public class BrokerClientRSocketSupplier implements RSocketSupplier {
   private final ConcurrentHashMap<String, RSocket> rsockets;
 
   @Autowired
-  public BrokerClientRSocketSupplier(BrokerClientSettings settings) {
+  public BrokerClientRSocketSupplier(HTTPGatewaySettings settings) {
     BrokerClient.TcpBuilder builder =
         BrokerClient.tcp()
             .accessToken(settings.getAccess().getToken())
