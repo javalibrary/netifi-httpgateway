@@ -33,7 +33,6 @@ import org.mockserver.junit.MockServerRule;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
 
-@Ignore("gets too meta, this should probably go into an integration suite")
 public class SimpleHTTPTest {
   Logger logger = LogManager.getLogger();
   @Rule public MockServerRule mockServerRule = new MockServerRule(this);

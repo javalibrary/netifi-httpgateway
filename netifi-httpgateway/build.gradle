@@ -20,8 +20,6 @@ ext {
     ]
 }
 
-
-
 jar {
     manifest {
         attributes(
@@ -41,6 +39,22 @@ application {
     applicationDefaultJvmArgs = ['-Xlog:gc:gc.log::filecount=10,filesize=100M'].plus(project.ext.commonJvmArgs)
 }
 
+sourceSets {
+    integrationTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir file('src/integration-test/java')
+        }
+        resources.srcDir file('src/integration-test/resources')
+    }
+}
+
+configurations {
+    integrationTestCompile.extendsFrom testCompile
+    integrationTestRuntime.extendsFrom testRuntime
+}
+
 dependencies {
     compile project(':netifi-httpgateway-idl')
 
@@ -58,10 +72,10 @@ dependencies {
     testCompile 'junit:junit'
     testCompile 'commons-io:commons-io'
     testCompile 'io.projectreactor:reactor-test'
-    testCompile 'org.mock-server:mockserver-netty'
-    testCompile 'com.pszymczyk.consul:embedded-consul'
-    testCompile 'com.orbitz.consul:consul-client'
-    testCompile 'com.arakelian:docker-junit-rule'
+    integrationTestCompile 'org.mock-server:mockserver-netty'
+    integrationTestCompile 'com.pszymczyk.consul:embedded-consul'
+    integrationTestCompile 'com.orbitz.consul:consul-client'
+    integrationTestCompile 'com.arakelian:docker-junit-rule'
 }
 
 
@@ -112,12 +126,6 @@ idea {
     }
 }
 
-test {
-    exclude 'com/netifi/demo/**'
-    systemProperty 'docker.broker.image', 'docker-snapshots.netifiinc.com/netifi/broker:1.6.4-feature-project-stargate-193-SNAPSHOT'
-    systemProperty 'docker.'
-}
-
 applicationDefaultJvmArgs = [
         '-XX:+IgnoreUnrecognizedVMOptions',
         '-XshowSettings:vm',
@@ -161,7 +169,7 @@ docker {
     }
 }
 
-task dockerBuildImage(type: DockerBuildImage, dependsOn: build) {
+task dockerBuildImage(type: DockerBuildImage, dependsOn: assemble) {
     dockerFile = new File("${projectDir}/src/docker/Dockerfile")
     inputDir = new File("${projectDir}")
     tags = [ "docker-snapshots.netifiinc.com/netifi/httpgateway:${uniqueVersion}".toString() ]
@@ -273,4 +281,15 @@ codeDeployDistTar {
 
 codeDeployDistZip {
     destinationDirectory = new File("${project.buildDir}/${project.distsDirName}/codedeploy")
+}
+
+test {
+    exclude 'com/netifi/demo/**'
+}
+
+task integrationTest(type: Test, dependsOn: dockerBuildImage) {
+    testClassesDirs = sourceSets.integrationTest.output.classesDirs
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    systemProperty 'docker.broker.image', 'docker-snapshots.netifiinc.com/netifi/broker:1.6.4-feature-project-stargate-193-SNAPSHOT'
+    systemProperty 'docker.httpgateway.image', "docker-snapshots.netifiinc.com/netifi/httpgateway:${uniqueVersion}"
 }
