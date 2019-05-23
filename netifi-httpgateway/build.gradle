@@ -61,6 +61,7 @@ dependencies {
     testCompile 'org.mock-server:mockserver-netty'
     testCompile 'com.pszymczyk.consul:embedded-consul'
     testCompile 'com.orbitz.consul:consul-client'
+    testCompile 'com.arakelian:docker-junit-rule'
 }
 
 
@@ -113,6 +114,8 @@ idea {
 
 test {
     exclude 'com/netifi/demo/**'
+    systemProperty 'docker.broker.image', 'docker-snapshots.netifiinc.com/netifi/broker:1.6.4-feature-project-stargate-193-SNAPSHOT'
+    systemProperty 'docker.'
 }
 
 applicationDefaultJvmArgs = [

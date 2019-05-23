@@ -8,6 +8,7 @@ dependencyManagement {
     mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
   }
   dependencies {
+    dependency "com.arakelian:docker-junit-rule:${dockerVersion}"
     dependency "com.google.protobuf:protobuf-java-util:${protobufVersion}"
     dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
     dependency "com.google.protobuf:protoc:${protobufVersion}"
