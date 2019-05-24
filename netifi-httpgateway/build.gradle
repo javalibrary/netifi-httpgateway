@@ -72,9 +72,8 @@ dependencies {
     testCompile 'junit:junit'
     testCompile 'commons-io:commons-io'
     testCompile 'io.projectreactor:reactor-test'
+    testCompile 'com.pszymczyk.consul:embedded-consul'
     integrationTestCompile 'org.mock-server:mockserver-netty'
-    integrationTestCompile 'com.pszymczyk.consul:embedded-consul'
-    integrationTestCompile 'com.orbitz.consul:consul-client'
     integrationTestCompile 'com.arakelian:docker-junit-rule'
 }
 
