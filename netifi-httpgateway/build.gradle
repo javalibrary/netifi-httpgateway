@@ -1,7 +1,7 @@
 plugins {
     id 'application'
     id 'maven-publish'
-    id 'com.bmuschko.docker-java-application' version '4.5.0'
+    id 'com.bmuschko.docker-remote-api' version '4.5.0'
 //    id 'com.gorylenko.gradle-git-properties' version '2.0.0'
     id 'com.palantir.git-version'
     id 'com.google.protobuf' version '0.8.8'
@@ -170,13 +170,13 @@ docker {
     }
 }
 
-task buildDockerImage(type: DockerBuildImage, dependsOn: build) {
+task dockerBuildImage(type: DockerBuildImage, dependsOn: build) {
     dockerFile = new File("${projectDir}/src/docker/Dockerfile")
     inputDir = new File("${projectDir}")
     tags = [ "docker-snapshots.netifiinc.com/netifi/httpgateway:${uniqueVersion}".toString() ]
 }
 
-task pushDockerImage(type: DockerPushImage, dependsOn: buildDockerImage) {
+task dockerPushImage(type: DockerPushImage, dependsOn: dockerBuildImage) {
     imageName = "docker-snapshots.netifiinc.com/netifi/httpgateway"
 }
 
