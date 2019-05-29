@@ -1,8 +1,28 @@
 package com.netifi.consul.v1;
 
+import java.net.URISyntaxException;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+
+import javax.annotation.Nullable;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.netifi.httpgateway.util.HttpUtil;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.json.JsonObjectDecoder;
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.netty.ByteBufFlux;
+import reactor.netty.ByteBufMono;
+import reactor.netty.Connection;
+import reactor.netty.NettyOutbound;
 import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientForm;
+import reactor.netty.http.client.HttpClientRequest;
+import reactor.netty.http.client.HttpClientResponse;
 
 public class ConsulRawClient {
 
@@ -96,9 +116,7 @@ public class ConsulRawClient {
       if (this.useTokenBearerHeader) {
         this.httpClient = httpClient.headers(h -> h.add("Authorization", "Bearer " + this.token));
       } else if (this.useTokenQueryParameter) {
-        // TODO: add a query parameter to the url with "token="+this.token
-        // https://projectreactor.io/docs/netty/release/api/reactor/netty/http/client/HttpClient.html#doOnRequest-java.util.function.BiConsumer-
-        // https://www.consul.io/api/index.html#authentication
+        this.httpClient = new TokenAwareHttpClient(httpClient);
       } else if (this.useTokenXConsulTokenHeader) {
         this.httpClient = httpClient.headers(h -> h.add("X-Consul-Token", this.token));
       }
@@ -106,9 +124,96 @@ public class ConsulRawClient {
       if (agentPath != null && !agentPath.trim().isEmpty()) {
         path = "/" + agentPath;
       }
-      String agentAddress = String.format("%s:%d%s", agentHost, agentPort, agentPath);
+      String agentAddress = String.format("%s:%d%s", agentHost, agentPort, path);
       this.httpClient = httpClient.baseUrl(agentAddress);
       return new ConsulRawClient(this.httpClient, agentAddress);
+    }
+
+    private class TokenAwareHttpClient extends HttpClient {
+
+      private final HttpClient delegate;
+
+      private TokenAwareHttpClient(HttpClient delegate) {
+        this.delegate = delegate;
+      }
+
+      @Override
+      public RequestSender request(HttpMethod method) {
+        final RequestSender requestSenderDelegate = this.delegate.request(method);
+        return new TokenAwareRequestSender(requestSenderDelegate);
+      }
+
+      private class TokenAwareRequestSender implements RequestSender {
+
+        private final RequestSender delegate;
+
+        private TokenAwareRequestSender(RequestSender delegate) {
+          this.delegate = delegate;
+        }
+
+        @Override
+        public ResponseReceiver<?> send(Publisher<? extends ByteBuf> body) {
+          return delegate.send(body);
+        }
+
+        @Override
+        public ResponseReceiver<?> send(BiFunction<? super HttpClientRequest, ? super NettyOutbound, ? extends Publisher<Void>> sender) {
+          return delegate.send(sender);
+        }
+
+        @Override
+        public ResponseReceiver<?> sendForm(BiConsumer<? super HttpClientRequest, HttpClientForm> formCallback,
+            @Nullable Consumer<Flux<Long>> progress) {
+          return delegate.sendForm(formCallback, progress);
+        }
+
+        @Override
+        public Mono<HttpClientResponse> response() {
+          return delegate.response();
+        }
+
+        @Override
+        public <V> Flux<V> response(BiFunction<? super HttpClientResponse, ? super ByteBufFlux, ? extends Publisher<V>> receiver) {
+          return delegate.response(receiver);
+        }
+
+        @Override
+        public <V> Flux<V> responseConnection(BiFunction<? super HttpClientResponse, ? super Connection, ? extends Publisher<V>> receiver) {
+          return delegate.responseConnection(receiver);
+        }
+
+        @Override
+        public ByteBufFlux responseContent() {
+          return delegate.responseContent();
+        }
+
+        @Override
+        public <V> Mono<V> responseSingle(BiFunction<? super HttpClientResponse, ? super ByteBufMono, ? extends Mono<V>> receiver) {
+          return delegate.responseSingle(receiver);
+        }
+
+        @Override
+        public RequestSender uri(String uri) {
+          try {
+            return delegate.uri(HttpUtil.appendUri(uri, "token=" + token).toString());
+          }
+          catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+          }
+        }
+
+        @Override
+        public RequestSender uri(Mono<String> uri) {
+          return delegate.uri(uri.handle((uri1, sink) -> {
+            try {
+              sink.next(HttpUtil.appendUri(uri1, "token=" + token).toString());
+            }
+            catch (URISyntaxException e) {
+              sink.error(new RuntimeException(e));
+            }
+          }));
+        }
+      }
     }
   }
 
