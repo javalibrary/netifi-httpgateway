@@ -14,6 +14,8 @@ import com.netifi.consul.v1.agent.model.Service;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpResponseStatus;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -104,24 +106,38 @@ public final class AgentConsulClient implements AgentClient {
 
   @Override
   public Flux<Response<Void>> agentCheckRegister(NewCheck newCheck) {
-    String checkPayload = null;
-    try {
-        checkPayload = serializeJson(newCheck);
-    } catch (JsonProcessingException e) {
-      e.printStackTrace();
-      return Flux.just(new Response<>(null, new EmptyHttpClientResponse(), e.getMessage()));
-    }
-    System.out.println("the magic is magic");
-    return rawClient.getHttpClient()
-        .put()
-        .send(ByteBufFlux.fromString(Mono.just(checkPayload)))
-        .response((httpClientResponse, byteBufFlux) -> byteBufFlux.asString().map( s -> {
-          System.out.println("hello world mombo #5");
-          if (httpClientResponse.status() != HttpResponseStatus.OK) {
-            return new Response<>(null, httpClientResponse, s);
-          }
-          return new Response<>(null, httpClientResponse, null);
-        }));
+      try {
+
+        String checkPayload = serializeJson(newCheck);
+        return rawClient.getHttpClient()
+            .put()
+            .send(Mono.just(Unpooled.copiedBuffer(checkPayload.getBytes())))
+            .response((httpClientResponse, byteBufFlux) ->
+                Flux.create(sink -> {
+                    boolean[] responses = new boolean[1];
+                    byteBufFlux
+                            .asString()
+                            .doOnNext(s -> {
+                                responses[0] = true;
+                                if (httpClientResponse.status() != HttpResponseStatus.OK) {
+                                    sink.next(new Response<>(null, httpClientResponse, s));
+                                } else {
+                                    sink.next(new Response<>(null, httpClientResponse, null));
+                                }
+                            })
+                            .doOnComplete(() -> {
+                                if (!responses[0]) {
+                                    sink.next(new Response<>(null, httpClientResponse, null));
+                                }
+                                sink.complete();
+                            })
+                            .subscribe();
+                })
+            );
+      } catch (JsonProcessingException e) {
+          e.printStackTrace();
+          return Flux.just(new Response<>(null, new EmptyHttpClientResponse(), e.getMessage()));
+      }
   }
 
   @Override
