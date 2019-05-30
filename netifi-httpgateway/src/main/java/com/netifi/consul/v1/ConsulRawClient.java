@@ -1,17 +1,14 @@
 package com.netifi.consul.v1;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.json.JsonObjectDecoder;
 import java.net.URISyntaxException;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-
 import javax.annotation.Nullable;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netifi.httpgateway.util.HttpUtil;
-import io.netty.buffer.ByteBuf;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.json.JsonObjectDecoder;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -157,12 +154,15 @@ public class ConsulRawClient {
         }
 
         @Override
-        public ResponseReceiver<?> send(BiFunction<? super HttpClientRequest, ? super NettyOutbound, ? extends Publisher<Void>> sender) {
+        public ResponseReceiver<?> send(
+            BiFunction<? super HttpClientRequest, ? super NettyOutbound, ? extends Publisher<Void>>
+                sender) {
           return delegate.send(sender);
         }
 
         @Override
-        public ResponseReceiver<?> sendForm(BiConsumer<? super HttpClientRequest, HttpClientForm> formCallback,
+        public ResponseReceiver<?> sendForm(
+            BiConsumer<? super HttpClientRequest, HttpClientForm> formCallback,
             @Nullable Consumer<Flux<Long>> progress) {
           return delegate.sendForm(formCallback, progress);
         }
@@ -173,12 +173,16 @@ public class ConsulRawClient {
         }
 
         @Override
-        public <V> Flux<V> response(BiFunction<? super HttpClientResponse, ? super ByteBufFlux, ? extends Publisher<V>> receiver) {
+        public <V> Flux<V> response(
+            BiFunction<? super HttpClientResponse, ? super ByteBufFlux, ? extends Publisher<V>>
+                receiver) {
           return delegate.response(receiver);
         }
 
         @Override
-        public <V> Flux<V> responseConnection(BiFunction<? super HttpClientResponse, ? super Connection, ? extends Publisher<V>> receiver) {
+        public <V> Flux<V> responseConnection(
+            BiFunction<? super HttpClientResponse, ? super Connection, ? extends Publisher<V>>
+                receiver) {
           return delegate.responseConnection(receiver);
         }
 
@@ -188,30 +192,32 @@ public class ConsulRawClient {
         }
 
         @Override
-        public <V> Mono<V> responseSingle(BiFunction<? super HttpClientResponse, ? super ByteBufMono, ? extends Mono<V>> receiver) {
+        public <V> Mono<V> responseSingle(
+            BiFunction<? super HttpClientResponse, ? super ByteBufMono, ? extends Mono<V>>
+                receiver) {
           return delegate.responseSingle(receiver);
         }
 
         @Override
         public RequestSender uri(String uri) {
           try {
-            return delegate.uri(HttpUtil.appendUri(uri, "token=" + token).toString());
-          }
-          catch (URISyntaxException e) {
+            return delegate.uri(Utils.appendUri(uri, "token=" + token).toString());
+          } catch (URISyntaxException e) {
             throw new RuntimeException(e);
           }
         }
 
         @Override
         public RequestSender uri(Mono<String> uri) {
-          return delegate.uri(uri.handle((uri1, sink) -> {
-            try {
-              sink.next(HttpUtil.appendUri(uri1, "token=" + token).toString());
-            }
-            catch (URISyntaxException e) {
-              sink.error(new RuntimeException(e));
-            }
-          }));
+          return delegate.uri(
+              uri.handle(
+                  (uri1, sink) -> {
+                    try {
+                      sink.next(Utils.appendUri(uri1, "token=" + token).toString());
+                    } catch (URISyntaxException e) {
+                      sink.error(new RuntimeException(e));
+                    }
+                  }));
         }
       }
     }
