@@ -1,8 +1,6 @@
 package com.netifi.consul.v1.catalog;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.netifi.consul.v1.ConsulRawClient;
 import com.netifi.consul.v1.Response;
 import java.io.IOException;
@@ -38,10 +36,11 @@ public class CatalogConsulClient implements CatalogClient {
                           Map<String, List<String>> serviceMap = null;
                           String err = null;
                           try {
-                            serviceMap = rawClient
+                            serviceMap =
+                                rawClient
                                     .getObjectMapper()
                                     .readValue(
-                                          s, new TypeReference<Map<String, List<String>>>() {});
+                                        s, new TypeReference<Map<String, List<String>>>() {});
                           } catch (IOException e) {
                             // This can fail and it's probably ok.
                             err = s;

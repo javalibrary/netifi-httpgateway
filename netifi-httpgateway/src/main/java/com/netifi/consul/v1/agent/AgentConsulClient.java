@@ -5,24 +5,17 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.netifi.consul.v1.ConsulRawClient;
 import com.netifi.consul.v1.EmptyHttpClientResponse;
 import com.netifi.consul.v1.Response;
-import com.netifi.consul.v1.Utils;
 import com.netifi.consul.v1.agent.model.Check;
 import com.netifi.consul.v1.agent.model.NewCheck;
 import com.netifi.consul.v1.agent.model.NewService;
 import com.netifi.consul.v1.agent.model.Self;
 import com.netifi.consul.v1.agent.model.Service;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.HttpResponseStatus;
-
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.List;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.netty.ByteBufFlux;
 
 public final class AgentConsulClient implements AgentClient {
 
@@ -76,14 +69,23 @@ public final class AgentConsulClient implements AgentClient {
         .getHttpClient()
         .get()
         .uri(V_1_CHECKS)
-        .response((res, byteBufFlux) -> byteBufFlux.asString().map(s -> {
-          try {
-            return new Response<>(rawClient.getObjectMapper().readValue(s, new TypeReference<List<Check>>(){}), res);
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-          return null;
-        }));
+        .response(
+            (res, byteBufFlux) ->
+                byteBufFlux
+                    .asString()
+                    .map(
+                        s -> {
+                          try {
+                            return new Response<>(
+                                rawClient
+                                    .getObjectMapper()
+                                    .readValue(s, new TypeReference<List<Check>>() {}),
+                                res);
+                          } catch (IOException e) {
+                            e.printStackTrace();
+                          }
+                          return null;
+                        }));
   }
 
   @Override
@@ -92,52 +94,64 @@ public final class AgentConsulClient implements AgentClient {
         .getHttpClient()
         .get()
         .uri(V_1_AGENT_SERVICES)
-        .response((res, byteBufFlux) -> byteBufFlux.asString().map(s -> {
-          List<Service> serviceList = null;
-          String error = null;
-          try {
-            serviceList = rawClient.getObjectMapper().readValue(s, new TypeReference<List<Service>>(){});
-          } catch (IOException e) {
-            error = s;
-          }
-          return new Response<>(serviceList, res, error);
-        }));
+        .response(
+            (res, byteBufFlux) ->
+                byteBufFlux
+                    .asString()
+                    .map(
+                        s -> {
+                          List<Service> serviceList = null;
+                          String error = null;
+                          try {
+                            serviceList =
+                                rawClient
+                                    .getObjectMapper()
+                                    .readValue(s, new TypeReference<List<Service>>() {});
+                          } catch (IOException e) {
+                            error = s;
+                          }
+                          return new Response<>(serviceList, res, error);
+                        }));
   }
 
   @Override
   public Flux<Response<Void>> agentCheckRegister(NewCheck newCheck) {
-      try {
+    try {
 
-        String checkPayload = serializeJson(newCheck);
-        return rawClient.getHttpClient()
-            .put()
-            .send(Mono.just(Unpooled.copiedBuffer(checkPayload.getBytes())))
-            .response((httpClientResponse, byteBufFlux) ->
-                Flux.create(sink -> {
-                    boolean[] responses = new boolean[1];
-                    byteBufFlux
+      String checkPayload = serializeJson(newCheck);
+      return rawClient
+          .getHttpClient()
+          .put()
+          .send(Mono.just(Unpooled.copiedBuffer(checkPayload.getBytes())))
+          .response(
+              (httpClientResponse, byteBufFlux) ->
+                  Flux.create(
+                      sink -> {
+                        boolean[] responses = new boolean[1];
+                        byteBufFlux
                             .asString()
-                            .doOnNext(s -> {
-                                responses[0] = true;
-                                if (httpClientResponse.status() != HttpResponseStatus.OK) {
+                            .doOnNext(
+                                s -> {
+                                  responses[0] = true;
+                                  if (httpClientResponse.status() != HttpResponseStatus.OK) {
                                     sink.next(new Response<>(null, httpClientResponse, s));
-                                } else {
+                                  } else {
                                     sink.next(new Response<>(null, httpClientResponse, null));
-                                }
-                            })
-                            .doOnComplete(() -> {
-                                if (!responses[0]) {
+                                  }
+                                })
+                            .doOnComplete(
+                                () -> {
+                                  if (!responses[0]) {
                                     sink.next(new Response<>(null, httpClientResponse, null));
-                                }
-                                sink.complete();
-                            })
+                                  }
+                                  sink.complete();
+                                })
                             .subscribe();
-                })
-            );
-      } catch (JsonProcessingException e) {
-          e.printStackTrace();
-          return Flux.just(new Response<>(null, new EmptyHttpClientResponse(), e.getMessage()));
-      }
+                      }));
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
+      return Flux.just(new Response<>(null, new EmptyHttpClientResponse(), e.getMessage()));
+    }
   }
 
   @Override
@@ -152,10 +166,12 @@ public final class AgentConsulClient implements AgentClient {
 
   @Override
   public Flux<Response<Void>> agentCheckPass(String checkId, String note) {
-//    URL
-//    return rawClient.getHttpClient().put().uri(Utils.appendUri(String.format(V_1_TTL_CHECK_PASS, checkId)).response(((httpClientResponse, byteBufFlux) -> {
-//      return Mono.just(new Response<Void>(null, httpClientResponse));
-//    }));
+    //    URL
+    //    return
+    // rawClient.getHttpClient().put().uri(Utils.appendUri(String.format(V_1_TTL_CHECK_PASS,
+    // checkId)).response(((httpClientResponse, byteBufFlux) -> {
+    //      return Mono.just(new Response<Void>(null, httpClientResponse));
+    //    }));
     return null;
   }
 
@@ -190,14 +206,14 @@ public final class AgentConsulClient implements AgentClient {
   }
 
   @Override
-  public Flux<Response<Void>> agentServiceSetMaintenance(String serviceId,
-      boolean maintenanceEnabled) {
+  public Flux<Response<Void>> agentServiceSetMaintenance(
+      String serviceId, boolean maintenanceEnabled) {
     return null;
   }
 
   @Override
-  public Flux<Response<Void>> agentServiceSetMaintenance(String serviceId,
-      boolean maintenanceEnabled, String reason) {
+  public Flux<Response<Void>> agentServiceSetMaintenance(
+      String serviceId, boolean maintenanceEnabled, String reason) {
     return null;
   }
 
