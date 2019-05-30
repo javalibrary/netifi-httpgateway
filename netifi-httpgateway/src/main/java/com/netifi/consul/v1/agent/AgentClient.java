@@ -2,6 +2,7 @@ package com.netifi.consul.v1.agent;
 
 import com.netifi.consul.v1.Response;
 import com.netifi.consul.v1.agent.model.Check;
+import com.netifi.consul.v1.agent.model.CheckUpdate;
 import com.netifi.consul.v1.agent.model.NewCheck;
 import com.netifi.consul.v1.agent.model.NewService;
 import com.netifi.consul.v1.agent.model.Self;
@@ -15,6 +16,8 @@ public interface AgentClient {
   Flux<Response<List<Check>>> getAgentChecks();
 
   Flux<Response<List<Service>>> getAgentServices();
+
+  Flux<Response<Service>> getAgentService(String serviceId);
 
   Flux<Response<Void>> agentCheckRegister(NewCheck newCheck);
 
@@ -31,6 +34,8 @@ public interface AgentClient {
   Flux<Response<Void>> agentCheckFail(String checkId);
 
   Flux<Response<Void>> agentCheckFail(String checkId, String note);
+
+  Flux<Response<Void>> agentCheckUpdate(String checkId, CheckUpdate checkUpdate);
 
   Flux<Response<Void>> agentServiceRegister(NewService newService);
 
