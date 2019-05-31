@@ -22,6 +22,7 @@ public class RandomSelectionWeightedEgressEndpointFactoryPool
     this.availableFactories = new ArrayList<>();
     this.leasedFactories = new HashSet<>();
     this.lastIncoming = Collections.EMPTY_SET;
+    egressEndpointFactorySupplier.get().doOnNext(this::handleEndpointFactorySet).subscribe();
   }
 
   @Override

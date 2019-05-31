@@ -1,9 +1,13 @@
 package com.netifi.httpgateway.bridge.endpoint.egress;
 
+import com.netifi.broker.BrokerClient;
 import com.netifi.httpgateway.bridge.codec.HttpRequestDecoder;
 import com.netifi.httpgateway.bridge.codec.HttpResponseEncoder;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalancer;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalancerFactory;
+import com.netifi.httpgateway.bridge.endpoint.source.BridgeEndpointSourceServer;
+import com.netifi.httpgateway.bridge.endpoint.source.Event;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.HttpRequest;
@@ -11,14 +15,15 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.rsocket.AbstractRSocket;
 import io.rsocket.Payload;
 import io.rsocket.util.ByteBufPayload;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.UnicastProcessor;
+import reactor.core.publisher.*;
 import reactor.netty.ByteBufFlux;
 import reactor.netty.http.client.HttpClientUtils;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -26,13 +31,25 @@ import java.util.concurrent.ConcurrentHashMap;
  * group of endpoints that requests to the service as sent to.
  */
 public class ServiceManagerRSocket extends AbstractRSocket {
+  private static final Logger logger = LoggerFactory.getLogger(ServiceManagerRSocket.class);
   private final Map<String, EgressEndpointLoadBalancer> loadBalancers;
+  private final FluxProcessor<Event, Event> eventProcessor;
   private final EgressEndpointLoadBalancerFactory factory;
 
   public ServiceManagerRSocket(
-      Flux<ServiceEvent> serviceManagerEvents, EgressEndpointLoadBalancerFactory factory) {
+      Flux<ServiceEvent> serviceManagerEvents,
+      EgressEndpointLoadBalancerFactory factory,
+      BrokerClient brokerClient,
+      MeterRegistry registry) {
+    this.eventProcessor = DirectProcessor.<Event>create().serialize();
     this.loadBalancers = new ConcurrentHashMap<>();
     this.factory = factory;
+
+    DefaultBridgeEndpointSource source =
+        new DefaultBridgeEndpointSource(loadBalancers::keySet, eventProcessor);
+
+    brokerClient.addService(
+        new BridgeEndpointSourceServer(source, Optional.of(registry), Optional.empty()));
 
     Disposable disposable = serviceManagerEvents.doOnNext(this::handleEvent).subscribe();
 
@@ -51,13 +68,17 @@ public class ServiceManagerRSocket extends AbstractRSocket {
   private void handleJoinEvent(ServiceJoinEvent serviceEvent) {
     loadBalancers.computeIfAbsent(
         serviceEvent.getServiceId(),
-        s -> factory.createNewLoadBalancer(serviceEvent.getEgressEndpointFactory()));
+        s -> {
+          logger.info("adding new egress service with id {}", s);
+          return factory.createNewLoadBalancer(serviceEvent.getEgressEndpointFactory());
+        });
   }
 
   private void handleLeaveEvent(ServiceLeaveEvent serviceEvent) {
     EgressEndpointLoadBalancer removed = loadBalancers.remove(serviceEvent.getServiceId());
 
     if (removed != null) {
+      logger.info("removing Egress service with id {}", serviceEvent.getServiceId());
       removed.dispose();
     }
   }

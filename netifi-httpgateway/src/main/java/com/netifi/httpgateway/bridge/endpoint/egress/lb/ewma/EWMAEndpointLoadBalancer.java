@@ -256,6 +256,7 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
       if (optional.isPresent()) {
         EgressEndpointFactory<WeightedEgressEndpoint> factory = optional.get();
         WeightedEgressEndpoint endpoint = factory.get();
+        activeEndpoints.add(endpoint);
         endpoint
             .onClose()
             .doFinally(
@@ -265,7 +266,6 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
                   }
                 })
             .subscribe();
-        activeEndpoints.add(endpoint);
       } else {
         break;
       }
