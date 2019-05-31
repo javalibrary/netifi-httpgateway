@@ -16,6 +16,7 @@ import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.ByteBufFlux;
@@ -75,7 +76,7 @@ public final class AgentConsulClient implements AgentClient {
   }
 
   @Override
-  public Flux<Response<List<Check>>> getAgentChecks() {
+  public Flux<Response<Map<String, Check>>> getAgentChecks() {
     return rawClient
         .getHttpClient()
         .get()
@@ -90,13 +91,13 @@ public final class AgentConsulClient implements AgentClient {
                             return new Response<>(
                                 null, httpClientResponse, Utils.ensureErrorString(s));
                           }
-                          List<Check> checkList = null;
+                          Map<String, Check> checkList = null;
                           String error = null;
                           try {
                             checkList =
                                 rawClient
                                     .getObjectMapper()
-                                    .readValue(s, new TypeReference<List<Check>>() {});
+                                    .readValue(s, new TypeReference<Map<String, Check>>() {});
                           } catch (IOException e) {
                             error = s;
                           }

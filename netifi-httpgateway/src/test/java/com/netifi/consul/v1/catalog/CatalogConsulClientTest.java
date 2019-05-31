@@ -20,9 +20,11 @@ public class CatalogConsulClientTest {
 
   @Test
   public void testForDefaultCatalogServices() {
-    CatalogConsulClient catalogConsulClient = new CatalogConsulClient(
-        ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
-    Flux<Response<Map<String, List<String>>>> responseFlux = catalogConsulClient.getCatalogServices(CatalogServicesRequest.newBuilder().build());
+    CatalogConsulClient catalogConsulClient =
+        new CatalogConsulClient(
+            ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
+    Flux<Response<Map<String, List<String>>>> responseFlux =
+        catalogConsulClient.getCatalogServices(CatalogServicesRequest.newBuilder().build());
     Response<Map<String, List<String>>> res = responseFlux.blockFirst();
     Map<String, List<String>> services = res.getValue();
     assertNotNull(services);
@@ -32,8 +34,8 @@ public class CatalogConsulClientTest {
 
   @Test
   public void testForAddingService() {
-    CatalogConsulClient catalogConsulClient = new CatalogConsulClient(
-        ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
+    CatalogConsulClient catalogConsulClient =
+        new CatalogConsulClient(
+            ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
   }
-
 }

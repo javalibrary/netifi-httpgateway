@@ -8,12 +8,13 @@ import com.netifi.consul.v1.agent.model.NewService;
 import com.netifi.consul.v1.agent.model.Self;
 import com.netifi.consul.v1.agent.model.Service;
 import java.util.List;
+import java.util.Map;
 import reactor.core.publisher.Flux;
 
 public interface AgentClient {
   Flux<Response<Self>> getAgentSelf();
 
-  Flux<Response<List<Check>>> getAgentChecks();
+  Flux<Response<Map<String, Check>>> getAgentChecks();
 
   Flux<Response<List<Service>>> getAgentServices();
 

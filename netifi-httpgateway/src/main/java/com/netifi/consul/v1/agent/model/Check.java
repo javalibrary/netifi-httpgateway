@@ -1,6 +1,7 @@
 package com.netifi.consul.v1.agent.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.netifi.consul.v1.health.model.HealthCheckDefinition;
 import java.util.List;
 
 public class Check {
@@ -48,6 +49,9 @@ public class Check {
 
   @JsonProperty("ModifyIndex")
   private Long modifyIndex;
+
+  @JsonProperty("Definition")
+  private HealthCheckDefinition healthCheckDefinition;
 
   public String getNode() {
     return node;
@@ -135,6 +139,14 @@ public class Check {
 
   public void setModifyIndex(Long modifyIndex) {
     this.modifyIndex = modifyIndex;
+  }
+
+  public HealthCheckDefinition getHealthCheckDefinition() {
+    return healthCheckDefinition;
+  }
+
+  public void setHealthCheckDefinition(HealthCheckDefinition healthCheckDefinition) {
+    this.healthCheckDefinition = healthCheckDefinition;
   }
 
   @Override
