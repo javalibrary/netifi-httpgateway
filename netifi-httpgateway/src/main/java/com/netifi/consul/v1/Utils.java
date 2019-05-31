@@ -1,5 +1,6 @@
 package com.netifi.consul.v1;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import reactor.netty.http.client.HttpClientResponse;
 
 public class Utils {
 
@@ -136,5 +138,14 @@ public class Utils {
             oldUri.getFragment());
 
     return newUri;
+  }
+
+  public static boolean responseStatusNotOK(HttpClientResponse httpClientResponse) {
+    return !httpClientResponse.status().equals(HttpResponseStatus.OK);
+  }
+
+  public static String ensureErrorString(String requestBody) {
+    requestBody = requestBody.equals("") ? "err: empty body chk status code" : requestBody;
+    return requestBody;
   }
 }

@@ -8,12 +8,16 @@ public class Config {
 
   @JsonProperty("Datacenter")
   public String datacenter;
+
   @JsonProperty("NodeName")
   public String nodeName;
+
   @JsonProperty("Revision")
   public String revision;
+
   @JsonProperty("Server")
   public boolean server;
+
   @JsonProperty("Version")
   public String version;
 

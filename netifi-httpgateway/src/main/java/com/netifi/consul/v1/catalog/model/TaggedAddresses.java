@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class TaggedAddresses {
   @JsonProperty("wan")
   public String wan;
+
   @JsonProperty("lan")
   public String lan;
 

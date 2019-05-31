@@ -3,6 +3,7 @@ package com.netifi.consul.v1.agent;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.netifi.consul.v1.ConsulRawClient;
 import com.netifi.consul.v1.Response;
@@ -25,17 +26,31 @@ public class AgentConsulClientTest {
     AgentConsulClient agentConsulClient = new AgentConsulClient(ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
     Response<Self> self = agentConsulClient.getAgentSelf().blockLast();
     assertNotNull(self);
+    assertFalse(self.hasError());
     assertEquals(self.getValue().getConfig().getDatacenter(), "dc1");
+  }
+
+  @Test
+  public void registerInvalidCheck() {
+    NewCheck newCheck = new NewCheck();
+    newCheck.setName("testCheck");
+    AgentConsulClient agentConsulClient = new AgentConsulClient(ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
+    Response response = agentConsulClient.agentCheckRegister(newCheck).blockFirst();
+    assertNotNull(response);
+    assertTrue(response.hasError());
+    assertEquals(HttpResponseStatus.BAD_REQUEST, response.getHttpResponseStatus());
+    assertTrue(response.getError().contains("TTL must be > 0"));
   }
 
   @Test
   public void registerCheck() {
     NewCheck newCheck = new NewCheck();
     newCheck.setName("testCheck");
+    newCheck.setTtl("3s");
     AgentConsulClient agentConsulClient = new AgentConsulClient(ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
     Response response = agentConsulClient.agentCheckRegister(newCheck).blockFirst();
     assertNotNull(response);
     assertFalse(response.hasError());
-    assertEquals(HttpResponseStatus.ACCEPTED, response.getHttpResponseStatus());
+    assertEquals(HttpResponseStatus.OK, response.getHttpResponseStatus());
   }
 }

@@ -13,70 +13,103 @@ public class DebugConfig {
 
   @JsonProperty("ACLAgentMasterToken")
   public String aclAgentMasterToken;
+
   @JsonProperty("ACLAgentToken")
   public String aclAgentToken;
+
   @JsonProperty("ACLDatacenter")
   public String aclDatacenter;
+
   @JsonProperty("ACLDefaultPolicy")
   public String aclDefaultPolicy;
+
   @JsonProperty("ACLDisabledTTL")
   public String aclDisabledTTL;
+
   @JsonProperty("ACLDownPolicy")
   public String aclDownPolicy;
+
   @JsonProperty("ACLEnableKeyListPolicy")
   public String aclEnableKeyListPolicy;
+
   @JsonProperty("ACLEnforceVersion8")
   public String aclEnforceVersion8;
+
   @JsonProperty("ACLMasterToken")
   public String aclMasterToken;
+
   @JsonProperty("ACLPolicyTTL")
   public String aclPolicyTTL;
+
   @JsonProperty("ACLReplicationToken")
   public String aclReplicationToken;
+
   @JsonProperty("ACLToken")
   public String aclToken;
+
   @JsonProperty("ACLTokenReplication")
   public boolean aclTokenReplication;
+
   @JsonProperty("ACLTokenTTL")
   public String aclTokenTTL;
+
   @JsonProperty("ACLsEnabled")
   public boolean aclsEnabled;
+
   @JsonProperty("AEInterval")
   public String aeInterval;
+
   @JsonProperty("AdvertiseAddrLAN")
   public String advertiseAddrLan;
+
   @JsonProperty("AdvertiseAddrWAN")
   public String advertiseAddrWAN;
+
   @JsonProperty("AutopilotCleanupDeadServers")
   public boolean autopilotCleanupDeadServers;
+
   @JsonProperty("AutopilotDisableUpgradeMigration")
   public boolean autopilotDisableUpgradeMigration;
+
   @JsonProperty("AutopilotLastContactThreshold")
   public String autopilotLastContactThreshold;
+
   @JsonProperty("AutopilotMaxTrailingLogs")
   public int autopilotMaxTrailingLogs;
+
   @JsonProperty("AutopilotRedundancyZoneTag")
   public String autopilotRedundancyZoneTag;
+
   @JsonProperty("AutopilotServerStabilizationTime")
   public String autopilotServerStabilizationTime;
+
   @JsonProperty("AutopilotUpgradeVersionTag")
   public String autopilotUpgradeVersionTag;
+
   @JsonProperty("BindAddr")
   public String bindAddr;
+
   @JsonProperty("Bootstrap")
   public boolean bootstrap;
+
   @JsonProperty("BootstrapExpect")
   public int bootstrapExpect;
+
   @JsonProperty("CAFile")
   public String caFile;
+
   @JsonProperty("CAPath")
   public String caPath;
+
   @JsonProperty("CertFile")
   public String certFile;
+
   @JsonProperty("CheckDeregisterIntervalMin")
   public String checkDeregisterIntervalMin;
+
   @JsonProperty("CheckReapInterval")
   public String checkReapInterval;
+
   @JsonProperty("CheckUpdateInterval")
   public String checkUpdateInterval;
   // TODO: checks
@@ -85,294 +118,436 @@ public class DebugConfig {
   // TODO: connectCAConfig
   @JsonProperty("ConnectCAProvider")
   public boolean connectEnabled;
+
   @JsonProperty("ConnectProxyAllowManagedAPIRegistration")
   public boolean connectProxyAllowManagedAPIRegistration;
+
   @JsonProperty("ConnectProxyAllowManagedRoot")
   public boolean connectProxyAllowManagedRoot;
+
   @JsonProperty("ConnectProxyBindMaxPort")
   public int connectProxyBindMaxPort;
+
   @JsonProperty("ConnectProxyBindMinPort")
   public int connectProxyBindMinPort;
   // TODO: connectProxyDefaultConfig
   @JsonProperty("ConnectProxyDefaultDaemonCommand")
   public List<String> connectProxyDefaultDaemonCommand;
+
   @JsonProperty("ConnectProxyDefaultExecMode")
   public String connectProxyDefaultExecMode;
+
   @JsonProperty("ConnectProxyDefaultScriptCommand")
   public List<String> connectProxyDefaultScriptCommand;
+
   @JsonProperty("ConnectReplicationToken")
   public String connectReplicationToken;
+
   @JsonProperty("ConnectSidecarMaxPort")
   public int connectSidecarMaxPort;
+
   @JsonProperty("ConnectSidecarMinPort")
   public int connectSidecarMinPort;
+
   @JsonProperty("ConnectTestDisableManagedProxies")
   public boolean connectTestDisableManagedProxies;
+
   @JsonProperty("ConsulCoordinateUpdateBatchSize")
   public int consulCoordinateUpdateBatchSize;
+
   @JsonProperty("ConsulCoordinateUpdateMaxBatches")
   public int consulCoordinateUpdateMaxBatches;
+
   @JsonProperty("ConsulCoordinateUpdatePeriod")
   public String consulCoordinateUpdatePeriod;
+
   @JsonProperty("ConsulRaftElectionTimeout")
   public String consulRaftElectionTimeout;
+
   @JsonProperty("ConsulRaftHeartbeatTimeout")
   public String consulRaftHeartbeatTimeout;
+
   @JsonProperty("ConsulRaftLeaderLeaseTimeout")
   public String consulRaftLeaderLeaseTimeout;
+
   @JsonProperty("ConsulServerHealthInterval")
   public String consulServerHealthInterval;
+
   @JsonProperty("DNSARecordLimit")
   public int dnsARecordLimit;
+
   @JsonProperty("DNSAddrs")
   public List<URI> dnsAddrs;
+
   @JsonProperty("DNSAllowStale")
   public boolean dnsAllowStale;
+
   @JsonProperty("DNSDisableCompression")
   public boolean dnsDisableCompression;
+
   @JsonProperty("DNSDomain")
   public String dnsDomain;
+
   @JsonProperty("DNSEnableTruncate")
   public boolean dnsEnableTruncate;
+
   @JsonProperty("DNSMaxStale")
   public String dnsMaxStale;
+
   @JsonProperty("DNSNodeMetaTXT")
   public boolean dnsNodeMetaTXT;
+
   @JsonProperty("DNSNodeTTL")
   public String dnsNodeTTL;
+
   @JsonProperty("DNSOnlyPassing")
   public boolean dnsOnlyPassing;
+
   @JsonProperty("DNSPort")
   public int dnsPort;
+
   @JsonProperty("DNSRecursorTimeout")
   public String dnsRecursorTimeout;
+
   @JsonProperty("DNSRecursors")
   public List<String> dnsRecursors;
+
   @JsonProperty("DNSSOA")
   public DNSSOA dnsSOA;
+
   @JsonProperty("DNSServiceTTL")
   public Map<String, String> dnsServiceTTL;
+
   @JsonProperty("DNSUDPAnswerLimit")
   public int dnsUDPAnswerLimit;
+
   @JsonProperty("DataDir")
   public String dataDir;
+
   @JsonProperty("Datacenter")
   public String datacenter;
+
   @JsonProperty("DevMode")
   public boolean devMode;
+
   @JsonProperty("DisableAnonymousSignature")
   public boolean disableAnonymousSignature;
+
   @JsonProperty("DisableCoordinates")
   public boolean disableCoordinates;
+
   @JsonProperty("DisableHTTPUnprintableCharFilter")
   public boolean disableHTTPUnprintableCharFilter;
+
   @JsonProperty("DisableHostNodeID")
   public boolean disableHostNodeID;
+
   @JsonProperty("DisableKeyringFile")
   public boolean disableKeyringFile;
+
   @JsonProperty("DisableRemoteExec")
   public boolean disableRemoteExec;
+
   @JsonProperty("DisableUpdateCheck")
   public boolean disableUpdateCheck;
+
   @JsonProperty("DiscardCheckOutput")
   public boolean discardCheckOutput;
+
   @JsonProperty("DiscoveryMaxStale")
   public String discoveryMaxStale;
+
   @JsonProperty("EnableAgentTLSForChecks")
   public boolean enableAgentTLSForChecks;
+
   @JsonProperty("EnableDebug")
   public boolean enableDebug;
+
   @JsonProperty("EnableLocalScriptChecks")
   public boolean enableLocalScriptChecks;
+
   @JsonProperty("EnableRemoteScriptChecks")
   public boolean enableRemoteScriptChecks;
+
   @JsonProperty("EnableSyslog")
   public boolean enableSyslog;
+
   @JsonProperty("EnableUI")
   public boolean enableUI;
+
   @JsonProperty("EncryptKey")
   public String encryptKey;
+
   @JsonProperty("EncryptVerifyIncoming")
   public boolean encryptVerifyIncoming;
+
   @JsonProperty("EncryptVerifyOutgoing")
   public boolean encryptVerifyOutgoing;
+
   @JsonProperty("GRPCAddrs")
   public List<URI> grpcAddrs;
+
   @JsonProperty("GRPCPort")
   public int grpcPort;
+
   @JsonProperty("GossipLANGossipInterval")
   public String gossipLANGossipInterval;
+
   @JsonProperty("GossipLANGossipNodes")
   public int gossipLANGossipNodes;
+
   @JsonProperty("GossipLANProbeInterval")
   public String gossipLANProbeInterval;
+
   @JsonProperty("GossipLANProbeTimeout")
   public String gossipLANProbeTimeout;
+
   @JsonProperty("GossipLANRetransmitMult")
   public int gossipLANRetransmitMult;
+
   @JsonProperty("GossipLANSuspicionMult")
   public int gossipLANSuspicionMult;
+
   @JsonProperty("GossipWANGossipInterval")
   public String gossipWANGossipInterval;
+
   @JsonProperty("GossipWANGossipNodes")
   public int gossipWANGossipNodes;
+
   @JsonProperty("GossipWANProbeInterval")
   public String gossipWANProbeInterval;
+
   @JsonProperty("GossipWANProbeTimeout")
   public String gossipWANProbeTimeout;
+
   @JsonProperty("GossipWANRetransmitMult")
   public int gossipWANRetransmitMult;
+
   @JsonProperty("GossipWANSuspicionMult")
   public int gossipWANSuspicionMult;
+
   @JsonProperty("HTTPAddrs")
   public List<URI> httpAddrs;
+
   @JsonProperty("HTTPBlockEndpoints")
   public List<String> httpBlockEndpoints;
+
   @JsonProperty("HTTPPort")
   public int httpPort;
+
   @JsonProperty("HTTPResponseHeaders")
   public Map<String, String> httpResponseHeaders;
+
   @JsonProperty("HTTPSAddrs")
   public List<URI> httpsAddrs;
+
   @JsonProperty("HTTPSPort")
   public int httpsPort;
+
   @JsonProperty("KeyFile")
   public String keyFile;
+
   @JsonProperty("LeaveDrainTime")
   public String leaveDrainTime;
+
   @JsonProperty("LeaveOnTerm")
   public boolean leaveOnTerm;
+
   @JsonProperty("LogFile")
   public String logFile;
+
   @JsonProperty("LogLevel")
   public String logLevel;
+
   @JsonProperty("LogRotateBytes")
   public int logRotateBytes;
+
   @JsonProperty("LogRotateDuration")
   public String logRotateDuration;
+
   @JsonProperty("NodeID")
   public String nodeID;
+
   @JsonProperty("NodeMeta")
   public Map<String, String> nodeMeta;
+
   @JsonProperty("NodeName")
   public String nodeName;
+
   @JsonProperty("NonVotingServer")
   public boolean nonVotingServer;
+
   @JsonProperty("PidFile")
   public String pidFile;
+
   @JsonProperty("PrimaryDatacenter")
   public String primaryDatacenter;
+
   @JsonProperty("RPCAdvertiseAddr")
   public URI rpcAdvertiseAddr;
+
   @JsonProperty("RPCBindAddr")
   public URI rpcBindAddr;
+
   @JsonProperty("RPCHoldTimeout")
   public String rpcHoldTimeout;
+
   @JsonProperty("RPCMaxBurst")
   public int rpcMaxBurst;
+
   @JsonProperty("RPCProtocol")
   public int rpcProtocol;
+
   @JsonProperty("RPCRateLimit")
   public int rpcRateLimit;
+
   @JsonProperty("RaftProtocol")
   public int raftProtocol;
+
   @JsonProperty("RaftSnapshotInterval")
   public String raftSnapshotInterval;
+
   @JsonProperty("RaftSnapshotThreshold")
   public int raftSnapshotThreshold;
+
   @JsonProperty("ReconnectTimeoutLAN")
   public String reconnectTimeoutLAN;
+
   @JsonProperty("ReconnectTimeoutWAN")
   public String reconnectTimeoutWAN;
+
   @JsonProperty("RejoinAfterLeave")
   public boolean rejoinAfterLeave;
+
   @JsonProperty("RetryJoinIntervalLAN")
   public String retryJoinIntervalLAN;
+
   @JsonProperty("RetryJoinIntervalWAN")
   public String retryJoinIntervalWAN;
+
   @JsonProperty("RetryJoinLAN")
   public List<String> retryJoinLAN;
+
   @JsonProperty("RetryJoinMaxAttemptsLAN")
   public int retryJoinMaxAttemptsLAN;
+
   @JsonProperty("RetryJoinMaxAttemptsWAN")
   public int retryJoinMaxAttemptsWAN;
+
   @JsonProperty("RetryJoinWAN")
   public List<String> retryJoinWAN;
+
   @JsonProperty("Revision")
   public String revision;
+
   @JsonProperty("SegmentLimit")
   public int segmentLimit;
+
   @JsonProperty("SegmentName")
   public String segmentName;
+
   @JsonProperty("SegmentNameLimit")
   public int segmentNameLimit;
+
   @JsonProperty("Segments")
   public List<NetworkSegment> segments;
+
   @JsonProperty("SerfAdvertiseAddrLAN")
   public URI serfAdvertiseAddrLAN;
+
   @JsonProperty("SerfAdvertiseAddrWAN")
   public URI serfAdvertiseAddrWAN;
+
   @JsonProperty("SerfBindAddrLAN")
   public URI serfBindAddrLAN;
+
   @JsonProperty("SerfBindAddrWAN")
   public URI serfBindAddrWAN;
+
   @JsonProperty("SerfPortLAN")
   public int serfPortLAN;
+
   @JsonProperty("SerfPortWAN")
   public int serfPortWAN;
+
   @JsonProperty("ServerMode")
   public boolean serverMode;
+
   @JsonProperty("ServerName")
   public String serverName;
+
   @JsonProperty("ServerPort")
   public int serverPort;
   // TODO: Services
   @JsonProperty("SessionTTLMin")
   public String sessionTTLMin;
+
   @JsonProperty("SkipLeaveOnInt")
   public boolean skipLeaveOnInt;
+
   @JsonProperty("StartJoinAddrsLAN")
   public List<String> startJoinAddrsLAN;
+
   @JsonProperty("StartJoinAddrsWAN")
   public List<String> startJoinAddrsWAN;
+
   @JsonProperty("SyncCoordinateIntervalMin")
   public String syncCoordinateIntervalMin;
+
   @JsonProperty("SyncCoordinateRateTarget")
   public int syncCoordinateRateTarget;
+
   @JsonProperty("SyslogFacility")
   public String syslogFacility;
+
   @JsonProperty("TLSCipherSuites")
   public List<Integer> tlsCipherSuites;
+
   @JsonProperty("TLSMinVersion")
   public String tlsMinVersion;
+
   @JsonProperty("TLSPreferServerCipherSuites")
   public boolean tlsPreferServerCipherSuites;
+
   @JsonProperty("TaggedAddresses")
   public TaggedAddresses taggedAddresses;
+
   @JsonProperty("Telemetry")
   public Telemetry telemetry;
+
   @JsonProperty("TranslateWANAddrs")
   public boolean translateWANAddrs;
+
   @JsonProperty("UiDir")
   public Optional<String> uiDir;
+
   @JsonProperty("UnixSocketGroup")
   public String unixSocketGroup;
+
   @JsonProperty("UnixSocketMode")
   public String unixSocketMode;
+
   @JsonProperty("UnixSocketUser")
   public String unixSocketUser;
+
   @JsonProperty("VerifyIncoming")
   public boolean verifyIncoming;
+
   @JsonProperty("VerifyIncomingHTTPS")
   public boolean verifyIncomingHTTPS;
+
   @JsonProperty("VerifyIncomingRPC")
   public boolean verifyIncomingRPC;
+
   @JsonProperty("VerifyOutgoing")
   public boolean verifyOutgoing;
+
   @JsonProperty("VerifyServerHostname")
   public boolean verifyServerHostname;
+
   @JsonProperty("Version")
   public String version;
+
   @JsonProperty("VersionPrerelease")
   public String versionPrerelease;
   // TODO: Watches
@@ -702,8 +877,7 @@ public class DebugConfig {
     return connectProxyDefaultDaemonCommand;
   }
 
-  public void setConnectProxyDefaultDaemonCommand(
-      List<String> connectProxyDefaultDaemonCommand) {
+  public void setConnectProxyDefaultDaemonCommand(List<String> connectProxyDefaultDaemonCommand) {
     this.connectProxyDefaultDaemonCommand = connectProxyDefaultDaemonCommand;
   }
 
@@ -719,8 +893,7 @@ public class DebugConfig {
     return connectProxyDefaultScriptCommand;
   }
 
-  public void setConnectProxyDefaultScriptCommand(
-      List<String> connectProxyDefaultScriptCommand) {
+  public void setConnectProxyDefaultScriptCommand(List<String> connectProxyDefaultScriptCommand) {
     this.connectProxyDefaultScriptCommand = connectProxyDefaultScriptCommand;
   }
 
@@ -1552,8 +1725,7 @@ public class DebugConfig {
     return segments;
   }
 
-  public void setSegments(
-      List<NetworkSegment> segments) {
+  public void setSegments(List<NetworkSegment> segments) {
     this.segments = segments;
   }
 
@@ -1825,10 +1997,13 @@ public class DebugConfig {
 
     @JsonProperty("Expire")
     public int expire;
+
     @JsonProperty("Minttl")
     public int minttl;
+
     @JsonProperty("Refresh")
     public int refresh;
+
     @JsonProperty("Retry")
     public int retry;
 
@@ -1869,12 +2044,16 @@ public class DebugConfig {
 
     @JsonProperty("Name")
     public String name;
+
     @JsonProperty("Bind")
     public String bind;
+
     @JsonProperty("Port")
     public int port;
+
     @JsonProperty("Advertise")
     public String advertise;
+
     @JsonProperty("RPCAddr")
     public URI rpcAddr;
 
@@ -1923,48 +2102,70 @@ public class DebugConfig {
 
     @JsonProperty("AllowedPrefixes")
     public List<String> allowedPrefixes;
+
     @JsonProperty("BlockedPrefixes")
     public List<String> blockedPrefixes;
+
     @JsonProperty("CirconusAPIApp")
     public String circonusAPIApp;
+
     @JsonProperty("CirconusAPIToken")
     public String circonusAPIToken;
+
     @JsonProperty("CirconusAPIURL")
     public String circonusAPIURL;
+
     @JsonProperty("CirconusBrokerID")
     public String circonusBrokerID;
+
     @JsonProperty("CirconusBrokerSelectTag")
     public String circonusBrokerSelectTag;
+
     @JsonProperty("CirconusCheckDisplayName")
     public String circonusCheckDisplayName;
+
     @JsonProperty("CirconusCheckForceMetricActivation")
     public String circonusCheckForceMetricActivation;
+
     @JsonProperty("CirconusCheckID")
     public String circonusCheckID;
+
     @JsonProperty("CirconusCheckInstanceID")
     public String circonusCheckInstanceID;
+
     @JsonProperty("CirconusCheckSearchTag")
     public String circonusCheckSearchTag;
+
     @JsonProperty("CirconusCheckTags")
     public String circonusCheckTags;
+
     @JsonProperty("CirconusSubmissionInterval")
     public String circonusSubmissionInterval;
+
     @JsonProperty("CirconusSubmissionURL")
     public String circonusSubmissionURL;
+
     @JsonProperty("DisableHostname")
     public boolean disableHostname;
+
     @JsonProperty("DogstatsdAddr")
     public String dogstatsdAddr;
+
     @JsonProperty("DogstatsdTags")
     public List<String> dogstatsdTags;
+
     @JsonProperty("FilterDefault")
     public boolean filterDefault;
+
     @JsonProperty("MetricsPrefix")
     public String metricsPrefix;
+
     @JsonProperty("PrometheusRetentionTime")
     public String prometheusRetentionTime;
+
     @JsonProperty("StatsdAddr")
     public String statsdAddr;
+
     @JsonProperty("StatsiteAddr")
     public String statsiteAddr;
 

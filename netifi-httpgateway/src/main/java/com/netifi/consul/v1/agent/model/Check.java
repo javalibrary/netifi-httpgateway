@@ -139,18 +139,36 @@ public class Check {
 
   @Override
   public String toString() {
-    return "Check{" +
-        "node='" + node + '\'' +
-        ", checkId='" + checkId + '\'' +
-        ", name='" + name + '\'' +
-        ", status=" + status +
-        ", notes='" + notes + '\'' +
-        ", output='" + output + '\'' +
-        ", serviceId='" + serviceId + '\'' +
-        ", serviceName='" + serviceName + '\'' +
-        ", serviceTags=" + serviceTags +
-        ", createIndex=" + createIndex +
-        ", modifyIndex=" + modifyIndex +
-        '}';
+    return "Check{"
+        + "node='"
+        + node
+        + '\''
+        + ", checkId='"
+        + checkId
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", status="
+        + status
+        + ", notes='"
+        + notes
+        + '\''
+        + ", output='"
+        + output
+        + '\''
+        + ", serviceId='"
+        + serviceId
+        + '\''
+        + ", serviceName='"
+        + serviceName
+        + '\''
+        + ", serviceTags="
+        + serviceTags
+        + ", createIndex="
+        + createIndex
+        + ", modifyIndex="
+        + modifyIndex
+        + '}';
   }
 }

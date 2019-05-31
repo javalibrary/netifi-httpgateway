@@ -107,16 +107,28 @@ public class Service {
 
   @Override
   public String toString() {
-    return "Service{" +
-        "id='" + id + '\'' +
-        ", service='" + service + '\'' +
-        ", tags=" + tags +
-        ", address='" + address + '\'' +
-        ", meta=" + meta +
-        ", port=" + port +
-        ", enableTagOverride=" + enableTagOverride +
-        ", createIndex=" + createIndex +
-        ", modifyIndex=" + modifyIndex +
-        '}';
+    return "Service{"
+        + "id='"
+        + id
+        + '\''
+        + ", service='"
+        + service
+        + '\''
+        + ", tags="
+        + tags
+        + ", address='"
+        + address
+        + '\''
+        + ", meta="
+        + meta
+        + ", port="
+        + port
+        + ", enableTagOverride="
+        + enableTagOverride
+        + ", createIndex="
+        + createIndex
+        + ", modifyIndex="
+        + modifyIndex
+        + '}';
   }
 }

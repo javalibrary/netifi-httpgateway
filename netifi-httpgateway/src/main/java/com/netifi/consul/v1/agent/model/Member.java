@@ -1,7 +1,6 @@
 package com.netifi.consul.v1.agent.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
@@ -10,24 +9,34 @@ public class Member {
 
   @JsonProperty("Name")
   public String name;
+
   @JsonProperty("Address")
   public String address;
+
   @JsonProperty("Port")
   public int port;
+
   @JsonProperty("Tags")
   public Map<String, String> tags;
+
   @JsonProperty("Status")
   public int status;
+
   @JsonProperty("ProtocolMin")
   public int protocolMin;
+
   @JsonProperty("ProtocolMax")
   public int protocolMax;
+
   @JsonProperty("ProtocolCur")
   public int protocolCur;
+
   @JsonProperty("DelegateMin")
   public int delegateMin;
+
   @JsonProperty("DelegateMax")
   public int delegateMax;
+
   @JsonProperty("DelegateCur")
   public int delegateCur;
 

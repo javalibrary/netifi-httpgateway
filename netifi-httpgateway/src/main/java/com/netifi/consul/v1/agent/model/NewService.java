@@ -153,21 +153,45 @@ public class NewService {
 
     @Override
     public String toString() {
-      return "Check{" +
-          "script='" + script + '\'' +
-          ", interval='" + interval + '\'' +
-          ", ttl='" + ttl + '\'' +
-          ", http='" + http + '\'' +
-          ", method='" + method + '\'' +
-          ", header=" + header +
-          ", tcp='" + tcp + '\'' +
-          ", timeout='" + timeout + '\'' +
-          ", dockerContainerID='" + dockerContainerID + '\'' +
-          ", shell='" + shell + '\'' +
-          ", deregisterCriticalServiceAfter='" + deregisterCriticalServiceAfter + '\'' +
-          ", tlsSkipVerify=" + tlsSkipVerify +
-          ", status='" + status + '\'' +
-          '}';
+      return "Check{"
+          + "script='"
+          + script
+          + '\''
+          + ", interval='"
+          + interval
+          + '\''
+          + ", ttl='"
+          + ttl
+          + '\''
+          + ", http='"
+          + http
+          + '\''
+          + ", method='"
+          + method
+          + '\''
+          + ", header="
+          + header
+          + ", tcp='"
+          + tcp
+          + '\''
+          + ", timeout='"
+          + timeout
+          + '\''
+          + ", dockerContainerID='"
+          + dockerContainerID
+          + '\''
+          + ", shell='"
+          + shell
+          + '\''
+          + ", deregisterCriticalServiceAfter='"
+          + deregisterCriticalServiceAfter
+          + '\''
+          + ", tlsSkipVerify="
+          + tlsSkipVerify
+          + ", status='"
+          + status
+          + '\''
+          + '}';
     }
   }
 
@@ -272,16 +296,28 @@ public class NewService {
 
   @Override
   public String toString() {
-    return "NewService{" +
-        "id='" + id + '\'' +
-        ", name='" + name + '\'' +
-        ", tags=" + tags +
-        ", address='" + address + '\'' +
-        ", meta=" + meta +
-        ", port=" + port +
-        ", enableTagOverride=" + enableTagOverride +
-        ", check=" + check +
-        ", checks=" + checks +
-        '}';
+    return "NewService{"
+        + "id='"
+        + id
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", tags="
+        + tags
+        + ", address='"
+        + address
+        + '\''
+        + ", meta="
+        + meta
+        + ", port="
+        + port
+        + ", enableTagOverride="
+        + enableTagOverride
+        + ", check="
+        + check
+        + ", checks="
+        + checks
+        + '}';
   }
 }

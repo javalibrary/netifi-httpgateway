@@ -18,9 +18,7 @@ public class NewCheck {
   @JsonProperty("Notes")
   private String notes;
 
-  /**
-   * @deprecated Please use Args parameter instead
-   */
+  /** @deprecated Please use Args parameter instead */
   @JsonProperty("Script")
   @Deprecated
   private String script;
@@ -102,17 +100,13 @@ public class NewCheck {
     this.notes = notes;
   }
 
-  /**
-   * @deprecated Please use Args parameter instead
-   */
+  /** @deprecated Please use Args parameter instead */
   @Deprecated
   public String getScript() {
     return script;
   }
 
-  /**
-   * @deprecated Please use Args parameter instead
-   */
+  /** @deprecated Please use Args parameter instead */
   @Deprecated
   public void setScript(String script) {
     this.script = script;
@@ -240,27 +234,63 @@ public class NewCheck {
 
   @Override
   public String toString() {
-    return "NewCheck{" +
-        "id='" + id + '\'' +
-        ", name='" + name + '\'' +
-        ", serviceId='" + serviceId + '\'' +
-        ", notes='" + notes + '\'' +
-        ", script='" + script + '\'' +
-        ", args=" + args +
-        ", http='" + http + '\'' +
-        ", method='" + method + '\'' +
-        ", header=" + header +
-        ", tcp='" + tcp + '\'' +
-        ", dockerContainerID='" + dockerContainerID + '\'' +
-        ", shell='" + shell + '\'' +
-        ", interval='" + interval + '\'' +
-        ", timeout='" + timeout + '\'' +
-        ", ttl='" + ttl + '\'' +
-        ", deregisterCriticalServiceAfter='" + deregisterCriticalServiceAfter + '\'' +
-        ", tlsSkipVerify=" + tlsSkipVerify +
-        ", status='" + status + '\'' +
-        ", grpc='" + grpc + '\'' +
-        ", grpcUseTLS=" + grpcUseTLS +
-        '}';
+    return "NewCheck{"
+        + "id='"
+        + id
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", serviceId='"
+        + serviceId
+        + '\''
+        + ", notes='"
+        + notes
+        + '\''
+        + ", script='"
+        + script
+        + '\''
+        + ", args="
+        + args
+        + ", http='"
+        + http
+        + '\''
+        + ", method='"
+        + method
+        + '\''
+        + ", header="
+        + header
+        + ", tcp='"
+        + tcp
+        + '\''
+        + ", dockerContainerID='"
+        + dockerContainerID
+        + '\''
+        + ", shell='"
+        + shell
+        + '\''
+        + ", interval='"
+        + interval
+        + '\''
+        + ", timeout='"
+        + timeout
+        + '\''
+        + ", ttl='"
+        + ttl
+        + '\''
+        + ", deregisterCriticalServiceAfter='"
+        + deregisterCriticalServiceAfter
+        + '\''
+        + ", tlsSkipVerify="
+        + tlsSkipVerify
+        + ", status='"
+        + status
+        + '\''
+        + ", grpc='"
+        + grpc
+        + '\''
+        + ", grpcUseTLS="
+        + grpcUseTLS
+        + '}';
   }
 }

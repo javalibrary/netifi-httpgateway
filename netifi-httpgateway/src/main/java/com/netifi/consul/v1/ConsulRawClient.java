@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.json.JsonObjectDecoder;
+import io.netty.handler.codec.string.StringDecoder;
 import java.net.URISyntaxException;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -24,13 +25,21 @@ import reactor.netty.http.client.HttpClientResponse;
 public class ConsulRawClient {
 
   private final ObjectMapper objectMapper = new ObjectMapper();
-  private static final JsonObjectDecoder jsonObjectDecoder = new JsonObjectDecoder();
 
   private static final String DEFAULT_HOST = "localhost";
   private static final int DEFAULT_PORT = 8500;
   private static final String DEFAULT_PATH = "";
   private static final HttpClient DEFAULT_HTTP_CLIENT =
-      HttpClient.create().doOnResponse((res, conn) -> conn.addHandler(jsonObjectDecoder));
+      HttpClient.create()
+          .doOnResponse(
+              (res, conn) -> {
+                String contentType = res.responseHeaders().get("Content-Type");
+                if (contentType != null && contentType.equals("application/json")) {
+                  conn.addHandler(new JsonObjectDecoder());
+                } else {
+                  conn.addHandler(new StringDecoder());
+                }
+              });
 
   private final String agentAddress;
   private final HttpClient httpClient;
