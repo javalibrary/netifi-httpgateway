@@ -1,62 +1,109 @@
 package com.netifi.consul.v1.health.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 import java.util.Map;
 
+@JsonDeserialize(builder = HealthCheckDefinition.Builder.class)
 public class HealthCheckDefinition {
   @JsonProperty("HTTP")
-  private String http;
+  private final String http;
 
   @JsonProperty("Header")
-  private Map<String, List<String>> header;
+  private final Map<String, List<String>> header;
 
   @JsonProperty("Method")
-  private String method;
+  private final String method;
 
   @JsonProperty("TLSSkipVerify")
-  private boolean tlsSkipVerify;
+  private final boolean tlsSkipVerify;
 
   @JsonProperty("TCP")
-  private String tcp;
+  private final String tcp;
+
+  private HealthCheckDefinition(Builder builder) {
+    http = builder.http;
+    header = builder.header;
+    method = builder.method;
+    tlsSkipVerify = builder.tlsSkipVerify;
+    tcp = builder.tcp;
+  }
+
+  public static Builder newBuilder() {
+    return new Builder();
+  }
 
   public String getHttp() {
     return http;
-  }
-
-  public void setHttp(String http) {
-    this.http = http;
   }
 
   public Map<String, List<String>> getHeader() {
     return header;
   }
 
-  public void setHeader(Map<String, List<String>> header) {
-    this.header = header;
-  }
-
   public String getMethod() {
     return method;
-  }
-
-  public void setMethod(String method) {
-    this.method = method;
   }
 
   public boolean isTlsSkipVerify() {
     return tlsSkipVerify;
   }
 
-  public void setTlsSkipVerify(boolean tlsSkipVerify) {
-    this.tlsSkipVerify = tlsSkipVerify;
-  }
-
   public String getTcp() {
     return tcp;
   }
 
-  public void setTcp(String tcp) {
-    this.tcp = tcp;
+  @JsonPOJOBuilder
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static final class Builder {
+
+    @JsonProperty("HTTP")
+    private String http;
+
+    @JsonProperty("Header")
+    private Map<String, List<String>> header;
+
+    @JsonProperty("Method")
+    private String method;
+
+    @JsonProperty("TLSSkipVerify")
+    private boolean tlsSkipVerify;
+
+    @JsonProperty("TCP")
+    private String tcp;
+
+    private Builder() {}
+
+    public Builder withHttp(String val) {
+      http = val;
+      return this;
+    }
+
+    public Builder withHeader(Map<String, List<String>> val) {
+      header = val;
+      return this;
+    }
+
+    public Builder withMethod(String val) {
+      method = val;
+      return this;
+    }
+
+    public Builder withTlsSkipVerify(boolean val) {
+      tlsSkipVerify = val;
+      return this;
+    }
+
+    public Builder withTcp(String val) {
+      tcp = val;
+      return this;
+    }
+
+    public HealthCheckDefinition build() {
+      return new HealthCheckDefinition(this);
+    }
   }
 }

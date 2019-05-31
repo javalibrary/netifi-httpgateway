@@ -1,108 +1,56 @@
 package com.netifi.consul.v1.agent.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 import java.util.Map;
 
+@JsonDeserialize(builder = Service.Builder.class)
 public class Service {
 
   @JsonProperty("ID")
-  private String id;
+  private final String id;
 
   @JsonProperty("Service")
-  private String service;
+  private final String service;
 
   @JsonProperty("Tags")
-  private List<String> tags;
+  private final List<String> tags;
 
   @JsonProperty("Address")
-  private String address;
+  private final String address;
 
   @JsonProperty("Meta")
-  private Map<String, String> meta;
+  private final Map<String, String> meta;
 
   @JsonProperty("Port")
-  private Integer port;
+  private final Integer port;
 
   @JsonProperty("EnableTagOverride")
-  private Boolean enableTagOverride;
+  private final Boolean enableTagOverride;
 
   @JsonProperty("CreateIndex")
-  private Long createIndex;
+  private final Long createIndex;
 
   @JsonProperty("ModifyIndex")
-  private Long modifyIndex;
+  private final Long modifyIndex;
 
-  public String getId() {
-    return id;
+  private Service(Builder builder) {
+    id = builder.id;
+    service = builder.service;
+    tags = builder.tags;
+    address = builder.address;
+    meta = builder.meta;
+    port = builder.port;
+    enableTagOverride = builder.enableTagOverride;
+    createIndex = builder.createIndex;
+    modifyIndex = builder.modifyIndex;
   }
 
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public String getService() {
-    return service;
-  }
-
-  public void setService(String service) {
-    this.service = service;
-  }
-
-  public List<String> getTags() {
-    return tags;
-  }
-
-  public void setTags(List<String> tags) {
-    this.tags = tags;
-  }
-
-  public String getAddress() {
-    return address;
-  }
-
-  public void setAddress(String address) {
-    this.address = address;
-  }
-
-  public Map<String, String> getMeta() {
-    return meta;
-  }
-
-  public void setMeta(Map<String, String> meta) {
-    this.meta = meta;
-  }
-
-  public Integer getPort() {
-    return port;
-  }
-
-  public void setPort(Integer port) {
-    this.port = port;
-  }
-
-  public Boolean getEnableTagOverride() {
-    return enableTagOverride;
-  }
-
-  public void setEnableTagOverride(Boolean enableTagOverride) {
-    this.enableTagOverride = enableTagOverride;
-  }
-
-  public Long getCreateIndex() {
-    return createIndex;
-  }
-
-  public void setCreateIndex(Long createIndex) {
-    this.createIndex = createIndex;
-  }
-
-  public Long getModifyIndex() {
-    return modifyIndex;
-  }
-
-  public void setModifyIndex(Long modifyIndex) {
-    this.modifyIndex = modifyIndex;
+  public static Builder newBuilder() {
+    return new Builder();
   }
 
   @Override
@@ -130,5 +78,124 @@ public class Service {
         + ", modifyIndex="
         + modifyIndex
         + '}';
+  }
+
+  public String getId() {
+    return id;
+  }
+
+  public String getService() {
+    return service;
+  }
+
+  public List<String> getTags() {
+    return tags;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
+  public Map<String, String> getMeta() {
+    return meta;
+  }
+
+  public Integer getPort() {
+    return port;
+  }
+
+  public Boolean getEnableTagOverride() {
+    return enableTagOverride;
+  }
+
+  public Long getCreateIndex() {
+    return createIndex;
+  }
+
+  public Long getModifyIndex() {
+    return modifyIndex;
+  }
+
+  @JsonPOJOBuilder
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static final class Builder {
+
+    @JsonProperty("ID")
+    private String id;
+
+    @JsonProperty("Service")
+    private String service;
+
+    @JsonProperty("Tags")
+    private List<String> tags;
+
+    @JsonProperty("Address")
+    private String address;
+
+    @JsonProperty("Meta")
+    private Map<String, String> meta;
+
+    @JsonProperty("Port")
+    private Integer port;
+
+    @JsonProperty("EnableTagOverride")
+    private Boolean enableTagOverride;
+
+    @JsonProperty("CreateIndex")
+    private Long createIndex;
+
+    @JsonProperty("ModifyIndex")
+    private Long modifyIndex;
+
+    private Builder() {}
+
+    public Builder withId(String val) {
+      id = val;
+      return this;
+    }
+
+    public Builder withService(String val) {
+      service = val;
+      return this;
+    }
+
+    public Builder withTags(List<String> val) {
+      tags = val;
+      return this;
+    }
+
+    public Builder withAddress(String val) {
+      address = val;
+      return this;
+    }
+
+    public Builder withMeta(Map<String, String> val) {
+      meta = val;
+      return this;
+    }
+
+    public Builder withPort(Integer val) {
+      port = val;
+      return this;
+    }
+
+    public Builder withEnableTagOverride(Boolean val) {
+      enableTagOverride = val;
+      return this;
+    }
+
+    public Builder withCreateIndex(Long val) {
+      createIndex = val;
+      return this;
+    }
+
+    public Builder withModifyIndex(Long val) {
+      modifyIndex = val;
+      return this;
+    }
+
+    public Service build() {
+      return new Service(this);
+    }
   }
 }

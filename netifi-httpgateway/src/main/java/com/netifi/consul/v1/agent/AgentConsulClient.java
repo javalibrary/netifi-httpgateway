@@ -6,10 +6,10 @@ import com.netifi.consul.v1.ConsulRawClient;
 import com.netifi.consul.v1.Response;
 import com.netifi.consul.v1.SingleUrlParameters;
 import com.netifi.consul.v1.Utils;
-import com.netifi.consul.v1.agent.model.Check;
+import com.netifi.consul.v1.agent.model.AgentCheck;
+import com.netifi.consul.v1.agent.model.AgentCheckRegistration;
+import com.netifi.consul.v1.agent.model.AgentServiceRegistration;
 import com.netifi.consul.v1.agent.model.CheckUpdate;
-import com.netifi.consul.v1.agent.model.NewCheck;
-import com.netifi.consul.v1.agent.model.NewService;
 import com.netifi.consul.v1.agent.model.Self;
 import com.netifi.consul.v1.agent.model.Service;
 import io.netty.buffer.Unpooled;
@@ -76,7 +76,7 @@ public final class AgentConsulClient implements AgentClient {
   }
 
   @Override
-  public Flux<Response<Map<String, Check>>> getAgentChecks() {
+  public Flux<Response<Map<String, AgentCheck>>> getAgentChecks() {
     return rawClient
         .getHttpClient()
         .get()
@@ -91,13 +91,13 @@ public final class AgentConsulClient implements AgentClient {
                             return new Response<>(
                                 null, httpClientResponse, Utils.ensureErrorString(s));
                           }
-                          Map<String, Check> checkList = null;
+                          Map<String, AgentCheck> checkList = null;
                           String error = null;
                           try {
                             checkList =
                                 rawClient
                                     .getObjectMapper()
-                                    .readValue(s, new TypeReference<Map<String, Check>>() {});
+                                    .readValue(s, new TypeReference<Map<String, AgentCheck>>() {});
                           } catch (IOException e) {
                             error = s;
                           }
@@ -163,10 +163,10 @@ public final class AgentConsulClient implements AgentClient {
   }
 
   @Override
-  public Flux<Response<Void>> agentCheckRegister(NewCheck newCheck) {
+  public Flux<Response<Void>> agentCheckRegister(AgentCheckRegistration agentCheckRegistration) {
     String checkPayload;
     try {
-      checkPayload = serializeJson(newCheck);
+      checkPayload = serializeJson(agentCheckRegistration);
     } catch (JsonProcessingException e) {
       return Flux.just(new Response<>(null, e.getMessage()));
     }
@@ -185,46 +185,6 @@ public final class AgentConsulClient implements AgentClient {
         .put()
         .uri(String.format(V_1_CHECK_DEREGISTER, checkId))
         .response(this::voidRequestPublisher);
-  }
-
-  @Override
-  public Flux<Response<Void>> agentCheckPass(String checkId) {
-    return agentCheckPass(checkId, null);
-  }
-
-  @Override
-  public Flux<Response<Void>> agentCheckPass(String checkId, String note) {
-    return getCheckResponseFlux(V_1_TTL_CHECK_PASS, checkId, note);
-  }
-
-  @Override
-  public Flux<Response<Void>> agentCheckWarn(String checkId) {
-    return agentCheckWarn(checkId, null);
-  }
-
-  @Override
-  public Flux<Response<Void>> agentCheckWarn(String checkId, String note) {
-    return getCheckResponseFlux(V_1_TTL_CHECK_WARN, checkId, note);
-  }
-
-  @Override
-  public Flux<Response<Void>> agentCheckFail(String checkId) {
-    return agentCheckFail(checkId, null);
-  }
-
-  @Override
-  public Flux<Response<Void>> agentCheckFail(String checkId, String note) {
-    return getCheckResponseFlux(V_1_TTL_CHECK_FAIL, checkId, note);
-  }
-
-  private Flux<Response<Void>> getCheckResponseFlux(
-      String baseURLFormat, String checkId, String note) {
-    String urlPath = String.format(baseURLFormat, checkId);
-    if (note != null) {
-      SingleUrlParameters noteParam = new SingleUrlParameters("note", note);
-      urlPath = Utils.generateUrl(urlPath, noteParam);
-    }
-    return makePutRequest(urlPath);
   }
 
   private Flux<Response<Void>> makePutRequest(String urlPath) {
@@ -261,10 +221,11 @@ public final class AgentConsulClient implements AgentClient {
   }
 
   @Override
-  public Flux<Response<Void>> agentServiceRegister(NewService newService) {
+  public Flux<Response<Void>> agentServiceRegister(
+      AgentServiceRegistration agentServiceRegistration) {
     String servicePayload;
     try {
-      servicePayload = serializeJson(newService);
+      servicePayload = serializeJson(agentServiceRegistration);
     } catch (JsonProcessingException e) {
       return Flux.just(new Response<>(null, e.getMessage()));
     }
@@ -284,12 +245,6 @@ public final class AgentConsulClient implements AgentClient {
         .put()
         .uri(String.format(V_1_AGENT_SERVICE_DEREGISTER, serviceId))
         .response(this::voidRequestPublisher);
-  }
-
-  @Override
-  public Flux<Response<Void>> agentServiceSetMaintenance(
-      String serviceId, boolean maintenanceEnabled) {
-    return agentServiceSetMaintenance(serviceId, maintenanceEnabled, null);
   }
 
   @Override

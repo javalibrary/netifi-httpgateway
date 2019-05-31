@@ -7,21 +7,21 @@ import static org.junit.Assert.assertTrue;
 
 import com.netifi.consul.v1.ConsulRawClient;
 import com.netifi.consul.v1.Response;
-import com.netifi.consul.v1.agent.model.Check;
-import com.netifi.consul.v1.agent.model.NewCheck;
-import com.netifi.consul.v1.agent.model.NewService;
+import com.netifi.consul.v1.agent.model.AgentCheck;
+import com.netifi.consul.v1.agent.model.AgentCheckRegistration;
+import com.netifi.consul.v1.agent.model.AgentServiceRegistration;
 import com.netifi.consul.v1.agent.model.Self;
 import com.pszymczyk.consul.ConsulStarterBuilder;
 import com.pszymczyk.consul.junit.ConsulResource;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import java.util.Map;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class AgentConsulClientTest {
 
-  @ClassRule
-  public static final ConsulResource consul =
+  @Rule
+  public ConsulResource consul =
       new ConsulResource(ConsulStarterBuilder.consulStarter().withConsulVersion("1.5.0").build());
 
   @Test
@@ -32,17 +32,17 @@ public class AgentConsulClientTest {
     Response<Self> self = agentConsulClient.getAgentSelf().blockFirst();
     assertNotNull(self);
     assertFalse(self.hasError());
-    assertEquals(self.getValue().getConfig().getDatacenter(), "dc1");
+    assertEquals(self.getValue().getSelfConfig().getDatacenter(), "dc1");
   }
 
   @Test
   public void registerInvalidCheck() {
-    NewCheck newCheck = new NewCheck();
-    newCheck.setName("testCheck");
+    AgentCheckRegistration agentCheckRegistration =
+        AgentCheckRegistration.newBuilder().withName("testCheck").build();
     AgentConsulClient agentConsulClient =
         new AgentConsulClient(
             ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
-    Response response = agentConsulClient.agentCheckRegister(newCheck).blockFirst();
+    Response response = agentConsulClient.agentCheckRegister(agentCheckRegistration).blockFirst();
     assertNotNull(response);
     assertTrue(response.hasError());
     assertEquals(HttpResponseStatus.BAD_REQUEST, response.getHttpResponseStatus());
@@ -51,13 +51,12 @@ public class AgentConsulClientTest {
 
   @Test
   public void registerCheck() {
-    NewCheck newCheck = new NewCheck();
-    newCheck.setName("testCheck");
-    newCheck.setTtl("3s");
+    AgentCheckRegistration agentCheckRegistration =
+        AgentCheckRegistration.newBuilder().withName("testCheck").withTtl("3s").build();
     AgentConsulClient agentConsulClient =
         new AgentConsulClient(
             ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
-    Response response = agentConsulClient.agentCheckRegister(newCheck).blockFirst();
+    Response response = agentConsulClient.agentCheckRegister(agentCheckRegistration).blockFirst();
     assertNotNull(response);
     assertFalse(response.hasError());
     assertEquals(HttpResponseStatus.OK, response.getHttpResponseStatus());
@@ -65,50 +64,60 @@ public class AgentConsulClientTest {
 
   @Test
   public void registerServiceAndCheck() {
-    NewService newService1 = new NewService();
-    newService1.setName("newService");
-    newService1.setId("newService-1");
-    newService1.setAddress("localhost");
-    newService1.setPort(8080);
+    AgentServiceRegistration agentServiceRegistration1 =
+        AgentServiceRegistration.newBuilder()
+            .withName("newService")
+            .withId("newService-1")
+            .withAddress("localhost")
+            .withPort(8080)
+            .build();
+    AgentServiceRegistration agentServiceRegistration2 =
+        AgentServiceRegistration.newBuilder()
+            .withName("newService")
+            .withId("newService-2")
+            .withAddress("localhost")
+            .withPort(8080)
+            .build();
 
-    NewService newService2 = new NewService();
-    newService2.setName("newService");
-    newService2.setId("newService-2");
-    newService2.setAddress("localhost");
-    newService2.setPort(8080);
-
-    NewCheck newCheck1 = new NewCheck();
-    newCheck1.setName("testCheck");
-    newCheck1.setId("testCheck-1");
-    newCheck1.setTtl("3s");
-    newCheck1.setServiceId(newService1.getId());
-
-    NewCheck newCheck2 = new NewCheck();
-    newCheck2.setName("testCheck");
-    newCheck2.setId("testCheck-2");
-    newCheck2.setTtl("3s");
-    newCheck2.setServiceId(newService2.getId());
+    AgentCheckRegistration agentCheckRegistration1 =
+        AgentCheckRegistration.newBuilder()
+            .withId("testCheck-1")
+            .withServiceId(agentServiceRegistration1.getId())
+            .withName("testCheck")
+            .withTtl("3s")
+            .build();
+    AgentCheckRegistration agentCheckRegistration2 =
+        AgentCheckRegistration.newBuilder()
+            .withId("testCheck-2")
+            .withServiceId(agentServiceRegistration2.getId())
+            .withName("testCheck")
+            .withTtl("3s")
+            .build();
 
     AgentConsulClient agentConsulClient =
         new AgentConsulClient(
             ConsulRawClient.Builder.builder().withPort(consul.getHttpPort()).build());
-    Response newService1Response = agentConsulClient.agentServiceRegister(newService1).blockFirst();
+    Response newService1Response =
+        agentConsulClient.agentServiceRegister(agentServiceRegistration1).blockFirst();
     assertNotNull(newService1Response);
     assertFalse(newService1Response.hasError());
 
-    Response newService2Response = agentConsulClient.agentServiceRegister(newService2).blockFirst();
+    Response newService2Response =
+        agentConsulClient.agentServiceRegister(agentServiceRegistration2).blockFirst();
     assertNotNull(newService2Response);
     assertFalse(newService2Response.hasError());
 
-    Response newCheck1Response = agentConsulClient.agentCheckRegister(newCheck1).blockFirst();
+    Response newCheck1Response =
+        agentConsulClient.agentCheckRegister(agentCheckRegistration1).blockFirst();
     assertNotNull(newCheck1Response);
     assertFalse(newCheck1Response.hasError());
 
-    Response newCheck2Response = agentConsulClient.agentCheckRegister(newCheck2).blockFirst();
+    Response newCheck2Response =
+        agentConsulClient.agentCheckRegister(agentCheckRegistration2).blockFirst();
     assertNotNull(newCheck2Response);
     assertFalse(newCheck2Response.hasError());
 
-    Response<Map<String, Check>> agentChecks = agentConsulClient.getAgentChecks().blockFirst();
+    Response<Map<String, AgentCheck>> agentChecks = agentConsulClient.getAgentChecks().blockFirst();
     assertNotNull(agentChecks);
     assertFalse(agentChecks.hasError());
     assertNotNull(agentChecks.getValue());
@@ -118,14 +127,22 @@ public class AgentConsulClientTest {
         agentChecks.getValue().keySet().stream()
             .filter(
                 key ->
-                    agentChecks.getValue().get(key).getServiceId().equals(newCheck1.getServiceId()))
+                    agentChecks
+                        .getValue()
+                        .get(key)
+                        .getServiceId()
+                        .equals(agentServiceRegistration1.getId()))
             .count());
     assertEquals(
         1,
         agentChecks.getValue().keySet().stream()
             .filter(
                 key ->
-                    agentChecks.getValue().get(key).getServiceId().equals(newCheck2.getServiceId()))
+                    agentChecks
+                        .getValue()
+                        .get(key)
+                        .getServiceId()
+                        .equals(agentServiceRegistration2.getId()))
             .count());
   }
 }

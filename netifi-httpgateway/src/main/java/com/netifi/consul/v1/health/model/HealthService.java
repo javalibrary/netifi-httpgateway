@@ -1,7 +1,7 @@
 package com.netifi.consul.v1.health.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.netifi.consul.v1.agent.model.Check;
+import com.netifi.consul.v1.agent.model.AgentCheck;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -15,7 +15,7 @@ public class HealthService {
   private Service service;
 
   @JsonProperty("Checks")
-  private List<Check> checks;
+  private List<AgentCheck> agentChecks;
 
   public Node getNode() {
     return node;
@@ -33,17 +33,24 @@ public class HealthService {
     this.service = service;
   }
 
-  public List<Check> getChecks() {
-    return checks;
+  public List<AgentCheck> getAgentChecks() {
+    return agentChecks;
   }
 
-  public void setChecks(List<Check> checks) {
-    this.checks = checks;
+  public void setAgentChecks(List<AgentCheck> agentChecks) {
+    this.agentChecks = agentChecks;
   }
 
   @Override
   public String toString() {
-    return "HealthService{" + "node=" + node + ", service=" + service + ", checks=" + checks + '}';
+    return "HealthService{"
+        + "node="
+        + node
+        + ", service="
+        + service
+        + ", agentChecks="
+        + agentChecks
+        + '}';
   }
 
   @Override
@@ -53,12 +60,12 @@ public class HealthService {
     HealthService that = (HealthService) o;
     return Objects.equals(node, that.node)
         && Objects.equals(service, that.service)
-        && Objects.equals(checks, that.checks);
+        && Objects.equals(agentChecks, that.agentChecks);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(node, service, checks);
+    return Objects.hash(node, service, agentChecks);
   }
 
   public static class Node {

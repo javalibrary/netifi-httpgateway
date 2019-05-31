@@ -2,129 +2,206 @@ package com.netifi.consul.v1.agent.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.Map;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class Member {
+// https://github.com/hashicorp/consul/blob/v1.5.1/agent/agent.go#L1616-L1618
+// https://github.com/hashicorp/consul/blob/v1.5.1/vendor/github.com/hashicorp/serf/serf/serf.go#L128-L144
+@JsonDeserialize(builder = Member.Builder.class)
+public final class Member {
 
   @JsonProperty("Name")
-  public String name;
+  private final String name;
 
-  @JsonProperty("Address")
-  public String address;
+  @JsonProperty("Addr")
+  private final String address;
 
   @JsonProperty("Port")
-  public int port;
+  private final int port;
 
   @JsonProperty("Tags")
-  public Map<String, String> tags;
+  private final Map<String, String> tags;
 
   @JsonProperty("Status")
-  public int status;
+  private final int status;
 
   @JsonProperty("ProtocolMin")
-  public int protocolMin;
+  private final int protocolMin;
 
   @JsonProperty("ProtocolMax")
-  public int protocolMax;
+  private final int protocolMax;
 
   @JsonProperty("ProtocolCur")
-  public int protocolCur;
+  private final int protocolCur;
 
   @JsonProperty("DelegateMin")
-  public int delegateMin;
+  private final int delegateMin;
 
   @JsonProperty("DelegateMax")
-  public int delegateMax;
+  private final int delegateMax;
 
   @JsonProperty("DelegateCur")
-  public int delegateCur;
+  private final int delegateCur;
+
+  private Member(Builder builder) {
+    name = builder.name;
+    address = builder.address;
+    port = builder.port;
+    tags = builder.tags;
+    status = builder.status;
+    protocolMin = builder.protocolMin;
+    protocolMax = builder.protocolMax;
+    protocolCur = builder.protocolCur;
+    delegateMin = builder.delegateMin;
+    delegateMax = builder.delegateMax;
+    delegateCur = builder.delegateCur;
+  }
+
+  public static Builder newBuilder() {
+    return new Builder();
+  }
 
   public String getName() {
     return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
   public String getAddress() {
     return address;
   }
 
-  public void setAddress(String address) {
-    this.address = address;
-  }
-
   public int getPort() {
     return port;
-  }
-
-  public void setPort(int port) {
-    this.port = port;
   }
 
   public Map<String, String> getTags() {
     return tags;
   }
 
-  public void setTags(Map<String, String> tags) {
-    this.tags = tags;
-  }
-
   public int getStatus() {
     return status;
-  }
-
-  public void setStatus(int status) {
-    this.status = status;
   }
 
   public int getProtocolMin() {
     return protocolMin;
   }
 
-  public void setProtocolMin(int protocolMin) {
-    this.protocolMin = protocolMin;
-  }
-
   public int getProtocolMax() {
     return protocolMax;
-  }
-
-  public void setProtocolMax(int protocolMax) {
-    this.protocolMax = protocolMax;
   }
 
   public int getProtocolCur() {
     return protocolCur;
   }
 
-  public void setProtocolCur(int protocolCur) {
-    this.protocolCur = protocolCur;
-  }
-
   public int getDelegateMin() {
     return delegateMin;
-  }
-
-  public void setDelegateMin(int delegateMin) {
-    this.delegateMin = delegateMin;
   }
 
   public int getDelegateMax() {
     return delegateMax;
   }
 
-  public void setDelegateMax(int delegateMax) {
-    this.delegateMax = delegateMax;
-  }
-
   public int getDelegateCur() {
     return delegateCur;
   }
 
-  public void setDelegateCur(int delegateCur) {
-    this.delegateCur = delegateCur;
+  @JsonPOJOBuilder
+  @JsonIgnoreProperties(ignoreUnknown = true)
+  public static final class Builder {
+
+    @JsonProperty("Name")
+    private String name;
+
+    @JsonProperty("Addr")
+    private String address;
+
+    @JsonProperty("Port")
+    private int port;
+
+    @JsonProperty("Tags")
+    private Map<String, String> tags;
+
+    @JsonProperty("Status")
+    private int status;
+
+    @JsonProperty("ProtocolMin")
+    private int protocolMin;
+
+    @JsonProperty("ProtocolMax")
+    private int protocolMax;
+
+    @JsonProperty("ProtocolCur")
+    private int protocolCur;
+
+    @JsonProperty("DelegateMin")
+    private int delegateMin;
+
+    @JsonProperty("DelegateMax")
+    private int delegateMax;
+
+    @JsonProperty("DelegateCur")
+    private int delegateCur;
+
+    private Builder() {}
+
+    public Builder withName(String val) {
+      name = val;
+      return this;
+    }
+
+    public Builder withAddress(String val) {
+      address = val;
+      return this;
+    }
+
+    public Builder withPort(int val) {
+      port = val;
+      return this;
+    }
+
+    public Builder withTags(Map<String, String> val) {
+      tags = val;
+      return this;
+    }
+
+    public Builder withStatus(int val) {
+      status = val;
+      return this;
+    }
+
+    public Builder withProtocolMin(int val) {
+      protocolMin = val;
+      return this;
+    }
+
+    public Builder withProtocolMax(int val) {
+      protocolMax = val;
+      return this;
+    }
+
+    public Builder withProtocolCur(int val) {
+      protocolCur = val;
+      return this;
+    }
+
+    public Builder withDelegateMin(int val) {
+      delegateMin = val;
+      return this;
+    }
+
+    public Builder withDelegateMax(int val) {
+      delegateMax = val;
+      return this;
+    }
+
+    public Builder withDelegateCur(int val) {
+      delegateCur = val;
+      return this;
+    }
+
+    public Member build() {
+      return new Member(this);
+    }
   }
 }
