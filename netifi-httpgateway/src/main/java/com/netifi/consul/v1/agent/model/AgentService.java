@@ -4,11 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import com.netifi.consul.v1.agent.model.AgentService.Builder;
 import java.util.List;
 import java.util.Map;
 
-@JsonDeserialize(builder = Service.Builder.class)
-public class Service {
+// https://github.com/hashicorp/consul/blob/v1.5.1/api/agent.go#L77
+@JsonDeserialize(builder = AgentService.Builder.class)
+public class AgentService {
+
+  @JsonProperty("Kind")
+  private final String kind;
 
   @JsonProperty("ID")
   private final String id;
@@ -19,14 +24,17 @@ public class Service {
   @JsonProperty("Tags")
   private final List<String> tags;
 
-  @JsonProperty("Address")
-  private final String address;
-
   @JsonProperty("Meta")
   private final Map<String, String> meta;
 
   @JsonProperty("Port")
   private final Integer port;
+
+  @JsonProperty("Address")
+  private final String address;
+
+  @JsonProperty("Weights")
+  private final AgentWeights weights;
 
   @JsonProperty("EnableTagOverride")
   private final Boolean enableTagOverride;
@@ -37,47 +45,30 @@ public class Service {
   @JsonProperty("ModifyIndex")
   private final Long modifyIndex;
 
-  private Service(Builder builder) {
+  @JsonProperty("ContentHash")
+  private final String contentHash;
+
+  private AgentService(Builder builder) {
+    kind = builder.kind;
     id = builder.id;
     service = builder.service;
     tags = builder.tags;
-    address = builder.address;
     meta = builder.meta;
     port = builder.port;
+    address = builder.address;
+    weights = builder.weights;
     enableTagOverride = builder.enableTagOverride;
     createIndex = builder.createIndex;
     modifyIndex = builder.modifyIndex;
+    contentHash = builder.contentHash;
   }
 
   public static Builder newBuilder() {
     return new Builder();
   }
 
-  @Override
-  public String toString() {
-    return "Service{"
-        + "id='"
-        + id
-        + '\''
-        + ", service='"
-        + service
-        + '\''
-        + ", tags="
-        + tags
-        + ", address='"
-        + address
-        + '\''
-        + ", meta="
-        + meta
-        + ", port="
-        + port
-        + ", enableTagOverride="
-        + enableTagOverride
-        + ", createIndex="
-        + createIndex
-        + ", modifyIndex="
-        + modifyIndex
-        + '}';
+  public String getKind() {
+    return kind;
   }
 
   public String getId() {
@@ -92,16 +83,20 @@ public class Service {
     return tags;
   }
 
-  public String getAddress() {
-    return address;
-  }
-
   public Map<String, String> getMeta() {
     return meta;
   }
 
   public Integer getPort() {
     return port;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
+  public AgentWeights getWeights() {
+    return weights;
   }
 
   public Boolean getEnableTagOverride() {
@@ -116,9 +111,16 @@ public class Service {
     return modifyIndex;
   }
 
+  public String getContentHash() {
+    return contentHash;
+  }
+
   @JsonPOJOBuilder
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static final class Builder {
+
+    @JsonProperty("Kind")
+    private String kind;
 
     @JsonProperty("ID")
     private String id;
@@ -129,14 +131,17 @@ public class Service {
     @JsonProperty("Tags")
     private List<String> tags;
 
-    @JsonProperty("Address")
-    private String address;
-
     @JsonProperty("Meta")
     private Map<String, String> meta;
 
     @JsonProperty("Port")
     private Integer port;
+
+    @JsonProperty("Address")
+    private String address;
+
+    @JsonProperty("Weights")
+    private AgentWeights weights;
 
     @JsonProperty("EnableTagOverride")
     private Boolean enableTagOverride;
@@ -147,7 +152,15 @@ public class Service {
     @JsonProperty("ModifyIndex")
     private Long modifyIndex;
 
+    @JsonProperty("ContentHash")
+    private String contentHash;
+
     private Builder() {}
+
+    public Builder withKind(String val) {
+      kind = val;
+      return this;
+    }
 
     public Builder withId(String val) {
       id = val;
@@ -164,11 +177,6 @@ public class Service {
       return this;
     }
 
-    public Builder withAddress(String val) {
-      address = val;
-      return this;
-    }
-
     public Builder withMeta(Map<String, String> val) {
       meta = val;
       return this;
@@ -176,6 +184,16 @@ public class Service {
 
     public Builder withPort(Integer val) {
       port = val;
+      return this;
+    }
+
+    public Builder withAddress(String val) {
+      address = val;
+      return this;
+    }
+
+    public Builder withWeights(AgentWeights val) {
+      weights = val;
       return this;
     }
 
@@ -194,8 +212,13 @@ public class Service {
       return this;
     }
 
-    public Service build() {
-      return new Service(this);
+    public Builder withContentHash(String val) {
+      contentHash = val;
+      return this;
+    }
+
+    public AgentService build() {
+      return new AgentService(this);
     }
   }
 }

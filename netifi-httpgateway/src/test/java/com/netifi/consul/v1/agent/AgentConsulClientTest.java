@@ -9,6 +9,7 @@ import com.netifi.consul.v1.ConsulRawClient;
 import com.netifi.consul.v1.Response;
 import com.netifi.consul.v1.agent.model.AgentCheck;
 import com.netifi.consul.v1.agent.model.AgentCheckRegistration;
+import com.netifi.consul.v1.agent.model.AgentService;
 import com.netifi.consul.v1.agent.model.AgentServiceRegistration;
 import com.netifi.consul.v1.agent.model.Self;
 import com.pszymczyk.consul.ConsulStarterBuilder;
@@ -144,5 +145,12 @@ public class AgentConsulClientTest {
                         .getServiceId()
                         .equals(agentServiceRegistration2.getId()))
             .count());
+
+    Response<Map<String, AgentService>> serviceList =
+        agentConsulClient.getAgentServices().blockFirst();
+    assertNotNull(serviceList);
+    assertFalse(serviceList.hasError());
+    assertNotNull(serviceList.getValue());
+    assertEquals(2, serviceList.getValue().size());
   }
 }

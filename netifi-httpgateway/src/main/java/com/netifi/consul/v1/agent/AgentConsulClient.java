@@ -8,14 +8,13 @@ import com.netifi.consul.v1.SingleUrlParameters;
 import com.netifi.consul.v1.Utils;
 import com.netifi.consul.v1.agent.model.AgentCheck;
 import com.netifi.consul.v1.agent.model.AgentCheckRegistration;
+import com.netifi.consul.v1.agent.model.AgentService;
 import com.netifi.consul.v1.agent.model.AgentServiceRegistration;
 import com.netifi.consul.v1.agent.model.CheckUpdate;
 import com.netifi.consul.v1.agent.model.Self;
-import com.netifi.consul.v1.agent.model.Service;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.Map;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -106,7 +105,7 @@ public final class AgentConsulClient implements AgentClient {
   }
 
   @Override
-  public Flux<Response<List<Service>>> getAgentServices() {
+  public Flux<Response<Map<String, AgentService>>> getAgentServices() {
     return rawClient
         .getHttpClient()
         .get()
@@ -121,22 +120,23 @@ public final class AgentConsulClient implements AgentClient {
                             return new Response<>(
                                 null, httpClientResponse, Utils.ensureErrorString(s));
                           }
-                          List<Service> serviceList = null;
+                          Map<String, AgentService> agentServiceList = null;
                           String error = null;
                           try {
-                            serviceList =
+                            agentServiceList =
                                 rawClient
                                     .getObjectMapper()
-                                    .readValue(s, new TypeReference<List<Service>>() {});
+                                    .readValue(
+                                        s, new TypeReference<Map<String, AgentService>>() {});
                           } catch (IOException e) {
                             error = s;
                           }
-                          return new Response<>(serviceList, httpClientResponse, error);
+                          return new Response<>(agentServiceList, httpClientResponse, error);
                         }));
   }
 
   @Override
-  public Flux<Response<Service>> getAgentService(String serviceId) {
+  public Flux<Response<AgentService>> getAgentService(String serviceId) {
     return rawClient
         .getHttpClient()
         .get()
@@ -151,14 +151,15 @@ public final class AgentConsulClient implements AgentClient {
                             return new Response<>(
                                 null, httpClientResponse, Utils.ensureErrorString(s));
                           }
-                          Service service = null;
+                          AgentService agentService = null;
                           String error = null;
                           try {
-                            service = rawClient.getObjectMapper().readValue(s, Service.class);
+                            agentService =
+                                rawClient.getObjectMapper().readValue(s, AgentService.class);
                           } catch (IOException e) {
                             error = s;
                           }
-                          return new Response<>(service, httpClientResponse, error);
+                          return new Response<>(agentService, httpClientResponse, error);
                         })));
   }
 

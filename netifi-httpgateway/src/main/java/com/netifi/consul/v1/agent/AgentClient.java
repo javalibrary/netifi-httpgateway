@@ -3,11 +3,10 @@ package com.netifi.consul.v1.agent;
 import com.netifi.consul.v1.Response;
 import com.netifi.consul.v1.agent.model.AgentCheck;
 import com.netifi.consul.v1.agent.model.AgentCheckRegistration;
+import com.netifi.consul.v1.agent.model.AgentService;
 import com.netifi.consul.v1.agent.model.AgentServiceRegistration;
 import com.netifi.consul.v1.agent.model.CheckUpdate;
 import com.netifi.consul.v1.agent.model.Self;
-import com.netifi.consul.v1.agent.model.Service;
-import java.util.List;
 import java.util.Map;
 import reactor.core.publisher.Flux;
 
@@ -19,10 +18,10 @@ public interface AgentClient {
   Flux<Response<Map<String, AgentCheck>>> getAgentChecks();
 
   // https://github.com/hashicorp/consul/blob/v1.5.1/api/agent.go#L412
-  Flux<Response<List<Service>>> getAgentServices();
+  Flux<Response<Map<String, AgentService>>> getAgentServices();
 
   // https://github.com/hashicorp/consul/blob/v1.5.1/api/agent.go#L439
-  Flux<Response<Service>> getAgentService(String serviceId);
+  Flux<Response<AgentService>> getAgentService(String serviceId);
 
   // https://github.com/hashicorp/consul/blob/v1.5.1/api/agent.go#L698
   Flux<Response<Void>> agentCheckRegister(AgentCheckRegistration agentCheckRegistration);

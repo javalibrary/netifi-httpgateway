@@ -1,7 +1,11 @@
 package com.netifi.consul.v1.agent.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 
+@JsonDeserialize(builder = AgentWeights.Builder.class)
 public class AgentWeights {
 
   @JsonProperty("Passing")
@@ -27,6 +31,8 @@ public class AgentWeights {
     return Warning;
   }
 
+  @JsonPOJOBuilder
+  @JsonIgnoreProperties(ignoreUnknown = true)
   public static final class Builder {
 
     @JsonProperty("Passing")
