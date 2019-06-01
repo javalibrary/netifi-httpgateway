@@ -6,6 +6,8 @@ import com.netifi.httpgateway.bridge.codec.HttpResponseEncoder;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalancer;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalancerFactory;
 import com.netifi.httpgateway.bridge.endpoint.source.BridgeEndpointSourceServer;
+import com.netifi.httpgateway.bridge.endpoint.source.EndpointJoinEvent;
+import com.netifi.httpgateway.bridge.endpoint.source.EndpointLeaveEvent;
 import com.netifi.httpgateway.bridge.endpoint.source.Event;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.buffer.ByteBuf;
@@ -66,12 +68,23 @@ public class ServiceManagerRSocket extends AbstractRSocket {
 
   @SuppressWarnings("unchecked")
   private void handleJoinEvent(ServiceJoinEvent serviceEvent) {
-    loadBalancers.computeIfAbsent(
-        serviceEvent.getServiceId(),
-        s -> {
-          logger.info("adding new egress service with id {}", s);
-          return factory.createNewLoadBalancer(serviceEvent.getEgressEndpointFactory());
-        });
+    EgressEndpointLoadBalancer old =
+        loadBalancers.computeIfAbsent(
+            serviceEvent.getServiceId(),
+            s -> {
+              logger.info("adding new egress service with id {}", s);
+              return factory.createNewLoadBalancer(serviceEvent.getEgressEndpointFactory());
+            });
+
+    if (old == null) {
+      eventProcessor.onNext(
+          Event.newBuilder()
+              .setJoinEvent(
+                  EndpointJoinEvent.newBuilder()
+                      .setServiceName(serviceEvent.getServiceId())
+                      .build())
+              .build());
+    }
   }
 
   private void handleLeaveEvent(ServiceLeaveEvent serviceEvent) {
@@ -79,6 +92,13 @@ public class ServiceManagerRSocket extends AbstractRSocket {
 
     if (removed != null) {
       logger.info("removing Egress service with id {}", serviceEvent.getServiceId());
+      eventProcessor.onNext(
+          Event.newBuilder()
+              .setLeaveEvent(
+                  EndpointLeaveEvent.newBuilder()
+                      .setServiceName(serviceEvent.getServiceId())
+                      .build())
+              .build());
       removed.dispose();
     }
   }
