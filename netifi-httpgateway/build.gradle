@@ -67,6 +67,7 @@ dependencies {
     compile 'com.google.protobuf:protobuf-java-util'
     compile 'com.lmax:disruptor'
     compile 'io.projectreactor.addons:reactor-extra'
+    compile 'com.orbitz.consul:consul-client'
     protobuf 'io.rsocket.rpc:rsocket-rpc-protobuf-idl'
 
     testCompile 'junit:junit'
@@ -75,6 +76,7 @@ dependencies {
     testCompile 'com.pszymczyk.consul:embedded-consul'
     integrationTestCompile 'org.mock-server:mockserver-netty'
     integrationTestCompile 'com.arakelian:docker-junit-rule'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 
