@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 
+// https://github.com/hashicorp/consul/blob/v1.5.1/api/health.go#L29
 @JsonDeserialize(builder = HealthCheck.Builder.class)
 public class HealthCheck {
 

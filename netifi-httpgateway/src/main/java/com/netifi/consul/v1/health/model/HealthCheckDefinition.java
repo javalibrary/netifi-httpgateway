@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import java.util.List;
 import java.util.Map;
 
+// https://github.com/hashicorp/consul/blob/v1.5.1/api/health.go#L48
 @JsonDeserialize(builder = HealthCheckDefinition.Builder.class)
 public class HealthCheckDefinition {
   @JsonProperty("HTTP")

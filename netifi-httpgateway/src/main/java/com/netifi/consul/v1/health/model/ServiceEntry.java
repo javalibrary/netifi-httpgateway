@@ -8,6 +8,7 @@ import com.netifi.consul.v1.agent.model.AgentService;
 import com.netifi.consul.v1.catalog.model.Node;
 import java.util.List;
 
+// https://github.com/hashicorp/consul/blob/v1.5.1/api/health.go#L180
 @JsonDeserialize(builder = ServiceEntry.Builder.class)
 public class ServiceEntry {
 
