@@ -224,7 +224,7 @@ public abstract class HttpObjectDecoder extends ByteToMessageDecoder {
         {
           int readLimit = buffer.readableBytes();
 
-          // Check if the buffer is readable first as we use the readable byte count
+          // AgentCheck if the buffer is readable first as we use the readable byte count
           // to create the HttpChunk. This is needed as otherwise we may end up with
           // create a HttpChunk instance that contains an empty buffer and so is
           // handled like it is the last HttpChunk.
@@ -370,7 +370,7 @@ public abstract class HttpObjectDecoder extends ByteToMessageDecoder {
         return;
       }
 
-      // Check if the closure of the connection signifies the end of the content.
+      // AgentCheck if the closure of the connection signifies the end of the content.
       boolean prematureClosure;
       if (isDecodingRequest() || chunked) {
         // The last request did not wait for a response.

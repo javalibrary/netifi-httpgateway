@@ -4,15 +4,20 @@ dependencyManagement {
   imports {
     mavenBom "com.netifi:netifi-bom:${netifiBomVersion}"
     mavenBom "io.projectreactor:reactor-bom:${reactorBomVersion}"
-    mavenBom "org.apache.logging.log4j:log4j-bom:${log4j2Version}"
     mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
   }
   dependencies {
+    dependency "com.arakelian:docker-junit-rule:${dockerVersion}"
     dependency "com.google.protobuf:protobuf-java-util:${protobufVersion}"
     dependency "com.google.protobuf:protobuf-java:${protobufVersion}"
+    dependency "com.google.protobuf:protoc:${protobufVersion}"
     dependency "com.lmax:disruptor:${lmaxVersion}"
+    dependency "com.orbitz.consul:consul-client:${consulClientVersion}"
+    dependency "com.pszymczyk.consul:embedded-consul:${embeddedConsulVersion}"
     dependency "commons-io:commons-io:${commonsIOVersion}"
     dependency "io.rsocket.rpc:rsocket-rpc-protobuf-idl:${rsocketRpcVersion}"
+    dependency "io.rsocket.rpc:rsocket-rpc-protobuf:${rsocketRpcVersion}"
     dependency "junit:junit:${junitVersion}"
+    dependency "org.mock-server:mockserver-netty:${mockserverVersion}"
   }
 }

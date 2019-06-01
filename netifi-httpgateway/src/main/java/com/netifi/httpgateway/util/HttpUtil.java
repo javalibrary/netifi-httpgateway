@@ -13,6 +13,9 @@
  */
 package com.netifi.httpgateway.util;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public final class HttpUtil {
   public static final String OVERRIDE_GROUP  = "Override-Group";
   public static final String OVERRIDE_DESTINATION  = "Override-Destination";
@@ -44,4 +47,5 @@ public final class HttpUtil {
       return source;
     }
   }
+
 }
