@@ -23,7 +23,7 @@ public class AgentConsulClientTest {
 
   @Rule
   public ConsulResource consul =
-      new ConsulResource(ConsulStarterBuilder.consulStarter().withConsulVersion("1.5.0").build());
+      new ConsulResource(ConsulStarterBuilder.consulStarter().withConsulVersion("1.5.1").build());
 
   @Test
   public void getAgentData() {

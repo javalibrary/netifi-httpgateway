@@ -6,8 +6,6 @@ public interface IngressDiscoveryRegister {
 
   public void serviceDeregister();
 
-  public void dispose();
-
   public void passService();
 
   public void failService();
