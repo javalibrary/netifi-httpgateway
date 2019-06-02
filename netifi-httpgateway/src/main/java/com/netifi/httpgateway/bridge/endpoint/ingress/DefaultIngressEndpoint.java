@@ -83,11 +83,12 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
               dispose();
             });
 
+    // TODO: wire up what service address the gateway should use
     // TODO: wire up consul configuration settings
     // TODO: support configuration of different IngressDiscoveryRegister types
-    this.ingressDiscoveryRegister = new DefaultConsulIngressRegister("localhost", 8500, "", serviceName+"-uniqueID", serviceName, port );
+    this.ingressDiscoveryRegister = new DefaultConsulIngressRegister("localhost", 8500, null, serviceName+"-uniqueID", serviceName, "localhost", port);
     this.ingressDiscoveryRegister.serviceRegister();
-    onClose.doFinally( signalType -> this.ingressDiscoveryRegister.dispose()).subscribe();
+    onClose.doFinally( signalType -> this.ingressDiscoveryRegister.serviceDeregister()).subscribe();
   }
 
   private Mono<Void> handle(HttpServerRequest req, HttpServerResponse resp) {

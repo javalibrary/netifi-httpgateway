@@ -8,15 +8,15 @@ import com.pszymczyk.consul.ConsulStarterBuilder;
 import com.pszymczyk.consul.junit.ConsulResource;
 import java.util.List;
 import java.util.Map;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
 
 public class CatalogConsulClientTest {
 
-  @ClassRule
-  public static final ConsulResource consul =
-      new ConsulResource(ConsulStarterBuilder.consulStarter().withConsulVersion("1.5.0").build());
+  @Rule
+  public ConsulResource consul =
+      new ConsulResource(ConsulStarterBuilder.consulStarter().withConsulVersion("1.5.1").build());
 
   @Test
   public void testForDefaultCatalogServices() {
