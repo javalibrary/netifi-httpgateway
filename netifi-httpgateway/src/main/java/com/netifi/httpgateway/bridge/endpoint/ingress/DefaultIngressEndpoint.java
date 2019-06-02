@@ -2,6 +2,7 @@ package com.netifi.httpgateway.bridge.endpoint.ingress;
 
 import com.netifi.httpgateway.bridge.codec.HttpRequestEncoder;
 import com.netifi.httpgateway.bridge.codec.HttpResponseDecoder;
+import com.netifi.httpgateway.config.BrokerClientSettings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
@@ -36,6 +37,8 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
 
   private final MonoProcessor<Void> onClose;
 
+  private final IngressDiscoveryRegister ingressDiscoveryRegister;
+
   public DefaultIngressEndpoint(
       SslContextFactory sslContextFactory,
       String serviceName,
@@ -49,6 +52,7 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
     this.serviceNameByteBuf = Unpooled.buffer();
 
     ByteBufUtil.writeUtf8(serviceNameByteBuf, serviceName);
+
 
     HttpServer httpServer = HttpServer.create().port(port).handle(this::handle);
 
@@ -78,6 +82,12 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
                   throwable);
               dispose();
             });
+
+    // TODO: wire up consul configuration settings
+    // TODO: support configuration of different IngressDiscoveryRegister types
+    this.ingressDiscoveryRegister = new DefaultConsulIngressRegister("localhost", 8500, "", serviceName+"-uniqueID", serviceName, port );
+    this.ingressDiscoveryRegister.serviceRegister();
+    onClose.doFinally( signalType -> this.ingressDiscoveryRegister.dispose()).subscribe();
   }
 
   private Mono<Void> handle(HttpServerRequest req, HttpServerResponse resp) {
