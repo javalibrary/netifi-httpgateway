@@ -30,10 +30,10 @@ public class RandomSelectionWeightedEgressEndpointFactoryPoolTest {
   public void testShouldBeLeaseAnItem() {
     EgressEndpointFactorySupplier egressEndpointFactorySupplier =
         Mockito.mock(EgressEndpointFactorySupplier.class);
-    Set<EgressEndpointFactory> setOfFactoriees =
+    Set<EgressEndpointFactory> setOfFactories =
         Sets.newSet(Mockito.mock(WeightedEgressEndpointFactory.class));
 
-    Mockito.when(egressEndpointFactorySupplier.get()).thenReturn(Flux.just(setOfFactoriees));
+    Mockito.when(egressEndpointFactorySupplier.get()).thenReturn(Flux.just(setOfFactories));
 
     RandomSelectionWeightedEgressEndpointFactoryPool pool =
         new RandomSelectionWeightedEgressEndpointFactoryPool(egressEndpointFactorySupplier);

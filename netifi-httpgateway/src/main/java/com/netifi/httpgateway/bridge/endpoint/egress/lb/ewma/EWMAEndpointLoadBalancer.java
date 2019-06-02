@@ -27,8 +27,8 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
   private static final double DEFAULT_EXP_FACTOR = 4.0;
   private static final double DEFAULT_LOWER_QUANTILE = 0.5;
   private static final double DEFAULT_HIGHER_QUANTILE = 0.8;
-  private static final int minAperture = 3;
-  private static final int maxAperture = 100;
+  private static final int MIN_APERTURE = 3;
+  private static final int MAX_APERTURE = 100;
   private static final int EFFORT = 5;
   private static final long APERTURE_REFRESH_PERIOD = Clock.unit().convert(15, TimeUnit.SECONDS);
   private final double minPendings = 1.0;
@@ -57,7 +57,9 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
     this.egressEndpointFactoryPool = egressEndpointFactoryPool;
     this.pendings = new Ewma(15, TimeUnit.SECONDS, (minPendings + maxPendings) / 2.0);
     this.refreshPeriod = Clock.unit().convert(15L, TimeUnit.SECONDS);
-    this.lastRefresh = Clock.now();
+
+    // It's never been refreshed - this make it create an endpoint
+    this.lastRefresh = 0;
 
     egressEndpointFactoryPool.onClose().doFinally(signalType -> dispose()).subscribe();
   }
@@ -118,7 +120,7 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
     }
   }
 
-  private synchronized List<WeightedEgressEndpoint> refreshEndpoints() {
+  synchronized List<WeightedEgressEndpoint> refreshEndpoints() {
     refreshAperture();
     int n = activeEndpoints.size();
     if (n < targetAperture && !egressEndpointFactoryPool.isEmpty()) {
@@ -171,9 +173,9 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
   private void updateAperture(int newValue, long now) {
     int previous = targetAperture;
     targetAperture = newValue;
-    targetAperture = Math.max(minAperture, targetAperture);
+    targetAperture = Math.max(MIN_APERTURE, targetAperture);
     int maxAperture =
-        Math.min(this.maxAperture, activeEndpoints.size() + egressEndpointFactoryPool.size());
+        Math.min(this.MAX_APERTURE, activeEndpoints.size() + egressEndpointFactoryPool.size());
     targetAperture = Math.min(maxAperture, targetAperture);
     lastApertureRefresh = now;
     pendings.reset((minPendings + maxPendings) / 2);
@@ -238,9 +240,9 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
     }
   }
 
-  private synchronized void addEndpoints(int numberOfNewEndpoints) {
+  private synchronized void addEndpoints(final int numberOfNewEndpoints) {
     int n = numberOfNewEndpoints;
-    int poolSize = egressEndpointFactoryPool.size();
+    final int poolSize = egressEndpointFactoryPool.size();
     if (n > poolSize) {
       n = poolSize;
       logger.debug(
@@ -250,8 +252,7 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
     }
 
     for (int i = 0; i < n; i++) {
-      Optional<WeightedEgressEndpointFactory> optional =
-          egressEndpointFactoryPool.lease();
+      Optional<WeightedEgressEndpointFactory> optional = egressEndpointFactoryPool.lease();
 
       if (optional.isPresent()) {
         EgressEndpointFactory<WeightedEgressEndpoint> factory = optional.get();
