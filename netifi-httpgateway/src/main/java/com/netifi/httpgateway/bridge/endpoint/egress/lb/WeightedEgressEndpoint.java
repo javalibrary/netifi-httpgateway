@@ -4,6 +4,9 @@ import com.netifi.common.stats.Ewma;
 import com.netifi.common.stats.Median;
 import com.netifi.common.stats.Quantile;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpoint;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
+import io.micrometer.core.instrument.Timer;
 import io.rsocket.Payload;
 import io.rsocket.rpc.exception.TimeoutException;
 import io.rsocket.util.Clock;
@@ -31,6 +34,8 @@ public class WeightedEgressEndpoint extends AtomicBoolean implements EgressEndpo
   private final Median median;
   private final MonoProcessor<Void> onClose;
   private final String egressEndpointId;
+  private final MeterRegistry registry;
+  private final Timer summary;
   private long errorStamp; // last we got an error
   private long stamp; // last timestamp we sent a request
   private long stamp0; // last timestamp we sent a request or receive a response
@@ -38,11 +43,15 @@ public class WeightedEgressEndpoint extends AtomicBoolean implements EgressEndpo
   private volatile int pending; // instantaneous rate
 
   public WeightedEgressEndpoint(
+      String serviceName,
       String egressEndpointId,
+      String host,
+      int port,
       HttpClient client,
       Mono<Void> onClientConnectionClose,
       Quantile lowerQuantile,
-      Quantile higherQuantile) {
+      Quantile higherQuantile,
+      MeterRegistry registry) {
     this.egressEndpointId = egressEndpointId;
     this.client = client;
     this.median = new Median();
@@ -52,6 +61,24 @@ public class WeightedEgressEndpoint extends AtomicBoolean implements EgressEndpo
     this.errorPercentage = new Ewma(5, TimeUnit.SECONDS, 1.0);
     this.tau = Clock.unit().convert((long) (5 / Math.log(2)), TimeUnit.SECONDS);
     this.onClose = MonoProcessor.create();
+    this.registry = registry;
+
+    Tags tags =
+        Tags.of(
+            "serviceName",
+            serviceName,
+            "egressEndpointId",
+            egressEndpointId,
+            "host",
+            host,
+            "port",
+            String.valueOf(port),
+            "type",
+            "WeightedEgressEndpoint");
+    registry.gauge("pendingRequests", tags, this, value -> pending);
+    registry.gauge("errorPercentage", tags, errorPercentage, Ewma::value);
+
+    summary = Timer.builder("requests").tags(tags).register(registry);
 
     onClientConnectionClose.doFinally(s -> dispose()).subscribe();
     onClose.doFinally(signalType -> dispose()).subscribe();
@@ -81,9 +108,11 @@ public class WeightedEgressEndpoint extends AtomicBoolean implements EgressEndpo
           .apply(client)
           .doOnSuccessOrError(
               (p, t) -> {
-                long now = stop(start);
+                final long now = stop(start);
+                final long roundTripTime = now - start;
+                summary.record(roundTripTime, TimeUnit.MILLISECONDS);
                 if (t == null || t instanceof TimeoutException) {
-                  record(now - start);
+                  record(roundTripTime);
                 }
 
                 if (t != null) {

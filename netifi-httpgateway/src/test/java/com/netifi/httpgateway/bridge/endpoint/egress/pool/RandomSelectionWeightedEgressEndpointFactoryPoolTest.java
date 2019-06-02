@@ -3,6 +3,7 @@ package com.netifi.httpgateway.bridge.endpoint.egress.pool;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactorySupplier;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFactory;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -19,7 +20,7 @@ public class RandomSelectionWeightedEgressEndpointFactoryPoolTest {
     Mockito.when(mock.get()).thenReturn(Flux.never());
 
     RandomSelectionWeightedEgressEndpointFactoryPool pool =
-        new RandomSelectionWeightedEgressEndpointFactoryPool(mock);
+        new RandomSelectionWeightedEgressEndpointFactoryPool(mock, "", new SimpleMeterRegistry());
 
     Optional<WeightedEgressEndpointFactory> lease = pool.lease();
 
@@ -36,7 +37,8 @@ public class RandomSelectionWeightedEgressEndpointFactoryPoolTest {
     Mockito.when(egressEndpointFactorySupplier.get()).thenReturn(Flux.just(setOfFactories));
 
     RandomSelectionWeightedEgressEndpointFactoryPool pool =
-        new RandomSelectionWeightedEgressEndpointFactoryPool(egressEndpointFactorySupplier);
+        new RandomSelectionWeightedEgressEndpointFactoryPool(
+            egressEndpointFactorySupplier, "", new SimpleMeterRegistry());
 
     Assert.assertEquals(1, pool.size());
     Optional<WeightedEgressEndpointFactory> lease = pool.lease();

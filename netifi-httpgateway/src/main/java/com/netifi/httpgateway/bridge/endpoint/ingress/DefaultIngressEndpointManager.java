@@ -1,8 +1,13 @@
 package com.netifi.httpgateway.bridge.endpoint.ingress;
 
 import com.google.protobuf.Empty;
+import com.netifi.broker.BrokerClient;
+import com.netifi.broker.rsocket.BrokerSocket;
 import com.netifi.httpgateway.bridge.endpoint.source.BridgeEndpointSourceClient;
 import com.netifi.httpgateway.bridge.endpoint.source.Event;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.rsocket.RSocket;
 import io.rsocket.exceptions.RejectedSetupException;
 import org.apache.logging.log4j.LogManager;
@@ -16,11 +21,14 @@ import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.netifi.httpgateway.config.BrokerClientSettings.HTTP_BRIDGE_NAMED_SOCKET_NAME;
+
 public class DefaultIngressEndpointManager extends AtomicBoolean implements IngressEndpointManager {
 
   private final Logger logger = LogManager.getLogger(IngressEndpoint.class);
 
   private final ConcurrentHashMap<String, IngressEndpoint> ingressEndpoints;
+
   private final SslContextFactory sslContextFactory;
 
   private final boolean disableSsl;
@@ -28,14 +36,27 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
   private final PortManager portManager;
 
   private final MonoProcessor<Void> onClose;
+
   private final String group;
+
+  private final MeterRegistry registry;
+
+  private final BrokerClient brokerClient;
+
+  private final Counter joinEvents;
+
+  private final Counter leaveEvents;
 
   public DefaultIngressEndpointManager(
       String group,
+      BrokerClient brokerClient,
       BridgeEndpointSourceClient client,
       PortManager portManager,
       SslContextFactory sslContextFactory,
-      boolean disableSSL) {
+      boolean disableSSL,
+      MeterRegistry registry) {
+    this.registry = registry;
+    this.brokerClient = brokerClient;
     this.group = group;
     this.ingressEndpoints = new ConcurrentHashMap<>();
     this.sslContextFactory = sslContextFactory;
@@ -62,13 +83,21 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
               ingressEndpoints.forEach((s, ingressEndpoint) -> ingressEndpoint.dispose());
             })
         .subscribe();
+
+    Tags tags = Tags.of("type", "DefaultIngressEndpoint");
+
+    this.joinEvents = registry.counter("endpointJoinEvents", tags);
+    this.leaveEvents = registry.counter("endpointLeaveEvents", tags);
   }
 
   private void handleEvent(Event event) {
     logger.info("group {} sent event {}", group, event);
     if (event.hasJoinEvent()) {
-      register(event.getJoinEvent().getServiceName(), null);
+      joinEvents.increment();
+      BrokerSocket target = brokerClient.groupNamedRSocket(group, HTTP_BRIDGE_NAMED_SOCKET_NAME);
+      register(event.getJoinEvent().getServiceName(), target);
     } else if (event.hasLeaveEvent()) {
+      leaveEvents.increment();
       unregister(event.getLeaveEvent().getServiceName());
     }
   }
@@ -85,7 +114,7 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
 
             IngressEndpoint endpoint =
                 new DefaultIngressEndpoint(
-                    sslContextFactory, serviceName, disableSsl, port, target);
+                    sslContextFactory, serviceName, disableSsl, port, target, registry);
 
             endpoint.onClose().doFinally(signalType -> portManager.releasePort(port)).subscribe();
 

@@ -7,23 +7,24 @@ import com.orbitz.consul.NotRegisteredException;
 import com.orbitz.consul.model.agent.ImmutableRegCheck;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
-import java.time.Duration;
-import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
+import java.time.Duration;
+import java.util.Collections;
+
 public class DefaultConsulIngressRegister implements IngressDiscoveryRegister {
 
   private static final int DEFAULT_TTL_PING = 3;
   private static final String DEFAULT_TTL_REGISTER = "5s";
+  private static final Logger logger = LogManager.getLogger(DefaultConsulIngressRegister.class);
   private final AgentClient agentClient;
   private final String serviceId;
   private final String serviceName;
   private final String serviceAddress;
   private final int servicePort;
-  private Logger logger = LogManager.getLogger(DefaultConsulIngressRegister.class);
   private Disposable passCheckFlux;
 
   public DefaultConsulIngressRegister(

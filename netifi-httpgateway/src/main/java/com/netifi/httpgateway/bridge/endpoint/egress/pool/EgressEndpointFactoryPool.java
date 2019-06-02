@@ -3,6 +3,8 @@ package com.netifi.httpgateway.bridge.endpoint.egress.pool;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactorySupplier;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.rsocket.Closeable;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -26,9 +28,20 @@ public abstract class EgressEndpointFactoryPool<
     extends AtomicBoolean implements Closeable, Disposable {
   private final Logger logger = LogManager.getLogger(EgressEndpointFactoryPool.class);
   private final MonoProcessor<Void> onClose;
+  private final String serviceName;
 
-  EgressEndpointFactoryPool() {
+  EgressEndpointFactoryPool(String serviceName, MeterRegistry registry) {
     this.onClose = MonoProcessor.create();
+    this.serviceName = serviceName;
+  
+    Tags tags =
+      Tags.of(
+        "serviceName",
+        serviceName,
+        "type",
+        "EgressEndpointFactoryPool");
+    
+    registry.gauge("poolSize", tags, this, EgressEndpointFactoryPool::size);
   }
 
   void init(EgressEndpointFactorySupplier<E, F> egressEndpointFactorySupplier) {
@@ -86,5 +99,9 @@ public abstract class EgressEndpointFactoryPool<
     if (compareAndSet(false, true)) {
       onClose.onComplete();
     }
+  }
+  
+  public String getServiceName() {
+    return serviceName;
   }
 }

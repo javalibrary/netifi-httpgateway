@@ -5,6 +5,7 @@ import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalanc
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.pool.RandomSelectionWeightedEgressEndpointFactoryPool;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.stereotype.Component;
 
 /** Factory that creates {@link EWMAEndpointLoadBalancerFactory} */
@@ -26,11 +27,14 @@ public class EWMAEndpointLoadBalancerFactory
    * @return a load balancer
    */
   public EWMAEndpointLoadBalancer createNewLoadBalancer(
+      String serviceName,
       EgressEndpointFactorySupplier<WeightedEgressEndpoint, WeightedEgressEndpointFactory>
-          egressEndpointFactorySupplier) {
+          egressEndpointFactorySupplier,
+      MeterRegistry registry) {
     RandomSelectionWeightedEgressEndpointFactoryPool pool =
-        new RandomSelectionWeightedEgressEndpointFactoryPool(egressEndpointFactorySupplier);
+        new RandomSelectionWeightedEgressEndpointFactoryPool(
+            egressEndpointFactorySupplier, serviceName, registry);
 
-    return new EWMAEndpointLoadBalancer(pool);
+    return new EWMAEndpointLoadBalancer(pool, registry);
   }
 }

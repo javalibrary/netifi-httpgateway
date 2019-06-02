@@ -3,6 +3,8 @@ package com.netifi.httpgateway.bridge.endpoint.egress.pool;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactorySupplier;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFactory;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -17,12 +19,26 @@ public class RandomSelectionWeightedEgressEndpointFactoryPool
 
   public RandomSelectionWeightedEgressEndpointFactoryPool(
       EgressEndpointFactorySupplier<WeightedEgressEndpoint, WeightedEgressEndpointFactory>
-          egressEndpointFactorySupplier) {
+          egressEndpointFactorySupplier,
+      String serviceName,
+      MeterRegistry registry) {
+    super(serviceName, registry);
     this.availableFactories = new ArrayList<>();
     this.leasedFactories = new HashSet<>();
     this.lastIncoming = Collections.EMPTY_SET;
-    
+
     super.init(egressEndpointFactorySupplier);
+  
+    Tags tags =
+      Tags.of(
+        "serviceName",
+        serviceName,
+        "type",
+        "RandomSelectionWeightedEgressEndpointFactoryPool");
+  
+    registry.gaugeCollectionSize("availableFactories", tags, availableFactories);
+    registry.gaugeCollectionSize("leasedFactories", tags, leasedFactories);
+    registry.gaugeCollectionSize("lastIncoming", tags, lastIncoming);
   }
 
   @Override

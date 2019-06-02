@@ -3,13 +3,18 @@ package com.netifi.httpgateway.bridge.endpoint.egress;
 import com.netifi.broker.BrokerClient;
 import com.netifi.httpgateway.bridge.codec.HttpRequestDecoder;
 import com.netifi.httpgateway.bridge.codec.HttpResponseEncoder;
+import com.netifi.httpgateway.bridge.endpoint.egress.ServiceEventsSupplier.ServiceEvent;
+import com.netifi.httpgateway.bridge.endpoint.egress.ServiceEventsSupplier.ServiceJoinEvent;
+import com.netifi.httpgateway.bridge.endpoint.egress.ServiceEventsSupplier.ServiceLeaveEvent;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalancer;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalancerFactory;
 import com.netifi.httpgateway.bridge.endpoint.source.BridgeEndpointSourceServer;
 import com.netifi.httpgateway.bridge.endpoint.source.EndpointJoinEvent;
 import com.netifi.httpgateway.bridge.endpoint.source.EndpointLeaveEvent;
 import com.netifi.httpgateway.bridge.endpoint.source.Event;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.handler.codec.http.HttpRequest;
@@ -23,7 +28,9 @@ import reactor.core.Disposable;
 import reactor.core.publisher.*;
 import reactor.netty.ByteBufFlux;
 import reactor.netty.http.client.HttpClientUtils;
+import reactor.retry.Retry;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,15 +44,24 @@ public class ServiceManagerRSocket extends AbstractRSocket {
   private final Map<String, EgressEndpointLoadBalancer> loadBalancers;
   private final FluxProcessor<Event, Event> eventProcessor;
   private final EgressEndpointLoadBalancerFactory factory;
+  private final MeterRegistry registry;
+  private final Counter joinEvents;
+  private final Counter leaveEvents;
 
   public ServiceManagerRSocket(
-      Flux<ServiceEvent> serviceManagerEvents,
+      ServiceEventsSupplier supplier,
       EgressEndpointLoadBalancerFactory factory,
       BrokerClient brokerClient,
       MeterRegistry registry) {
     this.eventProcessor = DirectProcessor.<Event>create().serialize();
     this.loadBalancers = new ConcurrentHashMap<>();
     this.factory = factory;
+    this.registry = registry;
+
+    Tags tags = Tags.of("type", "ServiceManagerRSocket");
+
+    this.joinEvents = registry.counter("serviceJoinEvents", tags);
+    this.leaveEvents = registry.counter("serviceLeaveEvents", tags);
 
     DefaultBridgeEndpointSource source =
         new DefaultBridgeEndpointSource(loadBalancers::keySet, eventProcessor);
@@ -53,7 +69,14 @@ public class ServiceManagerRSocket extends AbstractRSocket {
     brokerClient.addService(
         new BridgeEndpointSourceServer(source, Optional.of(registry), Optional.empty()));
 
-    Disposable disposable = serviceManagerEvents.doOnNext(this::handleEvent).subscribe();
+    Disposable disposable =
+        Flux.defer(supplier)
+            .doOnNext(this::handleEvent)
+            .doOnError(throwable -> logger.error("error streaming service events"))
+            .retryWhen(
+                Retry.any()
+                    .exponentialBackoffWithJitter(Duration.ofSeconds(1), Duration.ofSeconds(30)))
+            .subscribe();
 
     onClose().doFinally(s -> disposable.dispose()).subscribe();
   }
@@ -68,12 +91,14 @@ public class ServiceManagerRSocket extends AbstractRSocket {
 
   @SuppressWarnings("unchecked")
   private void handleJoinEvent(ServiceJoinEvent serviceEvent) {
+    joinEvents.increment();
     EgressEndpointLoadBalancer old =
         loadBalancers.computeIfAbsent(
             serviceEvent.getServiceId(),
             s -> {
               logger.info("adding new egress service with id {}", s);
-              return factory.createNewLoadBalancer(serviceEvent.getEgressEndpointFactory());
+              return factory.createNewLoadBalancer(
+                  s, serviceEvent.getEgressEndpointFactory(), registry);
             });
 
     if (old == null) {
@@ -88,6 +113,7 @@ public class ServiceManagerRSocket extends AbstractRSocket {
   }
 
   private void handleLeaveEvent(ServiceLeaveEvent serviceEvent) {
+    leaveEvents.increment();
     EgressEndpointLoadBalancer removed = loadBalancers.remove(serviceEvent.getServiceId());
 
     if (removed != null) {
@@ -159,15 +185,4 @@ public class ServiceManagerRSocket extends AbstractRSocket {
       return Mono.error(t);
     }
   }
-
-  interface ServiceEvent {
-    String getServiceId();
-  }
-
-  interface ServiceJoinEvent extends ServiceEvent {
-    <E extends EgressEndpoint, F extends EgressEndpointFactory<E>>
-        EgressEndpointFactorySupplier<E, F> getEgressEndpointFactory();
-  }
-
-  interface ServiceLeaveEvent extends ServiceEvent {}
 }

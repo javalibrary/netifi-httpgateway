@@ -26,6 +26,8 @@ public class BrokerClientSettings {
   public static final Boolean DEFAULT_SSL_DISABLED = false;
   public static final Integer DEFAULT_LOW_PORT = 20_000;
   public static final Integer DEFAULT_HIGH_PORT = 60_000;
+  
+  public static final String HTTP_BRIDGE_NAMED_SOCKET_NAME = "com.netifi.http.bridge.socket";
 
   private String brokerHostname;
 

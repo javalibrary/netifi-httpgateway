@@ -7,6 +7,7 @@ import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.pool.EgressEndpointFactoryPool;
 import com.netifi.httpgateway.bridge.endpoint.egress.pool.RandomSelectionWeightedEgressEndpointFactoryPool;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
@@ -20,7 +21,8 @@ public class EWMAEndpointLoadBalancerTest {
   public void testShouldThrowExceptionWhenEmpty() {
     EgressEndpointFactoryPool factoryPool = Mockito.mock(EgressEndpointFactoryPool.class);
     Mockito.when(factoryPool.onClose()).thenReturn(Mono.never());
-    EWMAEndpointLoadBalancer loadBalancer = Mockito.spy(new EWMAEndpointLoadBalancer(factoryPool));
+    EWMAEndpointLoadBalancer loadBalancer =
+        Mockito.spy(new EWMAEndpointLoadBalancer(factoryPool, new SimpleMeterRegistry()));
     loadBalancer.select();
   }
 
@@ -37,9 +39,11 @@ public class EWMAEndpointLoadBalancerTest {
     Mockito.when(egressEndpointFactorySupplier.get()).thenReturn(Flux.just(setOfFactories));
 
     RandomSelectionWeightedEgressEndpointFactoryPool factoryPool =
-        new RandomSelectionWeightedEgressEndpointFactoryPool(egressEndpointFactorySupplier);
+        new RandomSelectionWeightedEgressEndpointFactoryPool(
+            egressEndpointFactorySupplier, "", new SimpleMeterRegistry());
 
-    EWMAEndpointLoadBalancer loadBalancer = Mockito.spy(new EWMAEndpointLoadBalancer(factoryPool));
+    EWMAEndpointLoadBalancer loadBalancer =
+        Mockito.spy(new EWMAEndpointLoadBalancer(factoryPool, new SimpleMeterRegistry()));
     EgressEndpoint endpoint = loadBalancer.select();
     Mockito.verify(loadBalancer, Mockito.times(1)).refreshEndpoints();
   }

@@ -1,12 +1,12 @@
 package com.netifi.httpgateway.bridge.endpoint.ingress;
 
-public interface IngressDiscoveryRegister {
+interface IngressDiscoveryRegister {
 
-  public void serviceRegister();
+  void serviceRegister();
 
-  public void serviceDeregister();
+  void serviceDeregister();
 
-  public void passService();
+  void passService();
 
-  public void failService();
+  void failService();
 }

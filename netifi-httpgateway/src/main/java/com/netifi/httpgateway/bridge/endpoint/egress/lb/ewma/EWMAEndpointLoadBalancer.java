@@ -9,6 +9,8 @@ import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalanc
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.pool.EgressEndpointFactoryPool;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.rsocket.util.Clock;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,8 +29,10 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
   private static final double DEFAULT_EXP_FACTOR = 4.0;
   private static final double DEFAULT_LOWER_QUANTILE = 0.5;
   private static final double DEFAULT_HIGHER_QUANTILE = 0.8;
-  private static final int MIN_APERTURE = Integer.getInteger("com.netifi.httpgateway.bridge.endpoint.egress.lb.ewma.minAperture", 3);
-  private static final int MAX_APERTURE = Integer.getInteger("com.netifi.httpgateway.bridge.endpoint.egress.lb.ewma.maxAperture", 250);
+  private static final int MIN_APERTURE =
+      Integer.getInteger("com.netifi.httpgateway.bridge.endpoint.egress.lb.ewma.minAperture", 3);
+  private static final int MAX_APERTURE =
+      Integer.getInteger("com.netifi.httpgateway.bridge.endpoint.egress.lb.ewma.maxAperture", 250);
   private static final int EFFORT = 5;
   private static final long APERTURE_REFRESH_PERIOD = Clock.unit().convert(15, TimeUnit.SECONDS);
   private final double minPendings = 1.0;
@@ -51,7 +55,8 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
   @SuppressWarnings("unchecked")
   public EWMAEndpointLoadBalancer(
       EgressEndpointFactoryPool<WeightedEgressEndpoint, WeightedEgressEndpointFactory>
-          egressEndpointFactoryPool) {
+          egressEndpointFactoryPool,
+      MeterRegistry registry) {
     this.activeEndpoints = new ArrayList<>();
     this.onClose = MonoProcessor.create();
     this.egressEndpointFactoryPool = egressEndpointFactoryPool;
@@ -60,6 +65,22 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
 
     // It's never been refreshed - this will make it create an endpoint
     this.lastRefresh = 0;
+
+    Tags serviceName =
+        Tags.of(
+            "serviceName",
+            egressEndpointFactoryPool.getServiceName(),
+            "type",
+            "EWMAEndpointLoadBalancer");
+
+    registry.gaugeCollectionSize("activeEndpoints", serviceName, activeEndpoints);
+
+    registry.gauge("lastApertureRefresh", serviceName, this, value -> lastApertureRefresh);
+    registry.gauge("refreshPeriod", serviceName, this, value -> refreshPeriod);
+    registry.gauge("targetAperture", serviceName, this, value -> targetAperture);
+    registry.gauge("lastRefresh", serviceName, this, value -> lastRefresh);
+    registry.gauge("pendingSockets", serviceName, this, value -> pendingSockets);
+    registry.gauge("ewmaPendings", serviceName, pendings, Ewma::value);
 
     egressEndpointFactoryPool.onClose().doFinally(signalType -> dispose()).subscribe();
   }

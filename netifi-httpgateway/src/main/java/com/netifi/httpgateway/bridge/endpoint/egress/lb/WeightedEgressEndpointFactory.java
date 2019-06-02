@@ -2,6 +2,7 @@ package com.netifi.httpgateway.bridge.endpoint.egress.lb;
 
 import com.netifi.common.stats.Quantile;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContext;
 import reactor.core.publisher.MonoProcessor;
 import reactor.netty.http.client.HttpClient;
@@ -20,16 +21,20 @@ public class WeightedEgressEndpointFactory
   private final boolean disableSSL;
   private final Quantile lowerQuantile;
   private final Quantile higherQuantile;
+  private final String serviceName;
+  private final MeterRegistry registry;
   private WeightedEgressEndpoint weightedEgressEndpoint;
 
   public WeightedEgressEndpointFactory(
+      String serviceName,
       String egressEndpointId,
       String host,
       int port,
       SslContext sslContext,
       boolean disableSSL,
       Quantile lowerQuantile,
-      Quantile higherQuantile) {
+      Quantile higherQuantile,
+      MeterRegistry registry) {
     this.egressEndpointId = egressEndpointId;
     this.host = host;
     this.port = port;
@@ -37,6 +42,8 @@ public class WeightedEgressEndpointFactory
     this.disableSSL = disableSSL;
     this.lowerQuantile = lowerQuantile;
     this.higherQuantile = higherQuantile;
+    this.serviceName = serviceName;
+    this.registry = registry;
   }
 
   @Override
@@ -67,11 +74,15 @@ public class WeightedEgressEndpointFactory
 
     WeightedEgressEndpoint weightedEgressEndpoint =
         new WeightedEgressEndpoint(
+            serviceName,
             egressEndpointId,
+            host,
+            port,
             HttpClient.from(tcpClient),
             onConnectionClose,
             lowerQuantile,
-            higherQuantile);
+            higherQuantile,
+            registry);
 
     this.weightedEgressEndpoint = weightedEgressEndpoint;
 

@@ -5,6 +5,7 @@ import com.netifi.broker.info.*;
 import com.netifi.broker.rsocket.BrokerSocket;
 import com.netifi.httpgateway.bridge.endpoint.source.BridgeEndpointSourceClient;
 import com.netifi.httpgateway.util.Constants;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentracing.Tracer;
 import io.rsocket.Closeable;
@@ -38,7 +39,8 @@ public class DefaultIngressGroupManager extends AtomicBoolean
                   .setKey(Constants.HTTP_GATEWAY_KEY)
                   .setValue(Constants.HTTP_GATEWAY_VALUE))
           .build();
-
+  final Counter joinEvents;
+  final Counter leaveEvents;
   private final MonoProcessor<Void> onClose;
   private final BrokerInfoServiceClient brokerInfoService;
   private final ConcurrentHashMap<String, IngressEndpointManager> ingressEndpointManagers;
@@ -47,7 +49,7 @@ public class DefaultIngressGroupManager extends AtomicBoolean
   private final BrokerClient brokerClient;
   private final boolean disableSSL;
   private final SslContextFactory sslContextFactory;
-  private final MeterRegistry meterRegistry;
+  private final MeterRegistry registry;
   private final Tracer tracer;
 
   public DefaultIngressGroupManager(
@@ -57,7 +59,7 @@ public class DefaultIngressGroupManager extends AtomicBoolean
       PortManager portManager,
       SslContextFactory sslContextFactory,
       boolean disableSSL,
-      MeterRegistry meterRegistry,
+      MeterRegistry registry,
       Tracer tracer) {
     this.onClose = MonoProcessor.create();
     this.brokerInfoService = brokerInfoService;
@@ -67,12 +69,21 @@ public class DefaultIngressGroupManager extends AtomicBoolean
     this.brokerClient = brokerClient;
     this.sslContextFactory = sslContextFactory;
     this.disableSSL = disableSSL;
-    this.meterRegistry = meterRegistry;
+    this.registry = registry;
     this.tracer = tracer;
 
     Disposable disposable = handleGroups();
 
     onClose.doFinally(signalType -> disposable.dispose()).subscribe();
+
+    io.micrometer.core.instrument.Tags tags =
+        io.micrometer.core.instrument.Tags.of("type", "DefaultIngressGroupManager");
+
+    registry.gauge(
+        "ingressEndpointManagers", tags, ingressEndpointManagers, ConcurrentHashMap::size);
+
+    this.leaveEvents = registry.counter("leaveEvents", tags);
+    this.joinEvents = registry.counter("joinEvents", tags);
   }
 
   private Disposable handleGroups() {
@@ -112,6 +123,7 @@ public class DefaultIngressGroupManager extends AtomicBoolean
     String group = event.getDestination().getGroup();
     switch (event.getType()) {
       case JOIN:
+        joinEvents.increment();
         ingressEndpointManagers.computeIfAbsent(
             group,
             g -> {
@@ -119,13 +131,14 @@ public class DefaultIngressGroupManager extends AtomicBoolean
               BrokerSocket brokerSocket =
                   brokerClient.groupServiceSocket(g, com.netifi.common.tags.Tags.empty());
               BridgeEndpointSourceClient client =
-                  new BridgeEndpointSourceClient(brokerSocket, meterRegistry, tracer);
+                  new BridgeEndpointSourceClient(brokerSocket, registry, tracer);
 
               return new DefaultIngressEndpointManager(
-                  g, client, portManager, sslContextFactory, disableSSL);
+                  g, brokerClient, client, portManager, sslContextFactory, disableSSL, registry);
             });
         break;
       case LEAVE:
+        leaveEvents.increment();
         IngressEndpointManager removed = ingressEndpointManagers.remove(group);
         if (removed != null) {
           logger.info("removing ingress endpoint manager from group {}", group);
