@@ -40,6 +40,15 @@ application {
 }
 
 sourceSets {
+    main {
+        proto { srcDir 'src/main/proto' }
+    }
+
+    test {
+        java { srcDir 'src/java/java' }
+        proto { srcDir 'src/test/proto' }
+    }
+    
     integrationTest {
         java {
             compileClasspath += main.output + test.output
@@ -70,6 +79,7 @@ dependencies {
     protobuf 'io.rsocket.rpc:rsocket-rpc-protobuf-idl'
 
     testCompile 'junit:junit'
+    testCompile 'org.mockito:mockito-core'
     testCompile 'commons-io:commons-io'
     testCompile 'io.projectreactor:reactor-test'
     testCompile 'com.pszymczyk.consul:embedded-consul'
@@ -115,9 +125,9 @@ clean {
 
 idea {
     module {
-        sourceDirs += file('src/test/proto')
-        sourceDirs += file('src/generated/test/java')
-        sourceDirs += file('src/generated/test/rsocketRpc')
+        testResourceDirs += file('src/test/proto')
+        testResourceDirs += file('src/generated/test/java')
+        testResourceDirs += file('src/generated/test/rsocketRpc')
 
         generatedSourceDirs += file('src/generated/test/java')
         generatedSourceDirs += file('src/generated/test/rsocketRpc')
@@ -154,7 +164,6 @@ configurations {
     providedRuntime
     compile.exclude(group: 'ch.qos.logback')
 }
-
 
 
 // Docker Publishing

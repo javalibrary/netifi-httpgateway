@@ -19,5 +19,7 @@ dependencyManagement {
     dependency "io.rsocket.rpc:rsocket-rpc-protobuf:${rsocketRpcVersion}"
     dependency "junit:junit:${junitVersion}"
     dependency "org.mock-server:mockserver-netty:${mockserverVersion}"
+    dependency "org.mockito:mockito-core:${mockitoVersion}"
+
   }
 }
