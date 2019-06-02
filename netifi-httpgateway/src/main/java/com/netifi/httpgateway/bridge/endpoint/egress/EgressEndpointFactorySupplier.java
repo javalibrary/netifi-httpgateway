@@ -7,4 +7,6 @@ import java.util.function.Supplier;
 
 public interface EgressEndpointFactorySupplier<
         E extends EgressEndpoint, F extends EgressEndpointFactory<E>>
-    extends Supplier<Flux<Set<F>>> {}
+    extends Supplier<Flux<Set<F>>> {
+
+}

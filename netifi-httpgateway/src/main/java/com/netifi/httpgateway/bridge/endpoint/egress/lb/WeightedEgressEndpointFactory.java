@@ -47,17 +47,11 @@ public class WeightedEgressEndpointFactory
   }
 
   @Override
-  public WeightedEgressEndpoint get() {
-    WeightedEgressEndpoint e;
-    synchronized (this) {
-      e = weightedEgressEndpoint;
-      if (e == null) {
-        e = createEndpoint();
-        weightedEgressEndpoint = e;
-      }
+  public synchronized WeightedEgressEndpoint get() {
+    if (weightedEgressEndpoint == null) {
+      weightedEgressEndpoint = createEndpoint();
     }
-
-    return e;
+    return weightedEgressEndpoint;
   }
 
   private synchronized WeightedEgressEndpoint createEndpoint() {
