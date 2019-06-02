@@ -27,8 +27,8 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
   private static final double DEFAULT_EXP_FACTOR = 4.0;
   private static final double DEFAULT_LOWER_QUANTILE = 0.5;
   private static final double DEFAULT_HIGHER_QUANTILE = 0.8;
-  private static final int MIN_APERTURE = 3;
-  private static final int MAX_APERTURE = 100;
+  private static final int MIN_APERTURE = Integer.getInteger("com.netifi.httpgateway.bridge.endpoint.egress.lb.ewma.minAperture", 3);
+  private static final int MAX_APERTURE = Integer.getInteger("com.netifi.httpgateway.bridge.endpoint.egress.lb.ewma.maxAperture", 250);
   private static final int EFFORT = 5;
   private static final long APERTURE_REFRESH_PERIOD = Clock.unit().convert(15, TimeUnit.SECONDS);
   private final double minPendings = 1.0;
