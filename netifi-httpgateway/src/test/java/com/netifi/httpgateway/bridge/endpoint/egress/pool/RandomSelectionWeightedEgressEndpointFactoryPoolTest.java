@@ -42,5 +42,7 @@ public class RandomSelectionWeightedEgressEndpointFactoryPoolTest {
     Optional<WeightedEgressEndpointFactory> lease = pool.lease();
     Assert.assertTrue(lease.isPresent());
     Assert.assertEquals(0, pool.size());
+    Optional<WeightedEgressEndpointFactory> lease1 = pool.lease();
+    Assert.assertFalse(lease1.isPresent());
   }
 }
