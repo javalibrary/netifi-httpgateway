@@ -20,6 +20,7 @@ public class EWMAEndpointLoadBalancerTest {
   @Test(expected = IllegalStateException.class)
   public void testShouldThrowExceptionWhenEmpty() {
     EgressEndpointFactoryPool factoryPool = Mockito.mock(EgressEndpointFactoryPool.class);
+    Mockito.when(factoryPool.getServiceName()).thenReturn("test");
     Mockito.when(factoryPool.onClose()).thenReturn(Mono.never());
     EWMAEndpointLoadBalancer loadBalancer =
         Mockito.spy(new EWMAEndpointLoadBalancer(factoryPool, new SimpleMeterRegistry()));
