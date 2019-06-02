@@ -16,7 +16,7 @@ package com.netifi.httpgateway.rsocket;
 import com.netifi.broker.BrokerClient;
 import com.netifi.common.tags.Tag;
 import com.netifi.common.tags.Tags;
-import com.netifi.httpgateway.config.HTTPGatewaySettings;
+import com.netifi.httpgateway.config.BrokerClientSettings;
 import com.netifi.httpgateway.util.HttpUtil;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.rsocket.RSocket;
@@ -32,20 +32,20 @@ public class BrokerClientRSocketSupplier implements RSocketSupplier {
   private final ConcurrentHashMap<String, RSocket> rsockets;
 
   @Autowired
-  public BrokerClientRSocketSupplier(HTTPGatewaySettings settings) {
+  public BrokerClientRSocketSupplier(BrokerClientSettings settings) {
     BrokerClient.TcpBuilder builder =
         BrokerClient.tcp()
-            .accessToken(settings.getAccess().getToken())
-            .accessKey(settings.getAccess().getKey());
+            .accessToken(settings.getAccessToken())
+            .accessKey(settings.getAccessKey());
 
-    if (settings.getSsl().isDisabled()) {
+    if (settings.isSslDisabled()) {
       builder = builder.disableSsl();
     }
 
     builder =
         builder
-            .host(settings.getBroker().getHostname())
-            .port(settings.getBroker().getPort())
+            .host(settings.getBrokerHostname())
+            .port(settings.getBrokerPort())
             .group(settings.getGroup());
 
     if (settings.getDestination() != null && settings.getDestination().isEmpty()) {

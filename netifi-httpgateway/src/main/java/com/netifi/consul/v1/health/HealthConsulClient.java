@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.netifi.consul.v1.ConsulRawClient;
 import com.netifi.consul.v1.Response;
 import com.netifi.consul.v1.Utils;
-import com.netifi.consul.v1.health.model.HealthService;
+import com.netifi.consul.v1.health.model.ServiceEntry;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -23,7 +23,7 @@ public class HealthConsulClient implements HealthClient {
   }
 
   @Override
-  public Flux<Response<List<HealthService>>> listNodesForServices(
+  public Flux<Response<List<ServiceEntry>>> listNodesForServices(
       ListNodesForServicesRequest listNodesForServicesRequest) {
     return rawClient
         .getHttpClient()
@@ -39,13 +39,13 @@ public class HealthConsulClient implements HealthClient {
                             return new Response<>(
                                 null, httpClientResponse, Utils.ensureErrorString(s));
                           }
-                          List<HealthService> serviceList = null;
+                          List<ServiceEntry> serviceList = null;
                           String error = null;
                           try {
                             serviceList =
                                 rawClient
                                     .getObjectMapper()
-                                    .readValue(s, new TypeReference<List<HealthService>>() {});
+                                    .readValue(s, new TypeReference<List<ServiceEntry>>() {});
                           } catch (IOException e) {
                             error = s;
                           }
