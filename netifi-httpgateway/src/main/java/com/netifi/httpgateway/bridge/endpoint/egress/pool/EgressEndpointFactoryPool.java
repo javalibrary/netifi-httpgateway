@@ -27,10 +27,11 @@ public abstract class EgressEndpointFactoryPool<
   private final Logger logger = LogManager.getLogger(EgressEndpointFactoryPool.class);
   private final MonoProcessor<Void> onClose;
 
-  public EgressEndpointFactoryPool(
-      EgressEndpointFactorySupplier<E, F> egressEndpointFactorySupplier) {
+  EgressEndpointFactoryPool() {
     this.onClose = MonoProcessor.create();
+  }
 
+  void init(EgressEndpointFactorySupplier<E, F> egressEndpointFactorySupplier) {
     Disposable disposable =
         egressEndpointFactorySupplier
             .get()

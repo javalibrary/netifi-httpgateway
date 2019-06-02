@@ -18,11 +18,11 @@ public class RandomSelectionWeightedEgressEndpointFactoryPool
   public RandomSelectionWeightedEgressEndpointFactoryPool(
       EgressEndpointFactorySupplier<WeightedEgressEndpoint, WeightedEgressEndpointFactory>
           egressEndpointFactorySupplier) {
-    super(egressEndpointFactorySupplier);
     this.availableFactories = new ArrayList<>();
     this.leasedFactories = new HashSet<>();
     this.lastIncoming = Collections.EMPTY_SET;
-    egressEndpointFactorySupplier.get().doOnNext(this::handleEndpointFactorySet).subscribe();
+    
+    super.init(egressEndpointFactorySupplier);
   }
 
   @Override
