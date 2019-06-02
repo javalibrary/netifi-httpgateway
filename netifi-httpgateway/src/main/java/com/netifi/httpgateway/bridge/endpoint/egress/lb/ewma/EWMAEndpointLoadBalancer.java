@@ -58,7 +58,7 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
     this.pendings = new Ewma(15, TimeUnit.SECONDS, (minPendings + maxPendings) / 2.0);
     this.refreshPeriod = Clock.unit().convert(15L, TimeUnit.SECONDS);
 
-    // It's never been refreshed - this make it create an endpoint
+    // It's never been refreshed - this will make it create an endpoint
     this.lastRefresh = 0;
 
     egressEndpointFactoryPool.onClose().doFinally(signalType -> dispose()).subscribe();
