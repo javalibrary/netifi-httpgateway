@@ -1,0 +1,11 @@
+version: "3.7"
+services:
+  httpgateway:
+    image: docker-snapshots.netifiinc.com/netifi/httpgateway:1.6.5-feature-project-stargate-83-SNAPSHOT
+    environment:
+      NETIFI_HTTPGATEWAY_OPTS: >
+        '-Dnetifi.httpgateway.consul.host=host.docker.internal'
+        '-Dnetifi.client.broker.hostname=host.docker.internal'
+        '-Dnetifi.client.ssl.isDisabled=false'
+      LOG4J_ROOT_LEVEL: debug
+    network_mode: host
