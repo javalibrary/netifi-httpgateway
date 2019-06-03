@@ -14,11 +14,16 @@ import reactor.core.publisher.FluxProcessor;
 public class DefaultBridgeEndpointSource implements BridgeEndpointSource {
   private Supplier<Set<String>> serviceNameSupplier;
 
+  private String group;
+
   private FluxProcessor<Event, Event> processor;
 
   public DefaultBridgeEndpointSource(
-      Supplier<Set<String>> serviceNameSupplier, FluxProcessor<Event, Event> processor) {
+      Supplier<Set<String>> serviceNameSupplier,
+      String group,
+      FluxProcessor<Event, Event> processor) {
     this.serviceNameSupplier = serviceNameSupplier;
+    this.group = group;
     this.processor = processor;
   }
 
@@ -29,6 +34,7 @@ public class DefaultBridgeEndpointSource implements BridgeEndpointSource {
             .map(
                 serviceNames ->
                     Event.newBuilder()
+                        .setGroup(group)
                         .setJoinEvent(
                             EndpointJoinEvent.newBuilder().setServiceName(serviceNames).build())
                         .build());

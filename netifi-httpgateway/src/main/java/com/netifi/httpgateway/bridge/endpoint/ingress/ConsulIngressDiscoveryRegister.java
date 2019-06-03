@@ -72,7 +72,7 @@ public class ConsulIngressDiscoveryRegister implements IngressDiscoveryRegister 
                         .doOnNext(
                             l -> {
                               try {
-                                agentClient.pass(serviceId);
+                                agentClient.pass(uniqueServiceId);
                               } catch (Throwable t) {
                                 logger.error("error passing consul registration", t);
                               }
@@ -80,7 +80,7 @@ public class ConsulIngressDiscoveryRegister implements IngressDiscoveryRegister 
                         .doFinally(
                             s -> {
                               try {
-                                agentClient.fail(serviceId);
+                                agentClient.fail(uniqueServiceId);
                               } catch (Throwable t) {
                                 logger.error("error failing consul registration", t);
                               }

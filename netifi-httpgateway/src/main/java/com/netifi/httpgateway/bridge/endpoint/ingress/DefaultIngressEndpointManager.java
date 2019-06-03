@@ -133,7 +133,7 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
             endpoint.onClose().doFinally(signalType -> portManager.releasePort(port)).subscribe();
 
             logger.info(
-                "registering endpoint for service named {} on port {} - ssl disabled = {}",
+                "registering ingress endpoint for service named {} on port {} - ssl disabled = {}",
                 serviceName,
                 port,
                 disableSsl);

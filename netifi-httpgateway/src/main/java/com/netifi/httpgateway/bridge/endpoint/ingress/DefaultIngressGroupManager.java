@@ -39,8 +39,8 @@ public class DefaultIngressGroupManager extends AtomicBoolean
                   .setKey(Constants.HTTP_GATEWAY_KEY)
                   .setValue(Constants.HTTP_GATEWAY_VALUE))
           .build();
-  final Counter joinEvents;
-  final Counter leaveEvents;
+  private final Counter joinEvents;
+  private final Counter leaveEvents;
   private final MonoProcessor<Void> onClose;
   private final BrokerInfoServiceClient brokerInfoService;
   private final ConcurrentHashMap<String, IngressEndpointManager> ingressEndpointManagers;
@@ -124,6 +124,10 @@ public class DefaultIngressGroupManager extends AtomicBoolean
 
   private void handleEvent(Event event) {
     String group = event.getDestination().getGroup();
+    if (group.equals(brokerClient.getGroup())) {
+      logger.info("ingress manager received an event from itself, skipping");
+      return;
+    }
     switch (event.getType()) {
       case JOIN:
         logger.info("ingress group manager received join event: {}", event);
@@ -131,8 +135,7 @@ public class DefaultIngressGroupManager extends AtomicBoolean
         ingressEndpointManagers.computeIfAbsent(
             group,
             g -> {
-              logger.info(
-                  "adding new ingress endpoint manager for to http gateway with a group {}", group);
+              logger.info("adding new ingress endpoint manager to http gateway with a group {}", g);
               BrokerSocket brokerSocket =
                   brokerClient.groupServiceSocket(g, com.netifi.common.tags.Tags.empty());
               BridgeEndpointSourceClient client;

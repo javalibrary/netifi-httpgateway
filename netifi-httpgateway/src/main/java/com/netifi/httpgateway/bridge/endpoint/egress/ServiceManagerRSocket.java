@@ -46,6 +46,7 @@ public class ServiceManagerRSocket extends AbstractRSocket {
   private final MeterRegistry registry;
   private final Counter joinEvents;
   private final Counter leaveEvents;
+  private final BrokerClient brokerClient;
 
   public ServiceManagerRSocket(
       ServiceEventsSupplier supplier,
@@ -63,8 +64,10 @@ public class ServiceManagerRSocket extends AbstractRSocket {
     this.leaveEvents = registry.counter("serviceLeaveEvents", tags);
 
     DefaultBridgeEndpointSource source =
-        new DefaultBridgeEndpointSource(loadBalancers::keySet, eventProcessor);
+        new DefaultBridgeEndpointSource(
+            loadBalancers::keySet, brokerClient.getGroup(), eventProcessor);
 
+    this.brokerClient = brokerClient;
     brokerClient.addService(
         new BridgeEndpointSourceServer(source, Optional.of(registry), Optional.empty()));
 
@@ -91,7 +94,7 @@ public class ServiceManagerRSocket extends AbstractRSocket {
   @SuppressWarnings("unchecked")
   private void handleJoinEvent(ServiceJoinEvent serviceEvent) {
     logger.info(
-        "service manager received a service join event for service name {}",
+        "egress service manager received a service join event for service name {}",
         serviceEvent.getServiceName());
     joinEvents.increment();
     String s = serviceEvent.getServiceName();
@@ -102,6 +105,7 @@ public class ServiceManagerRSocket extends AbstractRSocket {
       loadBalancers.put(s, newLoadBalancer);
       eventProcessor.onNext(
           Event.newBuilder()
+              .setGroup(brokerClient.getGroup())
               .setJoinEvent(
                   EndpointJoinEvent.newBuilder()
                       .setServiceName(serviceEvent.getServiceName())

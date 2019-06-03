@@ -17,6 +17,7 @@ message EndpointLeaveEvent {
 }
 
 message Event {
+  string group = 3;
   oneof event {
     EndpointJoinEvent joinEvent = 1;
     EndpointLeaveEvent leaveEvent = 2;

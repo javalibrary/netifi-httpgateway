@@ -7,7 +7,6 @@ import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.ServiceEventsSupplier;
 import com.orbitz.consul.CatalogClient;
 import com.orbitz.consul.Consul;
-import com.orbitz.consul.HealthClient;
 import com.orbitz.consul.model.ConsulResponse;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
@@ -42,10 +41,11 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
                 () -> {
                   final Consul consul = consulSupplier.get();
                   logger.info("streaming consul service events");
-                  final HealthClient healthClient = consul.healthClient();
                   final CatalogClient catalogClient = consul.catalogClient();
 
-                  return Flux.interval(Duration.ofSeconds(10), Schedulers.single())
+                  return Flux.interval(
+                          Duration.ofSeconds(2),
+                          Schedulers.newSingle("consul-service-event-supplier"))
                       .onBackpressureDrop()
                       .concatMapIterable(
                           l -> {
@@ -68,8 +68,12 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
                                 missingInCurrentServices.removeAll(this.currentServices);
 
                                 for (String s : missingInCurrentServices) {
+                                  if (s.equals("consul")) {
+                                    // logger.debug("found service named consul - skipping");
+                                    continue;
+                                  }
                                   ConsulServiceJoinEvent joinEvent =
-                                      new ConsulServiceJoinEvent(s, healthClient);
+                                      new ConsulServiceJoinEvent(s, consulSupplier);
                                   events.add(joinEvent);
                                   this.currentServices.add(s);
                                 }
@@ -113,18 +117,18 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
   class ConsulServiceJoinEvent extends ConsulServiceEvent
       implements ServiceEventsSupplier.ServiceJoinEvent {
 
-    private final HealthClient healthClient;
+    private final ConsulClientProvider.ConsulSupplier consulSupplier;
 
-    ConsulServiceJoinEvent(String serviceName, HealthClient healthClient) {
+    ConsulServiceJoinEvent(String serviceName, ConsulClientProvider.ConsulSupplier consulSupplier) {
       super(serviceName);
-      this.healthClient = healthClient;
+      this.consulSupplier = consulSupplier;
     }
 
     @Override
     public <E extends EgressEndpoint, F extends EgressEndpointFactory<E>>
         ConsulEgressEndpointFactorySupplier getEgressEndpointFactory() {
       return new ConsulEgressEndpointFactorySupplier(
-          getServiceName(), healthClient, context.getSslContext(), registry);
+          getServiceName(), consulSupplier, context.getSslContext(), registry);
     }
   }
 
