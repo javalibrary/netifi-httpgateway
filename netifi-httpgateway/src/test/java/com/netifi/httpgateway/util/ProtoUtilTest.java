@@ -4,29 +4,12 @@ import static com.netifi.httpgateway.util.ProtoUtil.*;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.UnknownFieldSet;
-import com.netifi.broker.BrokerClient;
 import java.io.File;
 import java.nio.file.Files;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ProtoUtilTest {
-  @Test
-  @Ignore
-  public void testField() throws Exception {
-    long accessKey = Long.getLong("ACCESS_KEY", 4556064191835152L);
-    String accessToken = System.getProperty("ACCESS_TOKEN", "OHy1ZBvR0nOSkhpsszwJAd58+fk=");
-    BrokerClient.tcp()
-        .host("localhost")
-        .accessKey(accessKey)
-        .accessToken(accessToken)
-        .group("aGRoup")
-        .port(8001)
-        .build();
-
-    Thread.sleep(5_000);
-  }
 
   @Test
   public void testFieldToString() throws Exception {
