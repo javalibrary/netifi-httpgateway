@@ -51,6 +51,7 @@ public class DefaultIngressGroupManager extends AtomicBoolean
   private final SslContextFactory sslContextFactory;
   private final MeterRegistry registry;
   private final Tracer tracer;
+  private final IngressDiscoveryRegister ingressDiscoveryRegister;
 
   public DefaultIngressGroupManager(
       BrokerInfoServiceClient brokerInfoService,
@@ -60,8 +61,10 @@ public class DefaultIngressGroupManager extends AtomicBoolean
       SslContextFactory sslContextFactory,
       boolean disableSSL,
       MeterRegistry registry,
-      Tracer tracer) {
+      Tracer tracer,
+      IngressDiscoveryRegister ingressDiscoveryRegister) {
     this.onClose = MonoProcessor.create();
+    this.ingressDiscoveryRegister = ingressDiscoveryRegister;
     this.brokerInfoService = brokerInfoService;
     this.ingressEndpointManagers = new ConcurrentHashMap<>();
     this.scheduler = scheduler;
@@ -134,7 +137,14 @@ public class DefaultIngressGroupManager extends AtomicBoolean
                   new BridgeEndpointSourceClient(brokerSocket, registry, tracer);
 
               return new DefaultIngressEndpointManager(
-                  g, brokerClient, client, portManager, sslContextFactory, disableSSL, registry);
+                  g,
+                  brokerClient,
+                  client,
+                  portManager,
+                  sslContextFactory,
+                  disableSSL,
+                  registry,
+                  ingressDiscoveryRegister);
             });
         break;
       case LEAVE:

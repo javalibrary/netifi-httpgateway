@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 import reactor.core.publisher.UnicastProcessor;
@@ -59,7 +60,9 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
       boolean disableSSL,
       int port,
       RSocket target,
-      MeterRegistry registry) {
+      MeterRegistry registry,
+      IngressDiscoveryRegister ingressDiscoveryRegister) {
+    this.ingressDiscoveryRegister = ingressDiscoveryRegister;
     this.serviceName = serviceName;
     this.port = port;
     this.target = target;
@@ -100,14 +103,8 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
               dispose();
             });
 
-    // TODO: wire up what service address the gateway should use
-    // TODO: wire up consul configuration settings
-    // TODO: support configuration of different IngressDiscoveryRegister types
-    this.ingressDiscoveryRegister =
-        new DefaultConsulIngressRegister(
-            "localhost", 8500, null, serviceName + "-uniqueID", serviceName, "localhost", port);
-    this.ingressDiscoveryRegister.serviceRegister();
-    onClose.doFinally(signalType -> this.ingressDiscoveryRegister.serviceDeregister()).subscribe();
+    Disposable disposable = ingressDiscoveryRegister.register(serviceName, port);
+    onClose.doFinally(signalType -> disposable.dispose()).subscribe();
   }
 
   private Mono<Void> handle(HttpServerRequest req, HttpServerResponse resp) {

@@ -1,12 +1,8 @@
 package com.netifi.httpgateway.bridge.endpoint.ingress;
 
+import reactor.core.Disposable;
+
 interface IngressDiscoveryRegister {
 
-  void serviceRegister();
-
-  void serviceDeregister();
-
-  void passService();
-
-  void failService();
+  Disposable register(String serviceId, int port);
 }

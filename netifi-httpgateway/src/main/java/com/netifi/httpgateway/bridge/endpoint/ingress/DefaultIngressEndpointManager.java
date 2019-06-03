@@ -47,6 +47,8 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
 
   private final Counter leaveEvents;
 
+  private final IngressDiscoveryRegister ingressDiscoveryRegister;
+
   public DefaultIngressEndpointManager(
       String group,
       BrokerClient brokerClient,
@@ -54,12 +56,14 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
       PortManager portManager,
       SslContextFactory sslContextFactory,
       boolean disableSSL,
-      MeterRegistry registry) {
+      MeterRegistry registry,
+      IngressDiscoveryRegister ingressDiscoveryRegister) {
     this.registry = registry;
     this.brokerClient = brokerClient;
     this.group = group;
     this.ingressEndpoints = new ConcurrentHashMap<>();
     this.sslContextFactory = sslContextFactory;
+    this.ingressDiscoveryRegister = ingressDiscoveryRegister;
     this.disableSsl = disableSSL;
     this.portManager = portManager;
     this.onClose = MonoProcessor.create();
@@ -114,7 +118,13 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
 
             IngressEndpoint endpoint =
                 new DefaultIngressEndpoint(
-                    sslContextFactory, serviceName, disableSsl, port, target, registry);
+                    sslContextFactory,
+                    serviceName,
+                    disableSsl,
+                    port,
+                    target,
+                    registry,
+                    ingressDiscoveryRegister);
 
             endpoint.onClose().doFinally(signalType -> portManager.releasePort(port)).subscribe();
 
