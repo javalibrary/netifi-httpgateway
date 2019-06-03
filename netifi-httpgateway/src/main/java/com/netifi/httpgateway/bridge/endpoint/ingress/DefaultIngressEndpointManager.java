@@ -1,8 +1,11 @@
 package com.netifi.httpgateway.bridge.endpoint.ingress;
 
+import static com.netifi.httpgateway.config.BrokerClientSettings.HTTP_BRIDGE_NAMED_SOCKET_NAME;
+
 import com.google.protobuf.Empty;
 import com.netifi.broker.BrokerClient;
 import com.netifi.broker.rsocket.BrokerSocket;
+import com.netifi.httpgateway.bridge.endpoint.SslContextFactory;
 import com.netifi.httpgateway.bridge.endpoint.source.BridgeEndpointSourceClient;
 import com.netifi.httpgateway.bridge.endpoint.source.Event;
 import io.micrometer.core.instrument.Counter;
@@ -10,18 +13,15 @@ import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.rsocket.RSocket;
 import io.rsocket.exceptions.RejectedSetupException;
+import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 import reactor.retry.Retry;
-
-import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static com.netifi.httpgateway.config.BrokerClientSettings.HTTP_BRIDGE_NAMED_SOCKET_NAME;
 
 public class DefaultIngressEndpointManager extends AtomicBoolean implements IngressEndpointManager {
 

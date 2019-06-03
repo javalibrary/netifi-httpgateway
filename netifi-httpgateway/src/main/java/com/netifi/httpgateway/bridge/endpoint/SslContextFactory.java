@@ -1,4 +1,4 @@
-package com.netifi.httpgateway.bridge.endpoint.ingress;
+package com.netifi.httpgateway.bridge.endpoint;
 
 import com.netifi.broker.info.Broker;
 import io.netty.handler.ssl.OpenSsl;
@@ -7,12 +7,11 @@ import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.SslProvider;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
+import java.security.SecureRandom;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import reactor.core.Exceptions;
-
-import java.security.SecureRandom;
 
 @Component
 public class SslContextFactory {

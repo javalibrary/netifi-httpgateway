@@ -4,14 +4,13 @@ import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactorySupplier;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFactory;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.Optional;
+import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
 import reactor.core.publisher.Flux;
-
-import java.util.Optional;
-import java.util.Set;
 
 public class RandomSelectionWeightedEgressEndpointFactoryPoolTest {
   @Test

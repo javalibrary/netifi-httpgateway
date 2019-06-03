@@ -17,6 +17,7 @@ buildscript {
         classpath 'gradle.plugin.com.google.protobuf:protobuf-gradle-plugin:0.8.8'
         classpath 'gradle.plugin.com.palantir.gradle.gitversion:gradle-git-version:0.12.0-rc2'
         classpath 'io.spring.gradle:dependency-management-plugin:1.0.7.RELEASE'
+        classpath 'gradle.plugin.com.github.sherter.google-java-format:google-java-format-gradle-plugin:0.8'
     }
 }
 
@@ -68,6 +69,7 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'maven-publish'
     apply plugin: 'com.google.protobuf'
+    apply plugin: 'com.github.sherter.google-java-format'
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -75,6 +77,10 @@ subprojects {
     compileTestJava {
         sourceCompatibility = 11
         targetCompatibility = 11
+    }
+
+    googleJavaFormat {
+        exclude '**/generated'
     }
 
     repositories {

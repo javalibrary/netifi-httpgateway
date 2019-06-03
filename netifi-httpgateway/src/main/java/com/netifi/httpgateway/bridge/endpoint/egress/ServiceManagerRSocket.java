@@ -22,6 +22,10 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.rsocket.AbstractRSocket;
 import io.rsocket.Payload;
 import io.rsocket.util.ByteBufPayload;
+import java.time.Duration;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.Disposable;
@@ -29,11 +33,6 @@ import reactor.core.publisher.*;
 import reactor.netty.ByteBufFlux;
 import reactor.netty.http.client.HttpClientUtils;
 import reactor.retry.Retry;
-
-import java.time.Duration;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages services as they are feed in from an external discovery service. A service contains a

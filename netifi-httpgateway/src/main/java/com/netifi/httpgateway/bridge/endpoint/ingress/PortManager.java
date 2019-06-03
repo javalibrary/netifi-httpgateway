@@ -36,9 +36,8 @@ public class PortManager {
   public synchronized void releasePort(int port) {
     reservedPorts.remove(port);
   }
-  
+
   public synchronized boolean isPortReserved(int port) {
     return reservedPorts.containsKey(port);
   }
-  
 }

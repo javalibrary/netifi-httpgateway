@@ -10,13 +10,12 @@ import io.micrometer.core.instrument.Timer;
 import io.rsocket.Payload;
 import io.rsocket.rpc.exception.TimeoutException;
 import io.rsocket.util.Clock;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoProcessor;
-import reactor.netty.http.client.HttpClient;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoProcessor;
+import reactor.netty.http.client.HttpClient;
 
 public class WeightedEgressEndpoint extends AtomicBoolean implements EgressEndpoint {
   private static final double STARTUP_PENALTY = Long.MAX_VALUE >> 12;

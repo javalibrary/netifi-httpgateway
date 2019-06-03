@@ -6,18 +6,17 @@ import com.netifi.httpgateway.endpoint.source.EndpointSource;
 import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
 import com.netifi.httpgateway.util.WatchEventFluxFactory;
 import io.netty.buffer.ByteBuf;
+import java.io.FileInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardWatchEventKinds;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
-
-import java.io.FileInputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardWatchEventKinds;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class FileSystemEndpointSource implements EndpointSource {
@@ -26,7 +25,7 @@ public class FileSystemEndpointSource implements EndpointSource {
   private final ConcurrentHashMap.KeySetView<String, Boolean> names;
 
   public FileSystemEndpointSource(
-    @Value("${netifi.client.gateway.descriptors.directory}")  String path) {
+      @Value("${netifi.client.gateway.descriptors.directory}") String path) {
     logger.info("file endpoint source watching path {}", path);
     this.names = ConcurrentHashMap.newKeySet();
     this.watchEventFlux = streamProtoDescriptor(Paths.get(path));
@@ -34,7 +33,7 @@ public class FileSystemEndpointSource implements EndpointSource {
 
   private Flux<ProtoDescriptor> streamProtoDescriptor(Path path) {
     return WatchEventFluxFactory.newWatchEventFlux(path)
-                                .filter(
+        .filter(
             watchEvent -> {
               boolean b =
                   watchEvent.kind() == StandardWatchEventKinds.ENTRY_CREATE
@@ -47,7 +46,7 @@ public class FileSystemEndpointSource implements EndpointSource {
 
               return b;
             })
-                                .map(
+        .map(
             watchEvent -> {
               if (watchEvent.kind() == StandardWatchEventKinds.ENTRY_CREATE
                   || watchEvent.kind() == StandardWatchEventKinds.ENTRY_MODIFY) {
@@ -81,8 +80,8 @@ public class FileSystemEndpointSource implements EndpointSource {
                     .build();
               }
             })
-                                .publish()
-                                .refCount();
+        .publish()
+        .refCount();
   }
 
   @Override

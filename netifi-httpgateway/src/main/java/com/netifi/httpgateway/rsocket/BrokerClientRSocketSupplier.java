@@ -1,12 +1,12 @@
 /**
  * Copyright 2018 Netifi Inc.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
+ * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software distributed under the
+ * <p>Unless required by applicable law or agreed to in writing, software distributed under the
  * License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
@@ -16,7 +16,6 @@ package com.netifi.httpgateway.rsocket;
 import com.netifi.broker.BrokerClient;
 import com.netifi.common.tags.Tag;
 import com.netifi.common.tags.Tags;
-import com.netifi.httpgateway.config.BrokerClientSettings;
 import com.netifi.httpgateway.util.HttpUtil;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.rsocket.RSocket;
@@ -32,28 +31,8 @@ public class BrokerClientRSocketSupplier implements RSocketSupplier {
   private final ConcurrentHashMap<String, RSocket> rsockets;
 
   @Autowired
-  public BrokerClientRSocketSupplier(BrokerClientSettings settings) {
-    BrokerClient.TcpBuilder builder =
-        BrokerClient.tcp()
-            .accessToken(settings.getAccessToken())
-            .accessKey(settings.getAccessKey());
-
-    if (settings.isSslDisabled()) {
-      builder = builder.disableSsl();
-    }
-
-    builder =
-        builder
-            .host(settings.getBrokerHostname())
-            .port(settings.getBrokerPort())
-            .group(settings.getGroup());
-
-    if (settings.getDestination() != null && settings.getDestination().isEmpty()) {
-      builder = builder.destination(settings.getDestination());
-    }
-
-    brokerClient = builder.build();
-
+  public BrokerClientRSocketSupplier(BrokerClient brokerClient) {
+    this.brokerClient = brokerClient;
     this.rsockets = new ConcurrentHashMap<>();
   }
 
@@ -74,7 +53,8 @@ public class BrokerClientRSocketSupplier implements RSocketSupplier {
       return rsockets.computeIfAbsent(
           overrideGroup, s -> brokerClient.groupServiceSocket(overrideGroup, tags));
     }
-    return rsockets.computeIfAbsent(rSocketKey, s -> brokerClient.groupServiceSocket(rSocketKey, tags));
+    return rsockets.computeIfAbsent(
+        rSocketKey, s -> brokerClient.groupServiceSocket(rSocketKey, tags));
   }
 
   private Tags toTags(List<String> allAsString) {

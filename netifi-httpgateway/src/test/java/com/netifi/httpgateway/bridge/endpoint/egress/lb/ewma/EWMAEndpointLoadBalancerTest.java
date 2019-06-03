@@ -8,13 +8,12 @@ import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFa
 import com.netifi.httpgateway.bridge.endpoint.egress.pool.EgressEndpointFactoryPool;
 import com.netifi.httpgateway.bridge.endpoint.egress.pool.RandomSelectionWeightedEgressEndpointFactoryPool;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import java.util.Set;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.Set;
 
 public class EWMAEndpointLoadBalancerTest {
   @Test(expected = IllegalStateException.class)

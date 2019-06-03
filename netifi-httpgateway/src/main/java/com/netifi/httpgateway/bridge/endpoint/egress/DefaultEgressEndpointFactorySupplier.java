@@ -5,7 +5,9 @@ import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFa
 import java.util.Set;
 import reactor.core.publisher.Flux;
 
-public class DefaultEgressEndpointFactorySupplier implements EgressEndpointFactorySupplier<WeightedEgressEndpoint, WeightedEgressEndpointFactory> {
+public class DefaultEgressEndpointFactorySupplier
+    implements EgressEndpointFactorySupplier<
+        WeightedEgressEndpoint, WeightedEgressEndpointFactory> {
 
   // TODO: use events from consul to maintain a Set<WeightedEgressEndpointFactory>
 

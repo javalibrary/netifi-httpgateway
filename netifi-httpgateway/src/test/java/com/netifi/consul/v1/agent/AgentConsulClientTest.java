@@ -125,7 +125,10 @@ public class AgentConsulClientTest {
     assertEquals(2, agentChecks.getValue().size());
     assertEquals(
         1,
-        agentChecks.getValue().keySet().stream()
+        agentChecks
+            .getValue()
+            .keySet()
+            .stream()
             .filter(
                 key ->
                     agentChecks
@@ -136,7 +139,10 @@ public class AgentConsulClientTest {
             .count());
     assertEquals(
         1,
-        agentChecks.getValue().keySet().stream()
+        agentChecks
+            .getValue()
+            .keySet()
+            .stream()
             .filter(
                 key ->
                     agentChecks

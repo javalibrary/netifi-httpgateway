@@ -18,17 +18,20 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.Empty;
 import com.google.protobuf.UnknownFieldSet;
 import com.google.protobuf.util.JsonFormat;
+import com.netifi.httpgateway.endpoint.source.EndpointSource;
+import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
+import com.netifi.httpgateway.rsocket.RSocketSupplier;
 import com.netifi.httpgateway.rsocket.endpoint.Endpoint;
 import com.netifi.httpgateway.rsocket.endpoint.FireAndForgetEndpointHttp;
 import com.netifi.httpgateway.rsocket.endpoint.RequestChannelEndpoint;
 import com.netifi.httpgateway.rsocket.endpoint.RequestResponseEndpointHttp;
 import com.netifi.httpgateway.rsocket.endpoint.RequestStreamEndpoint;
-import com.netifi.httpgateway.endpoint.source.EndpointSource;
-import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
-import com.netifi.httpgateway.rsocket.RSocketSupplier;
 import com.netifi.httpgateway.util.HttpUtil;
 import com.netifi.httpgateway.util.ProtoUtil;
 import io.netty.buffer.Unpooled;
+import java.time.Duration;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +39,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class DefaultEndpointFactory implements EndpointFactory {
@@ -196,7 +195,8 @@ public class DefaultEndpointFactory implements EndpointFactory {
 
                 if (ProtoUtil.isFieldPresent(field, ProtoUtil.NETIFI_FILE_OPTIONS__GROUP)) {
                   String _package = proto.getPackage();
-                  String group = ProtoUtil.fieldToString(field, ProtoUtil.NETIFI_FILE_OPTIONS__GROUP);
+                  String group =
+                      ProtoUtil.fieldToString(field, ProtoUtil.NETIFI_FILE_OPTIONS__GROUP);
                   return processServices(
                       _package, type, group, proto.getServiceList(), dictionary, registry);
                 } else {
@@ -223,24 +223,29 @@ public class DefaultEndpointFactory implements EndpointFactory {
 
               String service = _package + "." + proto.getName();
               if (ProtoUtil.isFieldPresent(field, ProtoUtil.NETIFI_SERVICE_OPTIONS__URL)) {
-                String baseUrl = ProtoUtil.fieldToString(field, ProtoUtil.NETIFI_SERVICE_OPTIONS__URL);
+                String baseUrl =
+                    ProtoUtil.fieldToString(field, ProtoUtil.NETIFI_SERVICE_OPTIONS__URL);
 
                 logger.info("service named {} is mapped to url {} - processing", service, baseUrl);
 
                 long globalTimoutMillis = -1;
                 int globalMaxCurrency = Runtime.getRuntime().availableProcessors() * 100;
-                if (ProtoUtil.isFieldPresent(field, ProtoUtil.NETIFI_SERVICE_OPTIONS__GLOBAL_TIMEOUT_MILLIS)) {
+                if (ProtoUtil.isFieldPresent(
+                    field, ProtoUtil.NETIFI_SERVICE_OPTIONS__GLOBAL_TIMEOUT_MILLIS)) {
                   globalTimoutMillis =
-                      ProtoUtil.fieldToLong(field, ProtoUtil.NETIFI_SERVICE_OPTIONS__GLOBAL_TIMEOUT_MILLIS);
+                      ProtoUtil.fieldToLong(
+                          field, ProtoUtil.NETIFI_SERVICE_OPTIONS__GLOBAL_TIMEOUT_MILLIS);
                   logger.info(
                       "service named {} has a global time in millis -> {}",
                       service,
                       globalTimoutMillis);
                 }
 
-                if (ProtoUtil.isFieldPresent(field, ProtoUtil.NETIFI_SERVICE_OPTIONS__GLOBAL_MAX_CONCURRENCY)) {
+                if (ProtoUtil.isFieldPresent(
+                    field, ProtoUtil.NETIFI_SERVICE_OPTIONS__GLOBAL_MAX_CONCURRENCY)) {
                   globalMaxCurrency =
-                      ProtoUtil.fieldToInteger(field, ProtoUtil.NETIFI_SERVICE_OPTIONS__GLOBAL_MAX_CONCURRENCY);
+                      ProtoUtil.fieldToInteger(
+                          field, ProtoUtil.NETIFI_SERVICE_OPTIONS__GLOBAL_MAX_CONCURRENCY);
                   logger.info(
                       "service named {} has a global max concurrency -> {}",
                       service,
@@ -284,21 +289,29 @@ public class DefaultEndpointFactory implements EndpointFactory {
 
               if (ProtoUtil.isFieldPresent(field, ProtoUtil.NETIFI_METHOD_OPTIONS__URL)) {
                 String url =
-                    baseUrl + HttpUtil.stripLeadingSlash(ProtoUtil.fieldToString(field, ProtoUtil.NETIFI_METHOD_OPTIONS__URL));
+                    baseUrl
+                        + HttpUtil.stripLeadingSlash(
+                            ProtoUtil.fieldToString(field, ProtoUtil.NETIFI_METHOD_OPTIONS__URL));
                 logger.info("found url {} for method {} - generating ending point", url, method);
                 long timeoutMillis = globalTimoutMillis;
                 int maxConcurrency = globalMaxCurrency;
-                if (ProtoUtil.isFieldPresent(field, ProtoUtil.NETIFI_METHOD_OPTIONS__TIMEOUT_MILLIS)) {
-                  timeoutMillis = ProtoUtil.fieldToLong(field, ProtoUtil.NETIFI_METHOD_OPTIONS__TIMEOUT_MILLIS);
+                if (ProtoUtil.isFieldPresent(
+                    field, ProtoUtil.NETIFI_METHOD_OPTIONS__TIMEOUT_MILLIS)) {
+                  timeoutMillis =
+                      ProtoUtil.fieldToLong(field, ProtoUtil.NETIFI_METHOD_OPTIONS__TIMEOUT_MILLIS);
                   logger.info("setting method {} timeout millis to {}", method, timeoutMillis);
                 }
 
-                if (ProtoUtil.isFieldPresent(field, ProtoUtil.NETIFI_METHOD_OPTIONS__MAX_CONCURRENCY)) {
-                  maxConcurrency = ProtoUtil.fieldToInteger(field, ProtoUtil.NETIFI_METHOD_OPTIONS__MAX_CONCURRENCY);
+                if (ProtoUtil.isFieldPresent(
+                    field, ProtoUtil.NETIFI_METHOD_OPTIONS__MAX_CONCURRENCY)) {
+                  maxConcurrency =
+                      ProtoUtil.fieldToInteger(
+                          field, ProtoUtil.NETIFI_METHOD_OPTIONS__MAX_CONCURRENCY);
                   logger.info("setting method {} max concurrency to {}", method, maxConcurrency);
                 }
 
-                field = proto.getOptions().getUnknownFields().getField(ProtoUtil.RSOCKET_RPC_OPTIONS);
+                field =
+                    proto.getOptions().getUnknownFields().getField(ProtoUtil.RSOCKET_RPC_OPTIONS);
 
                 Endpoint endpoint;
                 Descriptors.Descriptor request = dictionary.get(proto.getInputType());
@@ -310,7 +323,8 @@ public class DefaultEndpointFactory implements EndpointFactory {
                         : Duration.ofMillis(Long.MAX_VALUE);
 
                 if (ProtoUtil.isFieldPresent(field, ProtoUtil.RSOCKET_RPC_OPTIONS__FIRE_AND_FORGET)
-                    && ProtoUtil.fieldToBoolean(field, ProtoUtil.RSOCKET_RPC_OPTIONS__FIRE_AND_FORGET)) {
+                    && ProtoUtil.fieldToBoolean(
+                        field, ProtoUtil.RSOCKET_RPC_OPTIONS__FIRE_AND_FORGET)) {
                   endpoint =
                       new FireAndForgetEndpointHttp(
                           service,

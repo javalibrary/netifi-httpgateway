@@ -15,6 +15,11 @@
  */
 package com.netifi.httpgateway.bridge.codec;
 
+import static io.netty.buffer.Unpooled.directBuffer;
+import static io.netty.buffer.Unpooled.unreleasableBuffer;
+import static io.netty.handler.codec.http.HttpConstants.CR;
+import static io.netty.handler.codec.http.HttpConstants.LF;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
@@ -23,15 +28,9 @@ import io.netty.channel.FileRegion;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
 import io.netty.util.internal.StringUtil;
-import reactor.core.publisher.UnicastProcessor;
-
 import java.util.Iterator;
 import java.util.Map.Entry;
-
-import static io.netty.buffer.Unpooled.directBuffer;
-import static io.netty.buffer.Unpooled.unreleasableBuffer;
-import static io.netty.handler.codec.http.HttpConstants.CR;
-import static io.netty.handler.codec.http.HttpConstants.LF;
+import reactor.core.publisher.UnicastProcessor;
 
 /** Encodes an {@link HttpMessage} or an {@link HttpContent} into a {@link ByteBuf}. */
 public abstract class HttpObjectEncoder<H extends HttpMessage> {
@@ -184,7 +183,7 @@ public abstract class HttpObjectEncoder<H extends HttpMessage> {
   }
 
   private void encodeChunkedContent(
-    ByteBufAllocator alloc, Object msg, long contentLength, UnicastProcessor<ByteBuf> out) {
+      ByteBufAllocator alloc, Object msg, long contentLength, UnicastProcessor<ByteBuf> out) {
     if (contentLength > 0) {
       String lengthHex = Long.toHexString(contentLength);
       ByteBuf buf = alloc.buffer(lengthHex.length() + 2);

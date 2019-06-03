@@ -10,6 +10,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.rsocket.Payload;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,23 +20,19 @@ import reactor.netty.http.server.HttpServerResponse;
 import reactor.netty.http.websocket.WebsocketInbound;
 import reactor.netty.http.websocket.WebsocketOutbound;
 
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.concurrent.atomic.AtomicInteger;
-
 public class RequestStreamEndpoint implements Endpoint {
-  private final Descriptors.Descriptor  request;
-  private final Descriptors.Descriptor  response;
-  private final String                  defaultGroup;
-  private final RSocketSupplier         rSocketSupplier;
-  private final boolean                 hasTimeout;
-  private final Duration                timeout;
-  private final int                     maxConcurrency;
-  private final AtomicInteger           outstandingRequests;
-  private final String                  service;
-  private final String                  method;
+  private final Descriptors.Descriptor request;
+  private final Descriptors.Descriptor response;
+  private final String defaultGroup;
+  private final RSocketSupplier rSocketSupplier;
+  private final boolean hasTimeout;
+  private final Duration timeout;
+  private final int maxConcurrency;
+  private final AtomicInteger outstandingRequests;
+  private final String service;
+  private final String method;
   private final JsonFormat.TypeRegistry typeRegistry;
-  private final boolean                 requestEmpty;
+  private final boolean requestEmpty;
 
   public RequestStreamEndpoint(
       String service,

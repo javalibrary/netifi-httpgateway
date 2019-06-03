@@ -21,9 +21,8 @@ import io.netty.buffer.Unpooled;
 import io.rsocket.Payload;
 import io.rsocket.rpc.frames.Metadata;
 import io.rsocket.util.ByteBufPayload;
-import reactor.core.Exceptions;
-
 import java.nio.ByteBuffer;
+import reactor.core.Exceptions;
 
 public final class ProtoUtil {
 
@@ -34,7 +33,7 @@ public final class ProtoUtil {
   public static final int NETIFI_SERVICE_OPTIONS__URL = 1;
   public static final int NETIFI_SERVICE_OPTIONS__GLOBAL_TIMEOUT_MILLIS = 2;
   public static final int NETIFI_SERVICE_OPTIONS__GLOBAL_MAX_CONCURRENCY = 3;
-                          
+
   public static final int NETIFI_METHOD_OPTIONS = 50_000;
   public static final int NETIFI_METHOD_OPTIONS__URL = 1;
   public static final int NETIFI_METHOD_OPTIONS__TIMEOUT_MILLIS = 2;
@@ -119,21 +118,19 @@ public final class ProtoUtil {
       throw Exceptions.propagate(t);
     }
   }
-  
-  public static String parseResponseToJson(ByteBuf byteBuf,
-                                           Descriptors.Descriptor descriptor,
-                                           JsonFormat.TypeRegistry typeRegistry) {
+
+  public static String parseResponseToJson(
+      ByteBuf byteBuf, Descriptors.Descriptor descriptor, JsonFormat.TypeRegistry typeRegistry) {
     try {
       ByteBuffer byteBuffer = byteBuf.internalNioBuffer(0, byteBuf.readableBytes());
       DynamicMessage message =
-        DynamicMessage.parseFrom(descriptor, CodedInputStream.newInstance(byteBuffer));
+          DynamicMessage.parseFrom(descriptor, CodedInputStream.newInstance(byteBuffer));
       return JsonFormat.printer()
-               .omittingInsignificantWhitespace()
-               .usingTypeRegistry(typeRegistry)
-               .print(message);
+          .omittingInsignificantWhitespace()
+          .usingTypeRegistry(typeRegistry)
+          .print(message);
     } catch (Throwable t) {
       throw Exceptions.propagate(t);
     }
   }
-  
 }

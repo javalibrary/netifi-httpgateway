@@ -4,12 +4,11 @@ import com.netifi.common.stats.Quantile;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContext;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import reactor.core.publisher.MonoProcessor;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.tcp.TcpClient;
-
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WeightedEgressEndpointFactory
     implements EgressEndpointFactory<WeightedEgressEndpoint> {

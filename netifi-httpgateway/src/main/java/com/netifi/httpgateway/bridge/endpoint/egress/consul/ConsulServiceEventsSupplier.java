@@ -1,5 +1,6 @@
 package com.netifi.httpgateway.bridge.endpoint.egress.consul;
 
+import com.netifi.httpgateway.bridge.endpoint.SslContextFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.ServiceEventsSupplier;
@@ -8,19 +9,17 @@ import com.orbitz.consul.Consul;
 import com.orbitz.consul.HealthClient;
 import com.orbitz.consul.model.ConsulResponse;
 import io.micrometer.core.instrument.MeterRegistry;
-import io.netty.handler.ssl.SslContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import reactor.core.publisher.BufferOverflowStrategy;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
-
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.BufferOverflowStrategy;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 @Component
 public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
@@ -29,10 +28,11 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
   private final Set<String> currentServices;
   private final Flux<ServiceEvent> serviceEventFlux;
   private final MeterRegistry registry;
-  private final SslContext context;
+  private final SslContextFactory context;
 
   @Autowired
-  public ConsulServiceEventsSupplier(Consul consul, MeterRegistry registry, SslContext sslContext) {
+  public ConsulServiceEventsSupplier(
+      Consul consul, MeterRegistry registry, SslContextFactory sslContext) {
     this.healthClient = consul.healthClient();
     this.context = sslContext;
     this.registry = registry;
@@ -102,7 +102,7 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
     public <E extends EgressEndpoint, F extends EgressEndpointFactory<E>>
         ConsulEgressEndpointFactorySupplier getEgressEndpointFactory() {
       return new ConsulEgressEndpointFactorySupplier(
-          getServiceId(), healthClient, context, registry);
+          getServiceId(), healthClient, context.getSslContext(), registry);
     }
   }
 

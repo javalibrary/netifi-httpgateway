@@ -16,6 +16,8 @@ package com.netifi.httpgateway.rsocket.endpoint.registry;
 import com.netifi.httpgateway.rsocket.endpoint.Endpoint;
 import com.netifi.httpgateway.rsocket.endpoint.factory.EndpointEvent;
 import com.netifi.httpgateway.rsocket.endpoint.factory.EndpointFactory;
+import java.time.Duration;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +26,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import reactor.retry.Retry;
 
-import java.time.Duration;
-import java.util.concurrent.ConcurrentHashMap;
-
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class DefaultEndpointRegistry implements EndpointRegistry {
-  private static final Logger                       logger = LogManager.getLogger(DefaultEndpointRegistry.class);
+  private static final Logger logger = LogManager.getLogger(DefaultEndpointRegistry.class);
   private final ConcurrentHashMap<String, Endpoint> endpoints;
 
   @Autowired

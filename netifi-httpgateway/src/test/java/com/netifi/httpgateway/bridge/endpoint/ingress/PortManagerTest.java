@@ -16,12 +16,12 @@ public class PortManagerTest {
     int bar = manager.reservePort("bar");
 
     Assert.assertNotEquals(foo, bar);
-    
+
     Assert.assertTrue(manager.isPortReserved(foo));
     Assert.assertTrue(manager.isPortReserved(bar));
-    
+
     manager.releasePort(foo);
-  
+
     Assert.assertFalse(manager.isPortReserved(foo));
     Assert.assertTrue(manager.isPortReserved(bar));
   }

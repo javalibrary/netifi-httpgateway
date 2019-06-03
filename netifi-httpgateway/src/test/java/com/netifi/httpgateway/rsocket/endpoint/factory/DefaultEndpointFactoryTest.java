@@ -5,13 +5,12 @@ import com.google.protobuf.Empty;
 import com.netifi.httpgateway.endpoint.source.EndpointSource;
 import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
 import io.netty.buffer.ByteBuf;
+import java.io.File;
+import java.nio.file.Files;
 import org.junit.Assert;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
-
-import java.io.File;
-import java.nio.file.Files;
 
 public class DefaultEndpointFactoryTest {
   @Test

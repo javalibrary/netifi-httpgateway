@@ -16,13 +16,13 @@
 
 package com.netifi.httpgateway.bridge.codec;
 
+import static io.netty.handler.codec.http.HttpConstants.COLON;
+import static io.netty.handler.codec.http.HttpConstants.SP;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.util.AsciiString;
 import io.netty.util.CharsetUtil;
-
-import static io.netty.handler.codec.http.HttpConstants.COLON;
-import static io.netty.handler.codec.http.HttpConstants.SP;
 
 final class HttpHeadersEncoder {
   private static final int COLON_AND_SPACE_SHORT = (COLON << 8) | SP;

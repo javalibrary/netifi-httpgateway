@@ -10,15 +10,14 @@ import com.orbitz.consul.model.health.Service;
 import com.orbitz.consul.model.health.ServiceHealth;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContext;
-import reactor.core.publisher.Flux;
-import reactor.core.scheduler.Schedulers;
-
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 public class ConsulEgressEndpointFactorySupplier
     implements EgressEndpointFactorySupplier<
@@ -32,7 +31,7 @@ public class ConsulEgressEndpointFactorySupplier
   private Flux<Set<WeightedEgressEndpointFactory>> factoryStream;
 
   public ConsulEgressEndpointFactorySupplier(
-    String serviceId, HealthClient healthClient, SslContext context, MeterRegistry registry) {
+      String serviceId, HealthClient healthClient, SslContext context, MeterRegistry registry) {
     this.serviceId = serviceId;
     this.healthClient = healthClient;
     this.factories = new ConcurrentHashMap<>();

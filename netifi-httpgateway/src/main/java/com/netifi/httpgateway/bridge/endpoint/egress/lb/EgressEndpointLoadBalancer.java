@@ -11,5 +11,4 @@ public interface EgressEndpointLoadBalancer extends Closeable, Disposable {
    * @return the selected endpoint
    */
   EgressEndpoint select();
-  
 }

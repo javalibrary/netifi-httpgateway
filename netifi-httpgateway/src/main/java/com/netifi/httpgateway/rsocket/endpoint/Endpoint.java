@@ -38,6 +38,8 @@ public interface Endpoint {
   default boolean isRequestStreaming() {
     return false;
   }
-  
-  default boolean isResponseStreaming() { return false; }
+
+  default boolean isResponseStreaming() {
+    return false;
+  }
 }

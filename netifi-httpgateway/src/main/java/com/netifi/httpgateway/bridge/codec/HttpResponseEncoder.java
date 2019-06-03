@@ -15,12 +15,12 @@
  */
 package com.netifi.httpgateway.bridge.codec;
 
+import static io.netty.handler.codec.http.HttpConstants.SP;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.handler.codec.http.*;
 import io.netty.util.CharsetUtil;
-
-import static io.netty.handler.codec.http.HttpConstants.SP;
 
 /** Encodes an {@link HttpResponse} or an {@link HttpContent} into a {@link ByteBuf}. */
 public class HttpResponseEncoder extends HttpObjectEncoder<HttpResponse> {

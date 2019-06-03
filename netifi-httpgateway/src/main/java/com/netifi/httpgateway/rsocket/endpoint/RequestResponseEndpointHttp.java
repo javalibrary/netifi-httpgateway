@@ -19,12 +19,11 @@ import com.netifi.httpgateway.rsocket.RSocketSupplier;
 import io.netty.buffer.ByteBuf;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
+import java.time.Duration;
 import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.http.server.HttpServerResponse;
-
-import java.time.Duration;
 
 public class RequestResponseEndpointHttp extends HttpAbstractEndpoint<Payload> {
   public RequestResponseEndpointHttp(
@@ -59,7 +58,7 @@ public class RequestResponseEndpointHttp extends HttpAbstractEndpoint<Payload> {
   @Override
   Publisher<Void> doHandleResponse(Payload source, HttpServerResponse response) {
     try {
-      response.header("Content-Type","application/json");
+      response.header("Content-Type", "application/json");
       ByteBuf byteBuf = source.sliceData();
       String json = parseResponseToJson(byteBuf);
       return response.sendString(Mono.just(json));

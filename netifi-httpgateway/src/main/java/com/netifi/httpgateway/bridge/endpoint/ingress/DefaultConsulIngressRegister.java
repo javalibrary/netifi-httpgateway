@@ -7,13 +7,12 @@ import com.orbitz.consul.NotRegisteredException;
 import com.orbitz.consul.model.agent.ImmutableRegCheck;
 import com.orbitz.consul.model.agent.ImmutableRegistration;
 import com.orbitz.consul.model.agent.Registration;
+import java.time.Duration;
+import java.util.Collections;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
-
-import java.time.Duration;
-import java.util.Collections;
 
 public class DefaultConsulIngressRegister implements IngressDiscoveryRegister {
 

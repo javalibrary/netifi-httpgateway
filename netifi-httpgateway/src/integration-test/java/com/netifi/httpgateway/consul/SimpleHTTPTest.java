@@ -25,7 +25,6 @@ import okhttp3.Request;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockserver.client.MockServerClient;
@@ -39,7 +38,10 @@ public class SimpleHTTPTest {
   private MockServerClient mockServerClient;
 
   @Rule public BrokerRule brokerRule = new BrokerRule(System.getProperty("docker.broker.image"));
-  @Rule public HttpGatewayRule httpGatewayRule = new HttpGatewayRule(System.getProperty("docker.httpgateway.image"));
+
+  @Rule
+  public HttpGatewayRule httpGatewayRule =
+      new HttpGatewayRule(System.getProperty("docker.httpgateway.image"));
 
   @ClassRule
   public static final ConsulResource consul =

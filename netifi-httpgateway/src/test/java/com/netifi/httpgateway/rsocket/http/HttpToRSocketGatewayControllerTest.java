@@ -163,9 +163,9 @@ public class HttpToRSocketGatewayControllerTest {
                   }
                 })
             .get();
-  
+
     webSocket.request(100);
-    
+
     Executors.newSingleThreadScheduledExecutor()
         .scheduleAtFixedRate(
             () -> {

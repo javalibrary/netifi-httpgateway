@@ -1,21 +1,6 @@
 package com.netifi.httpgateway.rsocket.endpoint.source;
 
-import com.google.common.io.Files;
-import com.google.protobuf.ByteString;
-import com.google.protobuf.Empty;
-import com.netifi.httpgateway.endpoint.source.ProtoDescriptor;
-import io.netty.buffer.Unpooled;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Ignore;
-import org.junit.Test;
-import reactor.core.Exceptions;
-import reactor.test.StepVerifier;
-
-import java.io.File;
-import java.io.InputStream;
-import java.time.Duration;
 
 @Ignore
 public class FileSystemEndpointSourceTest {
@@ -75,10 +60,10 @@ public class FileSystemEndpointSourceTest {
   public void testEmitsAddEvents() throws Exception {
     File file =
         new File(Thread.currentThread().getContextClassLoader().getResource("test.dsc").toURI());
-    
+
     File tempFile = File.createTempFile("testEmitsAddEvents", ".dsc");
     FileUtils.copyFile(file, tempFile);
-    
+
     File tempDir = Files.createTempDir();
 
     FileSystemEndpointSource source = new FileSystemEndpointSource(tempDir.getAbsolutePath());
@@ -99,19 +84,19 @@ public class FileSystemEndpointSourceTest {
         .thenCancel()
         .verify();
   }
-  
+
   @Test
   public void testEmitsDeleteEvents() throws Exception {
     File file =
       new File(Thread.currentThread().getContextClassLoader().getResource("test.dsc").toURI());
-  
+
     File tempDir = Files.createTempDir();
     File tempFile = File.createTempFile("testEmitsDeleteEvents", ".dsc", tempDir);
-  
+
     FileUtils.copyFile(file, tempFile);
-    
+
     FileSystemEndpointSource source = new FileSystemEndpointSource(tempDir.getAbsolutePath());
-    
+
     StepVerifier.create(
       source.streamProtoDescriptors(Empty.getDefaultInstance(), Unpooled.EMPTY_BUFFER))
       .assertNext(

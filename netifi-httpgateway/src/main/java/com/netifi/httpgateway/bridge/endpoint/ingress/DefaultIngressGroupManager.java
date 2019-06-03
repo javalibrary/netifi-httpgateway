@@ -3,12 +3,19 @@ package com.netifi.httpgateway.bridge.endpoint.ingress;
 import com.netifi.broker.BrokerClient;
 import com.netifi.broker.info.*;
 import com.netifi.broker.rsocket.BrokerSocket;
+import com.netifi.httpgateway.bridge.endpoint.SslContextFactory;
 import com.netifi.httpgateway.bridge.endpoint.source.BridgeEndpointSourceClient;
 import com.netifi.httpgateway.util.Constants;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.opentracing.Tracer;
 import io.rsocket.Closeable;
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.Disposable;
@@ -17,13 +24,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 import reactor.core.scheduler.Scheduler;
 import reactor.retry.Retry;
-
-import java.time.Duration;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * Manages the life cycle of groups with the tag {@link

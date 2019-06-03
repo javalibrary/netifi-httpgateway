@@ -5,12 +5,11 @@ import com.netifi.httpgateway.bridge.endpoint.source.BridgeEndpointSource;
 import com.netifi.httpgateway.bridge.endpoint.source.EndpointJoinEvent;
 import com.netifi.httpgateway.bridge.endpoint.source.Event;
 import io.netty.buffer.ByteBuf;
+import java.util.Set;
+import java.util.function.Supplier;
 import reactor.core.publisher.BufferOverflowStrategy;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxProcessor;
-
-import java.util.Set;
-import java.util.function.Supplier;
 
 public class DefaultBridgeEndpointSource implements BridgeEndpointSource {
   private Supplier<Set<String>> serviceNameSupplier;

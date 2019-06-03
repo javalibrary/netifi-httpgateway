@@ -6,17 +6,16 @@ import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactorySuppli
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.rsocket.Closeable;
+import java.time.Duration;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.Disposable;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 import reactor.retry.Retry;
-
-import java.time.Duration;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A pool of factories that are used to create connections to services
@@ -33,14 +32,9 @@ public abstract class EgressEndpointFactoryPool<
   EgressEndpointFactoryPool(String serviceName, MeterRegistry registry) {
     this.onClose = MonoProcessor.create();
     this.serviceName = serviceName;
-  
-    Tags tags =
-      Tags.of(
-        "serviceName",
-        serviceName,
-        "type",
-        "EgressEndpointFactoryPool");
-    
+
+    Tags tags = Tags.of("serviceName", serviceName, "type", "EgressEndpointFactoryPool");
+
     registry.gauge("poolSize", tags, this, EgressEndpointFactoryPool::size);
   }
 
@@ -100,7 +94,7 @@ public abstract class EgressEndpointFactoryPool<
       onClose.onComplete();
     }
   }
-  
+
   public String getServiceName() {
     return serviceName;
   }

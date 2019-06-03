@@ -16,17 +16,17 @@
 package com.netifi.httpgateway.rsocket.registry;
 
 public class ProtobufRegistryTest {
-/*  @Test
+  /*  @Test
   public void testingStuff() throws Exception {
     HelloRequest hi = HelloRequest
                         .newBuilder()
                         .setName("hi")
                         .build();
-  
+
     Descriptors.Descriptor descriptorForType = hi.getDescriptorForType();
-  
+
     String name = descriptorForType.getName();
-    
+
     Descriptors.FileDescriptor file = descriptorForType.getFile();
     System.out.println(file.toString());
   }*/

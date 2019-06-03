@@ -13,19 +13,18 @@
  */
 package com.netifi.httpgateway.util;
 
-import reactor.core.Disposable;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxSink;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 public final class WatchEventFluxFactory {
   private WatchEventFluxFactory() {}

@@ -12,17 +12,16 @@ import com.netifi.httpgateway.bridge.endpoint.egress.pool.EgressEndpointFactoryP
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.rsocket.util.Clock;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoProcessor;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.MonoProcessor;
 
 public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEndpointLoadBalancer {
   private static final Logger logger = LogManager.getLogger(EWMAEndpointLoadBalancer.class);

@@ -18,10 +18,9 @@ import com.google.protobuf.util.JsonFormat;
 import com.netifi.httpgateway.rsocket.RSocketSupplier;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
+import java.time.Duration;
 import org.reactivestreams.Publisher;
 import reactor.netty.http.server.HttpServerResponse;
-
-import java.time.Duration;
 
 public class FireAndForgetEndpointHttp extends HttpAbstractEndpoint<Void> {
   public FireAndForgetEndpointHttp(

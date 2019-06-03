@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-  public class EgressComponent {
+public class EgressComponent {
   private final MeterRegistry registry;
   private final BrokerClient brokerClient;
   private final EgressEndpointLoadBalancerFactory loadBalancerFactory;
@@ -25,8 +25,8 @@ import org.springframework.stereotype.Component;
 
     ServiceManagerRSocket serviceManagerRSocket =
         new ServiceManagerRSocket(eventsSupplier, loadBalancerFactory, brokerClient, registry);
-    
-    brokerClient
-      .addNamedRSocket(BrokerClientSettings.HTTP_BRIDGE_NAMED_SOCKET_NAME, serviceManagerRSocket);
+
+    brokerClient.addNamedRSocket(
+        BrokerClientSettings.HTTP_BRIDGE_NAMED_SOCKET_NAME, serviceManagerRSocket);
   }
 }

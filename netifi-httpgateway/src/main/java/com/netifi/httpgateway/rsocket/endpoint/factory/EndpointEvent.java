@@ -16,9 +16,9 @@ package com.netifi.httpgateway.rsocket.endpoint.factory;
 import com.netifi.httpgateway.rsocket.endpoint.Endpoint;
 
 public class EndpointEvent {
-  private String   url;
+  private String url;
   private Endpoint endpoint;
-  private Type     type;
+  private Type type;
 
   public EndpointEvent(String url, Endpoint endpoint, Type type) {
     this.url = url;
