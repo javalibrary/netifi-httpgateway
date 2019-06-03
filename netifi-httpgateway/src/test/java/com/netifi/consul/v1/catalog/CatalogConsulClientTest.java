@@ -8,10 +8,12 @@ import com.pszymczyk.consul.ConsulStarterBuilder;
 import com.pszymczyk.consul.junit.ConsulResource;
 import java.util.List;
 import java.util.Map;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import reactor.core.publisher.Flux;
 
+@Ignore
 public class CatalogConsulClientTest {
 
   @Rule

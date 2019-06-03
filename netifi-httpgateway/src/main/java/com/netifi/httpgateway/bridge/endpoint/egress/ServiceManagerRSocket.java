@@ -67,7 +67,6 @@ public class ServiceManagerRSocket extends AbstractRSocket {
 
     brokerClient.addService(
         new BridgeEndpointSourceServer(source, Optional.of(registry), Optional.empty()));
-
     Disposable disposable =
         Flux.defer(supplier)
             .doOnNext(this::handleEvent)

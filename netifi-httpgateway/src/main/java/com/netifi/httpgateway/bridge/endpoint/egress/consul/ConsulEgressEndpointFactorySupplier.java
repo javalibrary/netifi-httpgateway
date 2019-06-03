@@ -1,5 +1,6 @@
 package com.netifi.httpgateway.bridge.endpoint.egress.consul;
 
+import com.netifi.common.stats.FrugalQuantile;
 import com.netifi.common.stats.Quantile;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactorySupplier;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpoint;
@@ -15,78 +16,83 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
 public class ConsulEgressEndpointFactorySupplier
     implements EgressEndpointFactorySupplier<
         WeightedEgressEndpoint, WeightedEgressEndpointFactory> {
-  private HealthClient healthClient;
-  private ConcurrentHashMap<String, WeightedEgressEndpointFactory> factories;
-  private String serviceName;
-  private Quantile lowerQuantile;
-  private Quantile higherQuantile;
-  private MeterRegistry registry;
-  private Flux<Set<WeightedEgressEndpointFactory>> factoryStream;
+  private static final Logger logger =
+      LogManager.getLogger(ConsulEgressEndpointFactorySupplier.class);
+  private final Quantile lowerQuantile = new FrugalQuantile(0.5D);
+  private final Quantile higherQuantile = new FrugalQuantile(0.8D);
+  private final ConcurrentHashMap<String, WeightedEgressEndpointFactory> factories;
+  private final Flux<Set<WeightedEgressEndpointFactory>> factoryStream;
 
   public ConsulEgressEndpointFactorySupplier(
       String serviceName, HealthClient healthClient, SslContext context, MeterRegistry registry) {
-    this.serviceName = serviceName;
-    this.healthClient = healthClient;
     this.factories = new ConcurrentHashMap<>();
     this.factoryStream =
-        Flux.interval(Duration.ofSeconds(10), Schedulers.single())
+        Flux.interval(
+                Duration.ofSeconds(10), Schedulers.newSingle("consul-egress-endpoint-factory"))
             .<Set<WeightedEgressEndpointFactory>>handle(
                 (l, sink) -> {
-                  ConsulResponse<List<ServiceHealth>> healthyServiceInstances =
-                      healthClient.getHealthyServiceInstances(serviceName);
-                  boolean changeOccurred = false;
-                  if (healthyServiceInstances != null) {
-                    List<ServiceHealth> response = healthyServiceInstances.getResponse();
+                  try {
+                    ConsulResponse<List<ServiceHealth>> healthyServiceInstances =
+                        healthClient.getHealthyServiceInstances(serviceName);
+                    boolean changeOccurred = false;
+                    if (healthyServiceInstances != null) {
+                      List<ServiceHealth> response = healthyServiceInstances.getResponse();
 
-                    if (!response.isEmpty() || !factories.isEmpty()) {
-                      Set<String> incomingNodes = new HashSet<>();
-                      for (ServiceHealth health : response) {
-                        Service service = health.getService();
-                        String id = service.getId();
-                        incomingNodes.add(id);
-                        if (!factories.containsKey(id)) {
-                          String address = service.getAddress();
-                          if (address == null || address.isEmpty()) {
-                            address = health.getNode().getAddress();
+                      if (!response.isEmpty() || !factories.isEmpty()) {
+                        Set<String> incomingNodes = new HashSet<>();
+                        for (ServiceHealth health : response) {
+                          Service service = health.getService();
+                          String id = service.getId();
+                          incomingNodes.add(id);
+                          if (!factories.containsKey(id)) {
+                            String address = service.getAddress();
+                            if (address == null || address.isEmpty()) {
+                              address = health.getNode().getAddress();
+                            }
+                            WeightedEgressEndpointFactory factory =
+                                new WeightedEgressEndpointFactory(
+                                    serviceName,
+                                    id,
+                                    address,
+                                    service.getPort(),
+                                    context,
+                                    true,
+                                    lowerQuantile,
+                                    higherQuantile,
+                                    registry);
+                            factories.put(id, factory);
+                            changeOccurred = true;
                           }
-                          WeightedEgressEndpointFactory factory =
-                              new WeightedEgressEndpointFactory(
-                                  serviceName,
-                                  id,
-                                  address,
-                                  service.getPort(),
-                                  context,
-                                  true,
-                                  lowerQuantile,
-                                  higherQuantile,
-                                  registry);
-                          factories.put(id, factory);
+                        }
+
+                        Set<String> factoriesToRemove = new HashSet<>();
+                        for (String k : factories.keySet()) {
+                          if (!incomingNodes.contains(k)) {
+                            factoriesToRemove.add(k);
+                          }
+                        }
+
+                        for (String k : factoriesToRemove) {
+                          factories.remove(k).dispose();
                           changeOccurred = true;
                         }
-                      }
 
-                      Set<String> factoriesToRemove = new HashSet<>();
-                      for (String k : factories.keySet()) {
-                        if (!incomingNodes.contains(k)) {
-                          factoriesToRemove.add(k);
+                        if (changeOccurred) {
+                          sink.next(new HashSet<>(factories.values()));
                         }
                       }
-
-                      for (String k : factoriesToRemove) {
-                        factories.remove(k).dispose();
-                        changeOccurred = true;
-                      }
-
-                      if (changeOccurred) {
-                        sink.next(new HashSet<>(factories.values()));
-                      }
                     }
+                  } catch (Throwable t) {
+                    logger.error("error occurred create endpoint factory", t);
+                    sink.error(t);
                   }
                 })
             .publish()

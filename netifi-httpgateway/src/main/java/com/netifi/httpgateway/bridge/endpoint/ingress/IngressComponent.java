@@ -24,7 +24,7 @@ public class IngressComponent {
       BrokerClient brokerClient,
       MeterRegistry registry,
       IngressDiscoveryRegister ingressDiscoveryRegister,
-      @Value("${netifi.client.ssl.isDisabled}") boolean sslDisabled) {
+      @Value("${netifi.client.ssl.disabled}") boolean sslDisabled) {
     this.portManager = new PortManager(Constants.DEFAULT_LOW_PORT, Constants.DEFAULT_HIGH_PORT);
     BrokerSocket rSocket =
         brokerClient.groupServiceSocket("com.netifi.broker.brokerServices", Tags.empty());

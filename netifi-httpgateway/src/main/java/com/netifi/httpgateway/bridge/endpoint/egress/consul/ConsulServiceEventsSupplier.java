@@ -12,6 +12,8 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -19,6 +21,7 @@ import reactor.core.scheduler.Schedulers;
 
 @Component
 public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
+  private final Logger logger = LogManager.getLogger(ConsulServiceEventsSupplier.class);
   private final HealthClient healthClient;
   private final CatalogClient catalogClient;
   private final Set<String> currentServices;
@@ -35,7 +38,8 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
     this.catalogClient = consul.catalogClient();
     this.currentServices = ConcurrentHashMap.newKeySet();
     this.serviceEventFlux =
-        Flux.interval(Duration.ofSeconds(10), Schedulers.single())
+        Flux.interval(
+                Duration.ofSeconds(10), Schedulers.newSingle("consul-service-events-supplier"))
             .onBackpressureDrop()
             .concatMapIterable(
                 l -> {
@@ -56,12 +60,14 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
 
                       for (String s : missingInCurrentServices) {
                         ConsulServiceJoinEvent joinEvent = new ConsulServiceJoinEvent(s);
+                        logger.debug("adding consul join event for {} ", s);
                         events.add(joinEvent);
                         this.currentServices.add(s);
                       }
 
                       for (String s : missingInNewServices) {
                         ConsulServiceLeaveEvent leaveEvent = new ConsulServiceLeaveEvent(s);
+                        logger.debug("adding consul leave event for {} ", s);
                         events.add(leaveEvent);
                         this.currentServices.remove(s);
                       }
