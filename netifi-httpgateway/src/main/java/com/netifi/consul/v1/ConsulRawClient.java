@@ -112,7 +112,7 @@ public class ConsulRawClient {
     }
 
     public ConsulRawClient build() {
-      if ((this.token != null && !this.token.equals(""))
+      if ((this.token != null && !this.token.isEmpty())
           && !(this.useTokenBearerHeader
               || this.useTokenQueryParameter
               || this.useTokenXConsulTokenHeader)) {

@@ -6,7 +6,7 @@ import reactor.core.publisher.Flux;
 
 public interface ServiceEventsSupplier extends Supplier<Flux<ServiceEventsSupplier.ServiceEvent>> {
   interface ServiceEvent {
-    String getServiceId();
+    String getServiceName();
   }
 
   interface ServiceJoinEvent extends ServiceEvent {

@@ -61,7 +61,7 @@ public class SimpleHTTPTest {
         .when(HttpRequest.request().withMethod("GET").withPath("/health"))
         .respond(HttpResponse.response("OK").withStatusCode(200));
 
-    assertTrue(statusClient.getLeader() != null && !statusClient.getLeader().equals(""));
+    assertTrue(statusClient.getLeader() != null && !statusClient.getLeader().isEmpty());
 
     AgentClient agentClient = client.agentClient();
     String serviceID = "mock-server-http-hello-1";

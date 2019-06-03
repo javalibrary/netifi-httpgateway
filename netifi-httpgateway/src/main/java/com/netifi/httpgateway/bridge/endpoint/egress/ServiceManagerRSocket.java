@@ -93,9 +93,9 @@ public class ServiceManagerRSocket extends AbstractRSocket {
     joinEvents.increment();
     EgressEndpointLoadBalancer old =
         loadBalancers.computeIfAbsent(
-            serviceEvent.getServiceId(),
+            serviceEvent.getServiceName(),
             s -> {
-              logger.info("adding new egress service with id {}", s);
+              logger.info("adding new egress service with name {}", s);
               return factory.createNewLoadBalancer(
                   s, serviceEvent.getEgressEndpointFactory(), registry);
             });
@@ -105,7 +105,7 @@ public class ServiceManagerRSocket extends AbstractRSocket {
           Event.newBuilder()
               .setJoinEvent(
                   EndpointJoinEvent.newBuilder()
-                      .setServiceName(serviceEvent.getServiceId())
+                      .setServiceName(serviceEvent.getServiceName())
                       .build())
               .build());
     }
@@ -113,15 +113,15 @@ public class ServiceManagerRSocket extends AbstractRSocket {
 
   private void handleLeaveEvent(ServiceLeaveEvent serviceEvent) {
     leaveEvents.increment();
-    EgressEndpointLoadBalancer removed = loadBalancers.remove(serviceEvent.getServiceId());
+    EgressEndpointLoadBalancer removed = loadBalancers.remove(serviceEvent.getServiceName());
 
     if (removed != null) {
-      logger.info("removing Egress service with id {}", serviceEvent.getServiceId());
+      logger.info("removing Egress service with name {}", serviceEvent.getServiceName());
       eventProcessor.onNext(
           Event.newBuilder()
               .setLeaveEvent(
                   EndpointLeaveEvent.newBuilder()
-                      .setServiceName(serviceEvent.getServiceId())
+                      .setServiceName(serviceEvent.getServiceName())
                       .build())
               .build());
       removed.dispose();

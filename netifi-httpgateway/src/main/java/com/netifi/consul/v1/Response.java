@@ -57,7 +57,7 @@ public final class Response<T> {
   private static Long parseConsulIndex(HttpClientResponse res) {
     Long consulIndex = null;
     String stringConsulIndex = res.responseHeaders().get("X-Consul-Index");
-    if (stringConsulIndex != null && !stringConsulIndex.equals("")) {
+    if (stringConsulIndex != null && !stringConsulIndex.isEmpty()) {
       consulIndex = Long.parseLong(stringConsulIndex);
     }
     return consulIndex;
@@ -66,7 +66,7 @@ public final class Response<T> {
   private static Boolean parseConsulKnownLeader(HttpClientResponse res) {
     Boolean consulKnownLeader = null;
     String stringConsulKnownLeader = res.responseHeaders().get("X-Consul-Knownleader");
-    if (stringConsulKnownLeader != null && !stringConsulKnownLeader.equals("")) {
+    if (stringConsulKnownLeader != null && !stringConsulKnownLeader.isEmpty()) {
       consulKnownLeader = Boolean.parseBoolean(stringConsulKnownLeader);
     }
     return consulKnownLeader;
@@ -75,7 +75,7 @@ public final class Response<T> {
   private static Long parseConsulLastContact(HttpClientResponse res) {
     Long consulLastContact = null;
     String stringConsulLastContact = res.responseHeaders().get("X-Consul-Lastcontact");
-    if (stringConsulLastContact != null && !stringConsulLastContact.equals("")) {
+    if (stringConsulLastContact != null && !stringConsulLastContact.isEmpty()) {
       consulLastContact = Long.parseLong(stringConsulLastContact);
     }
     return consulLastContact;

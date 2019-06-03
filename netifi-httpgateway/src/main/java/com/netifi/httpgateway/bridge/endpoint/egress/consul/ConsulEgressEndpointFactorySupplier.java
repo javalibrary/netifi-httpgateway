@@ -11,7 +11,6 @@ import com.orbitz.consul.model.health.ServiceHealth;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.netty.handler.ssl.SslContext;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,15 +23,15 @@ public class ConsulEgressEndpointFactorySupplier
         WeightedEgressEndpoint, WeightedEgressEndpointFactory> {
   private HealthClient healthClient;
   private ConcurrentHashMap<String, WeightedEgressEndpointFactory> factories;
-  private String serviceId;
+  private String serviceName;
   private Quantile lowerQuantile;
   private Quantile higherQuantile;
   private MeterRegistry registry;
   private Flux<Set<WeightedEgressEndpointFactory>> factoryStream;
 
   public ConsulEgressEndpointFactorySupplier(
-      String serviceId, HealthClient healthClient, SslContext context, MeterRegistry registry) {
-    this.serviceId = serviceId;
+      String serviceName, HealthClient healthClient, SslContext context, MeterRegistry registry) {
+    this.serviceName = serviceName;
     this.healthClient = healthClient;
     this.factories = new ConcurrentHashMap<>();
     this.factoryStream =
@@ -40,31 +39,35 @@ public class ConsulEgressEndpointFactorySupplier
             .<Set<WeightedEgressEndpointFactory>>handle(
                 (l, sink) -> {
                   ConsulResponse<List<ServiceHealth>> healthyServiceInstances =
-                      healthClient.getHealthyServiceInstances(serviceId);
-
+                      healthClient.getHealthyServiceInstances(serviceName);
+                  boolean changeOccurred = false;
                   if (healthyServiceInstances != null) {
                     List<ServiceHealth> response = healthyServiceInstances.getResponse();
 
-                    if (!response.isEmpty()) {
-                      HashMap<String, WeightedEgressEndpointFactory> newFactories = new HashMap<>();
+                    if (!response.isEmpty() || !factories.isEmpty()) {
                       Set<String> incomingNodes = new HashSet<>();
                       for (ServiceHealth health : response) {
                         Service service = health.getService();
                         String id = service.getId();
                         incomingNodes.add(id);
-                        if (!factories.contains(id)) {
+                        if (!factories.containsKey(id)) {
+                          String address = service.getAddress();
+                          if (address == null || address.isEmpty()) {
+                            address = health.getNode().getAddress();
+                          }
                           WeightedEgressEndpointFactory factory =
                               new WeightedEgressEndpointFactory(
-                                  serviceId,
+                                  serviceName,
                                   id,
-                                  service.getAddress(),
+                                  address,
                                   service.getPort(),
                                   context,
                                   true,
                                   lowerQuantile,
                                   higherQuantile,
                                   registry);
-                          newFactories.put(id, factory);
+                          factories.put(id, factory);
+                          changeOccurred = true;
                         }
                       }
 
@@ -77,9 +80,12 @@ public class ConsulEgressEndpointFactorySupplier
 
                       for (String k : factoriesToRemove) {
                         factories.remove(k).dispose();
+                        changeOccurred = true;
                       }
 
-                      sink.next(new HashSet<>(factories.values()));
+                      if (changeOccurred) {
+                        sink.next(new HashSet<>(factories.values()));
+                      }
                     }
                   }
                 })
