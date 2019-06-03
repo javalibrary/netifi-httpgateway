@@ -6,16 +6,16 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="INFO" additivity="false">
+        <Root level="${env:LOG4J_ROOT_LEVEL:-info}" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </Root>
-        <logger name="com.netifi" level="INFO" additivity="false">
+        <logger name="com.netifi" level="${env:LOG4J_NETIFI_LEVEL:-info}" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </logger>
-        <logger name="io.rsocket.Frame.Error" level="debug" additivity="false">
+        <logger name="io.rsocket.Frame.Error" level="${env:LOG4J_RSOCKET_ERROR_LEVEL:-debug}" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </logger>
-        <logger name="io.rsocket.FrameLogger" level="info" additivity="false">
+        <logger name="io.rsocket.FrameLogger" level="${env:LOG4J_RSOCKET_FRAMELOGGER_LEVEL:-info}" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </logger>
     </Loggers>
