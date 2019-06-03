@@ -2,7 +2,7 @@ package com.netifi.httpgateway.bridge.endpoint.egress;
 
 import com.netifi.broker.BrokerClient;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalancerFactory;
-import com.netifi.httpgateway.config.BrokerClientSettings;
+import com.netifi.httpgateway.util.Constants;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,6 @@ public class EgressComponent {
     ServiceManagerRSocket serviceManagerRSocket =
         new ServiceManagerRSocket(eventsSupplier, loadBalancerFactory, brokerClient, registry);
 
-    brokerClient.addNamedRSocket(
-        BrokerClientSettings.HTTP_BRIDGE_NAMED_SOCKET_NAME, serviceManagerRSocket);
+    brokerClient.addNamedRSocket(Constants.HTTP_BRIDGE_NAMED_SOCKET_NAME, serviceManagerRSocket);
   }
 }

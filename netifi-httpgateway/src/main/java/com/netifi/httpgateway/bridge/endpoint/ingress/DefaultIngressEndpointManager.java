@@ -1,6 +1,6 @@
 package com.netifi.httpgateway.bridge.endpoint.ingress;
 
-import static com.netifi.httpgateway.config.BrokerClientSettings.HTTP_BRIDGE_NAMED_SOCKET_NAME;
+import static com.netifi.httpgateway.util.Constants.HTTP_BRIDGE_NAMED_SOCKET_NAME;
 
 import com.google.protobuf.Empty;
 import com.netifi.broker.BrokerClient;
