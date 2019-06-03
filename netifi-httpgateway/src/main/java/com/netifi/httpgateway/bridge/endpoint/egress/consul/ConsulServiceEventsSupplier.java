@@ -10,14 +10,10 @@ import com.orbitz.consul.HealthClient;
 import com.orbitz.consul.model.ConsulResponse;
 import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.BufferOverflowStrategy;
 import reactor.core.publisher.Flux;
 import reactor.core.scheduler.Schedulers;
 
@@ -40,8 +36,10 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
     this.currentServices = ConcurrentHashMap.newKeySet();
     this.serviceEventFlux =
         Flux.interval(Duration.ofSeconds(10), Schedulers.single())
-            .<ServiceEvent>handle(
-                (l, sink) -> {
+            .onBackpressureDrop()
+            .concatMapIterable(
+                l -> {
+                  List<ServiceEvent> events = new ArrayList<>();
                   ConsulResponse<Map<String, List<String>>> services = catalogClient.getServices();
 
                   if (services != null) {
@@ -50,25 +48,28 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
                     if (!response.isEmpty()) {
                       Set<String> incomingServices = response.keySet();
 
-                      Set<String> missingInNewServices = new HashSet<>(currentServices);
-                      missingInNewServices.remove(incomingServices);
+                      Set<String> missingInNewServices = new HashSet<>(this.currentServices);
+                      missingInNewServices.removeAll(incomingServices);
 
                       Set<String> missingInCurrentServices = new HashSet<>(incomingServices);
-                      missingInCurrentServices.remove(incomingServices);
+                      missingInCurrentServices.removeAll(this.currentServices);
 
                       for (String s : missingInCurrentServices) {
                         ConsulServiceJoinEvent joinEvent = new ConsulServiceJoinEvent(s);
-                        sink.next(joinEvent);
+                        events.add(joinEvent);
+                        this.currentServices.add(s);
                       }
 
                       for (String s : missingInNewServices) {
                         ConsulServiceLeaveEvent leaveEvent = new ConsulServiceLeaveEvent(s);
-                        sink.next(leaveEvent);
+                        events.add(leaveEvent);
+                        this.currentServices.remove(s);
                       }
                     }
                   }
+
+                  return events;
                 })
-            .onBackpressureBuffer(256, BufferOverflowStrategy.ERROR)
             .publish()
             .refCount();
   }
@@ -79,41 +80,41 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
   }
 
   private abstract class ConsulServiceEvent implements ServiceEvent {
-    private String serviceId;
+    private String serviceName;
 
-    public ConsulServiceEvent(String serviceId) {
-      this.serviceId = serviceId;
+    public ConsulServiceEvent(String serviceName) {
+      this.serviceName = serviceName;
     }
 
     @Override
-    public String getServiceId() {
-      return serviceId;
+    public String getServiceName() {
+      return serviceName;
     }
   }
 
   class ConsulServiceJoinEvent extends ConsulServiceEvent
       implements ServiceEventsSupplier.ServiceJoinEvent {
 
-    public ConsulServiceJoinEvent(String serviceId) {
-      super(serviceId);
+    public ConsulServiceJoinEvent(String serviceName) {
+      super(serviceName);
     }
 
     @Override
     public <E extends EgressEndpoint, F extends EgressEndpointFactory<E>>
         ConsulEgressEndpointFactorySupplier getEgressEndpointFactory() {
       return new ConsulEgressEndpointFactorySupplier(
-          getServiceId(), healthClient, context.getSslContext(), registry);
+          getServiceName(), healthClient, context.getSslContext(), registry);
     }
   }
 
   class ConsulServiceLeaveEvent extends ConsulServiceEvent implements ServiceLeaveEvent {
-    public ConsulServiceLeaveEvent(String serviceId) {
-      super(serviceId);
+    public ConsulServiceLeaveEvent(String serviceName) {
+      super(serviceName);
     }
 
     @Override
-    public String getServiceId() {
-      return super.getServiceId();
+    public String getServiceName() {
+      return super.getServiceName();
     }
   }
 }

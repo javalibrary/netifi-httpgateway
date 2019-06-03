@@ -145,7 +145,7 @@ public class Utils {
   }
 
   public static String ensureErrorString(String requestBody) {
-    requestBody = requestBody.equals("") ? "err: empty body chk status code" : requestBody;
+    requestBody = requestBody.isEmpty() ? "err: empty body chk status code" : requestBody;
     return requestBody;
   }
 }

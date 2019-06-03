@@ -37,7 +37,7 @@ public class DefaultConsulIngressRegister implements IngressDiscoveryRegister {
     Consul.Builder consulBuilder =
         Consul.builder().withHostAndPort(HostAndPort.fromParts(consulHost, consulPort));
 
-    if (consulToken != null && !consulToken.equals("")) {
+    if (consulToken != null && !consulToken.isEmpty()) {
       consulBuilder.withAclToken(consulToken);
     }
 
