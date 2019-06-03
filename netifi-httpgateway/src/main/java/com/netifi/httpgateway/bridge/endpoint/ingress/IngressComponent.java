@@ -18,7 +18,7 @@ public class IngressComponent {
 
   public IngressComponent(BrokerClient brokerClient, MeterRegistry registry) {
     this.portManager = new PortManager(Constants.DEFAULT_LOW_PORT, Constants.DEFAULT_HIGH_PORT);
-    BrokerSocket rSocket = brokerClient.groupServiceSocket("", Tags.empty());
+    BrokerSocket rSocket = brokerClient.groupServiceSocket("com.netifi.broker.brokerServices", Tags.empty());
 
     BrokerInfoServiceClient brokerInfoServiceClient =
         new BrokerInfoServiceClient(rSocket, registry);
