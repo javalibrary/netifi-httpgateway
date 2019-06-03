@@ -14,17 +14,21 @@ import reactor.core.scheduler.Schedulers;
 
 @Component
 public class IngressComponent {
-  private DefaultIngressGroupManager groupManager;
-  private PortManager portManager;
-  private SslContextFactory sslContextFactory;
-  private IngressDiscoveryRegister ingressDiscoveryRegister;
+  private final DefaultIngressGroupManager groupManager;
+  private final PortManager portManager;
+  private final SslContextFactory sslContextFactory;
+  private final IngressDiscoveryRegister ingressDiscoveryRegister;
 
   @Autowired
   public IngressComponent(
       BrokerClient brokerClient,
       MeterRegistry registry,
+      SslContextFactory sslContextFactory,
       IngressDiscoveryRegister ingressDiscoveryRegister,
       @Value("${netifi.client.ssl.isDisabled}") boolean sslDisabled) {
+
+    this.sslContextFactory = sslContextFactory;
+    this.ingressDiscoveryRegister = ingressDiscoveryRegister;
     this.portManager = new PortManager(Constants.DEFAULT_LOW_PORT, Constants.DEFAULT_HIGH_PORT);
     BrokerSocket rSocket =
         brokerClient.groupServiceSocket("com.netifi.broker.brokerServices", Tags.empty());

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package netifi_gateway;
+package com.netifi.httpgateway.bridge.endpoint.source;
 
 import "google/protobuf/empty.proto";
 

@@ -90,17 +90,16 @@ public class ServiceManagerRSocket extends AbstractRSocket {
 
   @SuppressWarnings("unchecked")
   private void handleJoinEvent(ServiceJoinEvent serviceEvent) {
+    logger.info(
+        "service manager received a service join event for service name {}",
+        serviceEvent.getServiceName());
     joinEvents.increment();
-    EgressEndpointLoadBalancer old =
-        loadBalancers.computeIfAbsent(
-            serviceEvent.getServiceName(),
-            s -> {
-              logger.info("adding new egress service with name {}", s);
-              return factory.createNewLoadBalancer(
-                  s, serviceEvent.getEgressEndpointFactory(), registry);
-            });
-
-    if (old == null) {
+    String s = serviceEvent.getServiceName();
+    if (!loadBalancers.containsKey(s)) {
+      logger.info("no service found - adding new egress service with name {}", s);
+      EgressEndpointLoadBalancer newLoadBalancer =
+          factory.createNewLoadBalancer(s, serviceEvent.getEgressEndpointFactory(), registry);
+      loadBalancers.put(s, newLoadBalancer);
       eventProcessor.onNext(
           Event.newBuilder()
               .setJoinEvent(
@@ -112,11 +111,15 @@ public class ServiceManagerRSocket extends AbstractRSocket {
   }
 
   private void handleLeaveEvent(ServiceLeaveEvent serviceEvent) {
+    logger.info(
+        "service manager received a service leave event for service name {}",
+        serviceEvent.getServiceName());
     leaveEvents.increment();
     EgressEndpointLoadBalancer removed = loadBalancers.remove(serviceEvent.getServiceName());
 
     if (removed != null) {
-      logger.info("removing Egress service with name {}", serviceEvent.getServiceName());
+      logger.info(
+          "service found - removing Egress service with name {}", serviceEvent.getServiceName());
       eventProcessor.onNext(
           Event.newBuilder()
               .setLeaveEvent(

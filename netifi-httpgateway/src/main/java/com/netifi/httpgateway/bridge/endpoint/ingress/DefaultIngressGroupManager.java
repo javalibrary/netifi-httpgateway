@@ -126,15 +126,25 @@ public class DefaultIngressGroupManager extends AtomicBoolean
     String group = event.getDestination().getGroup();
     switch (event.getType()) {
       case JOIN:
+        logger.info("ingress group manager received join event: {}", event);
         joinEvents.increment();
         ingressEndpointManagers.computeIfAbsent(
             group,
             g -> {
-              logger.info("adding new ingress endpoint manager for group {}", group);
+              logger.info(
+                  "adding new ingress endpoint manager for to http gateway with a group {}", group);
               BrokerSocket brokerSocket =
                   brokerClient.groupServiceSocket(g, com.netifi.common.tags.Tags.empty());
-              BridgeEndpointSourceClient client =
-                  new BridgeEndpointSourceClient(brokerSocket, registry, tracer);
+              BridgeEndpointSourceClient client;
+              if (tracer == null && registry == null) {
+                client = new BridgeEndpointSourceClient(brokerSocket);
+              } else if (tracer == null) {
+                client = new BridgeEndpointSourceClient(brokerSocket, registry);
+              } else if (registry == null) {
+                client = new BridgeEndpointSourceClient(brokerSocket, tracer);
+              } else {
+                client = new BridgeEndpointSourceClient(brokerSocket, registry, tracer);
+              }
 
               return new DefaultIngressEndpointManager(
                   g,
@@ -148,10 +158,13 @@ public class DefaultIngressGroupManager extends AtomicBoolean
             });
         break;
       case LEAVE:
+        logger.info("ingress group manager received leave event: {}", event);
         leaveEvents.increment();
         IngressEndpointManager removed = ingressEndpointManagers.remove(group);
         if (removed != null) {
-          logger.info("removing ingress endpoint manager from group {}", group);
+          logger.info(
+              "ingress endpoint manager found - removing ingress endpoint manager from group {}",
+              group);
           removed.dispose();
         }
         break;

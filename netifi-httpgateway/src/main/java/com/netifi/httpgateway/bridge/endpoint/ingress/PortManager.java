@@ -20,7 +20,7 @@ public class PortManager {
   }
 
   public synchronized int reservePort(String serviceName) {
-    int h = serviceName.hashCode();
+    int h = Math.abs(serviceName.hashCode());
 
     int pi = (h % (hightPort - lowPort)) + lowPort;
 

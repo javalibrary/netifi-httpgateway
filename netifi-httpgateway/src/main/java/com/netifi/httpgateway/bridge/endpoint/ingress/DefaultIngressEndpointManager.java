@@ -12,13 +12,13 @@ import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tags;
 import io.rsocket.RSocket;
-import io.rsocket.exceptions.RejectedSetupException;
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import reactor.core.Disposable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 import reactor.retry.Retry;
@@ -69,14 +69,18 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
     this.onClose = MonoProcessor.create();
 
     Disposable disposable =
-        client
-            .streamEndpointEvents(Empty.getDefaultInstance())
+        Flux.defer(
+                () -> {
+                  logger.info("streaming http endpoints from http gateway {}", group);
+                  return Mono.delay(Duration.ofSeconds(2))
+                      .thenMany(client.streamEndpointEvents(Empty.getDefaultInstance()));
+                })
             .doOnNext(this::handleEvent)
             .doOnError(
                 throwable ->
-                    logger.error("error streaming endpoints for group " + group, throwable))
+                    logger.error("error streaming http endpoints for group " + group, throwable))
             .retryWhen(
-                Retry.allBut(RejectedSetupException.class)
+                Retry.any()
                     .exponentialBackoffWithJitter(Duration.ofSeconds(1), Duration.ofSeconds(30)))
             .subscribe();
 
@@ -95,7 +99,7 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
   }
 
   private void handleEvent(Event event) {
-    logger.info("group {} sent event {}", group, event);
+    logger.info("http gateway {} sent http endpoint event {}", group, event);
     if (event.hasJoinEvent()) {
       joinEvents.increment();
       BrokerSocket target = brokerClient.groupNamedRSocket(group, HTTP_BRIDGE_NAMED_SOCKET_NAME);
