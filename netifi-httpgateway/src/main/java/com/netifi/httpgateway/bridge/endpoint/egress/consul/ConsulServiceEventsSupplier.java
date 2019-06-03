@@ -1,5 +1,6 @@
 package com.netifi.httpgateway.bridge.endpoint.egress.consul;
 
+import com.netifi.httpgateway.ConsulClientProvider;
 import com.netifi.httpgateway.bridge.endpoint.SslContextFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
@@ -12,6 +13,8 @@ import io.micrometer.core.instrument.MeterRegistry;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
@@ -19,8 +22,7 @@ import reactor.core.scheduler.Schedulers;
 
 @Component
 public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
-  private final HealthClient healthClient;
-  private final CatalogClient catalogClient;
+  private static final Logger logger = LogManager.getLogger(ConsulServiceEventsSupplier.class);
   private final Set<String> currentServices;
   private final Flux<ServiceEvent> serviceEventFlux;
   private final MeterRegistry registry;
@@ -28,48 +30,64 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
 
   @Autowired
   public ConsulServiceEventsSupplier(
-      Consul consul, MeterRegistry registry, SslContextFactory sslContext) {
-    this.healthClient = consul.healthClient();
+      ConsulClientProvider.ConsulSupplier consulSupplier,
+      MeterRegistry registry,
+      SslContextFactory sslContext) {
     this.context = sslContext;
     this.registry = registry;
-    this.catalogClient = consul.catalogClient();
     this.currentServices = ConcurrentHashMap.newKeySet();
+
     this.serviceEventFlux =
-        Flux.interval(Duration.ofSeconds(10), Schedulers.single())
-            .onBackpressureDrop()
-            .concatMapIterable(
-                l -> {
-                  List<ServiceEvent> events = new ArrayList<>();
-                  ConsulResponse<Map<String, List<String>>> services = catalogClient.getServices();
+        Flux.defer(
+                () -> {
+                  final Consul consul = consulSupplier.get();
+                  logger.info("streaming consul service events");
+                  final HealthClient healthClient = consul.healthClient();
+                  final CatalogClient catalogClient = consul.catalogClient();
 
-                  if (services != null) {
-                    Map<String, List<String>> response = services.getResponse();
+                  return Flux.interval(Duration.ofSeconds(10), Schedulers.single())
+                      .onBackpressureDrop()
+                      .concatMapIterable(
+                          l -> {
+                            List<ServiceEvent> events = new ArrayList<>();
+                            ConsulResponse<Map<String, List<String>>> services =
+                                catalogClient.getServices();
 
-                    if (!response.isEmpty()) {
-                      Set<String> incomingServices = response.keySet();
+                            if (services != null) {
+                              Map<String, List<String>> response = services.getResponse();
 
-                      Set<String> missingInNewServices = new HashSet<>(this.currentServices);
-                      missingInNewServices.removeAll(incomingServices);
+                              if (!response.isEmpty()) {
+                                Set<String> incomingServices = response.keySet();
 
-                      Set<String> missingInCurrentServices = new HashSet<>(incomingServices);
-                      missingInCurrentServices.removeAll(this.currentServices);
+                                Set<String> missingInNewServices =
+                                    new HashSet<>(this.currentServices);
+                                missingInNewServices.removeAll(incomingServices);
 
-                      for (String s : missingInCurrentServices) {
-                        ConsulServiceJoinEvent joinEvent = new ConsulServiceJoinEvent(s);
-                        events.add(joinEvent);
-                        this.currentServices.add(s);
-                      }
+                                Set<String> missingInCurrentServices =
+                                    new HashSet<>(incomingServices);
+                                missingInCurrentServices.removeAll(this.currentServices);
 
-                      for (String s : missingInNewServices) {
-                        ConsulServiceLeaveEvent leaveEvent = new ConsulServiceLeaveEvent(s);
-                        events.add(leaveEvent);
-                        this.currentServices.remove(s);
-                      }
-                    }
-                  }
+                                for (String s : missingInCurrentServices) {
+                                  ConsulServiceJoinEvent joinEvent =
+                                      new ConsulServiceJoinEvent(s, healthClient);
+                                  events.add(joinEvent);
+                                  this.currentServices.add(s);
+                                }
 
-                  return events;
+                                for (String s : missingInNewServices) {
+                                  ConsulServiceLeaveEvent leaveEvent =
+                                      new ConsulServiceLeaveEvent(s);
+                                  events.add(leaveEvent);
+                                  this.currentServices.remove(s);
+                                }
+                              }
+                            }
+
+                            return events;
+                          });
                 })
+            .doOnError(
+                throwable -> logger.error("error streaming consul service events", throwable))
             .publish()
             .refCount();
   }
@@ -82,7 +100,7 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
   private abstract class ConsulServiceEvent implements ServiceEvent {
     private String serviceName;
 
-    public ConsulServiceEvent(String serviceName) {
+    ConsulServiceEvent(String serviceName) {
       this.serviceName = serviceName;
     }
 
@@ -95,8 +113,11 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
   class ConsulServiceJoinEvent extends ConsulServiceEvent
       implements ServiceEventsSupplier.ServiceJoinEvent {
 
-    public ConsulServiceJoinEvent(String serviceName) {
+    private final HealthClient healthClient;
+
+    ConsulServiceJoinEvent(String serviceName, HealthClient healthClient) {
       super(serviceName);
+      this.healthClient = healthClient;
     }
 
     @Override
@@ -108,7 +129,7 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
   }
 
   class ConsulServiceLeaveEvent extends ConsulServiceEvent implements ServiceLeaveEvent {
-    public ConsulServiceLeaveEvent(String serviceName) {
+    ConsulServiceLeaveEvent(String serviceName) {
       super(serviceName);
     }
 
