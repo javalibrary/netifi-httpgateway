@@ -8,6 +8,7 @@ import com.netifi.httpgateway.bridge.endpoint.SslContextFactory;
 import com.netifi.httpgateway.util.Constants;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import reactor.core.scheduler.Schedulers;
 
@@ -22,7 +23,8 @@ public class IngressComponent {
   public IngressComponent(
       BrokerClient brokerClient,
       MeterRegistry registry,
-      IngressDiscoveryRegister ingressDiscoveryRegister) {
+      IngressDiscoveryRegister ingressDiscoveryRegister,
+      @Value("${netifi.client.ssl.isDisabled}") boolean sslDisabled) {
     this.portManager = new PortManager(Constants.DEFAULT_LOW_PORT, Constants.DEFAULT_HIGH_PORT);
     BrokerSocket rSocket =
         brokerClient.groupServiceSocket("com.netifi.broker.brokerServices", Tags.empty());
@@ -37,7 +39,7 @@ public class IngressComponent {
             brokerClient,
             portManager,
             sslContextFactory,
-            false,
+            sslDisabled,
             registry,
             null,
             ingressDiscoveryRegister);
