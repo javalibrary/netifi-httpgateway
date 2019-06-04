@@ -16,6 +16,7 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import io.rsocket.util.ByteBufPayload;
+import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -115,6 +116,7 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
 
     return req.receive()
         .aggregate()
+        .switchIfEmpty(Mono.just(Unpooled.EMPTY_BUFFER))
         .flatMap(
             inbound -> {
               encoder.encode(ByteBufAllocator.DEFAULT, inbound, in);
@@ -122,8 +124,16 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
 
               return ByteBufFlux.fromInbound(in)
                   .aggregate()
-                  .map(buf -> ByteBufPayload.create(buf.retain(), serviceNameByteBuf.retain()))
+                  .map(
+                      buf -> {
+                        if (logger.isTraceEnabled()) {
+                          logger.trace(ByteBufUtil.prettyHexDump(buf));
+                        }
+
+                        return ByteBufPayload.create(buf.retain(), serviceNameByteBuf.retain());
+                      })
                   .flatMap(target::requestResponse)
+                  .timeout(Duration.ofSeconds(30))
                   .map(Payload::sliceData)
                   .flatMap(
                       data -> {
@@ -142,6 +152,11 @@ public class DefaultIngressEndpoint extends AtomicBoolean implements IngressEndp
                       });
             })
         .doOnError(throwable -> logger.error("error handling request", throwable))
+        .onErrorResume(
+            throwable -> {
+              resp.status(HttpResponseStatus.SERVICE_UNAVAILABLE);
+              return resp.send();
+            })
         .doFinally(s -> summary.record(System.currentTimeMillis() - start, TimeUnit.MILLISECONDS));
   }
 

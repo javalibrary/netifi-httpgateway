@@ -1,6 +1,7 @@
 package com.netifi.httpgateway.bridge.endpoint.ingress;
 
 import com.netifi.httpgateway.ConsulClientProvider;
+import com.netifi.httpgateway.util.Constants;
 import com.orbitz.consul.AgentClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.agent.ImmutableRegCheck;
@@ -50,7 +51,8 @@ public class ConsulIngressDiscoveryRegister implements IngressDiscoveryRegister 
     private final Disposable disposable;
 
     InnerDisposable(String serviceId, int port) {
-      this.uniqueServiceId = serviceId + "-" + ThreadLocalRandom.current().nextLong();
+      this.uniqueServiceId =
+          serviceId + "-netifi-gateway-" + ThreadLocalRandom.current().nextLong(0, Long.MAX_VALUE);
       this.disposable =
           Flux.defer(
                   () -> {
@@ -60,7 +62,7 @@ public class ConsulIngressDiscoveryRegister implements IngressDiscoveryRegister 
                         ImmutableRegistration.builder()
                             .id(uniqueServiceId)
                             .name(serviceId)
-                            .tags(Collections.singletonList("netifi-httpgateawy"))
+                            .tags(Collections.singletonList(Constants.HTTP_GATEWAY_KEY))
                             .address(address)
                             .port(port)
                             .check(ImmutableRegCheck.builder().ttl(DEFAULT_TTL_REGISTER).build())

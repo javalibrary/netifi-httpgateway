@@ -6,6 +6,7 @@ import com.netifi.httpgateway.ConsulClientProvider;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactorySupplier;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFactory;
+import com.netifi.httpgateway.util.Constants;
 import com.orbitz.consul.HealthClient;
 import com.orbitz.consul.model.ConsulResponse;
 import com.orbitz.consul.model.health.Service;
@@ -55,6 +56,13 @@ public class ConsulEgressEndpointFactorySupplier
                         for (ServiceHealth health : response) {
                           Service service = health.getService();
                           String id = service.getId();
+                          if (service.getTags().contains(Constants.HTTP_GATEWAY_KEY)) {
+                            logger.debug(
+                                "service {} is a netifi http gateway service instance - skipping",
+                                id);
+                            continue;
+                          }
+                          logger.debug("adding service {} with tags {}", id, service.getTags());
                           incomingNodes.add(id);
                           if (!factories.containsKey(id)) {
                             String address = service.getAddress();
