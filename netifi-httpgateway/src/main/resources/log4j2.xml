@@ -9,7 +9,7 @@
         <Root level="${env:LOG4J_ROOT_LEVEL:-info}" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </Root>
-        <logger name="com.netifi" level="${env:LOG4J_NETIFI_LEVEL:-info}" additivity="false">
+        <logger name="com.netifi" level="${env:LOG4J_NETIFI_LEVEL:-debug}" additivity="false">
             <AppenderRef ref="STDOUT"/>
         </logger>
         <logger name="io.rsocket.Frame.Error" level="${env:LOG4J_RSOCKET_ERROR_LEVEL:-debug}" additivity="false">

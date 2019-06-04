@@ -44,6 +44,8 @@ public class DefaultBridgeEndpointSource implements BridgeEndpointSource {
                             logger.info("service {} has netifi-gateway in the name - skipping", s);
                             return false;
                           }
+                          logger.info(
+                              "service {} doesn't netifi-gateway in the name - emitting", s);
                           return true;
                         }))
             .map(

@@ -56,7 +56,8 @@ public class ConsulEgressEndpointFactorySupplier
                         for (ServiceHealth health : response) {
                           Service service = health.getService();
                           String id = service.getId();
-                          if (service.getTags().contains(Constants.HTTP_GATEWAY_KEY)) {
+                          if (service.getTags().contains(Constants.HTTP_GATEWAY_KEY)
+                              || id.contains("netifi-gateway")) {
                             logger.debug(
                                 "service {} is a netifi http gateway service instance - skipping",
                                 id);

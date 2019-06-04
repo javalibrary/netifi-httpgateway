@@ -102,7 +102,9 @@ public class DefaultIngressEndpointManager extends AtomicBoolean implements Ingr
     logger.info("http gateway {} sent http endpoint event {}", group, event);
     if (event.hasJoinEvent()) {
       joinEvents.increment();
-      BrokerSocket target = brokerClient.groupNamedRSocket(group, HTTP_BRIDGE_NAMED_SOCKET_NAME);
+      BrokerSocket target =
+          brokerClient.groupNamedRSocket(
+              HTTP_BRIDGE_NAMED_SOCKET_NAME, group, com.netifi.common.tags.Tags.empty());
       register(event.getJoinEvent().getServiceName(), target);
     } else if (event.hasLeaveEvent()) {
       leaveEvents.increment();

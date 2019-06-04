@@ -5,6 +5,7 @@ import com.netifi.httpgateway.bridge.endpoint.SslContextFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.ServiceEventsSupplier;
+import com.netifi.httpgateway.util.Constants;
 import com.orbitz.consul.CatalogClient;
 import com.orbitz.consul.Consul;
 import com.orbitz.consul.model.ConsulResponse;
@@ -68,10 +69,20 @@ public class ConsulServiceEventsSupplier implements ServiceEventsSupplier {
                                 missingInCurrentServices.removeAll(this.currentServices);
 
                                 for (String s : missingInCurrentServices) {
+                                  List<String> tags = response.get(s);
+                                  if (tags.contains(Constants.HTTP_GATEWAY_KEY)) {
+                                    logger.debug(
+                                        "service named {} contains the tag {} - skipping",
+                                        s,
+                                        Constants.HTTP_GATEWAY_KEY);
+                                    continue;
+                                  }
+
                                   if (s.equals("consul")) {
                                     // logger.debug("found service named consul - skipping");
                                     continue;
                                   }
+
                                   ConsulServiceJoinEvent joinEvent =
                                       new ConsulServiceJoinEvent(s, consulSupplier);
                                   events.add(joinEvent);
