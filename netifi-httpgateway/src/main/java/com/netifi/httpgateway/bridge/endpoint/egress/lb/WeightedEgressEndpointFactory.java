@@ -55,11 +55,7 @@ public class WeightedEgressEndpointFactory
 
   private synchronized WeightedEgressEndpoint createEndpoint() {
     MonoProcessor<Void> onConnectionClose = MonoProcessor.create();
-    TcpClient tcpClient =
-        TcpClient.create()
-            .host(host)
-            .port(port)
-            .doOnDisconnected(connection -> onConnectionClose.onComplete());
+    TcpClient tcpClient = TcpClient.create().host(host).port(port);
 
     if (!disableSSL) {
       tcpClient = tcpClient.secure(sslContext);

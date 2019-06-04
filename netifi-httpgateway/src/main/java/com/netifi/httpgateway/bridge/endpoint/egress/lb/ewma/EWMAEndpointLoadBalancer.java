@@ -4,7 +4,6 @@ import com.netifi.common.stats.Ewma;
 import com.netifi.common.stats.FrugalQuantile;
 import com.netifi.common.stats.Quantile;
 import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpoint;
-import com.netifi.httpgateway.bridge.endpoint.egress.EgressEndpointFactory;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.EgressEndpointLoadBalancer;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpoint;
 import com.netifi.httpgateway.bridge.endpoint.egress.lb.WeightedEgressEndpointFactory;
@@ -64,6 +63,7 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
 
     // It's never been refreshed - this will make it create an endpoint
     this.lastRefresh = 0;
+    this.targetAperture = MIN_APERTURE;
 
     Tags serviceName =
         Tags.of(
@@ -82,6 +82,8 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
     registry.gauge("ewmaPendings", serviceName, pendings, Ewma::value);
 
     egressEndpointFactoryPool.onClose().doFinally(signalType -> dispose()).subscribe();
+
+    refreshEndpoints();
   }
 
   @Override
@@ -252,11 +254,8 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
 
       if (slowest != null) {
         activeEndpoints.remove(slowest);
+        slowest.dispose();
       }
-    }
-
-    if (slowest != null) {
-      slowest.dispose();
     }
   }
 
@@ -275,7 +274,7 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
       Optional<WeightedEgressEndpointFactory> optional = egressEndpointFactoryPool.lease();
 
       if (optional.isPresent()) {
-        EgressEndpointFactory<WeightedEgressEndpoint> factory = optional.get();
+        WeightedEgressEndpointFactory factory = optional.get();
         WeightedEgressEndpoint endpoint = factory.get();
         activeEndpoints.add(endpoint);
         endpoint
@@ -283,6 +282,7 @@ public class EWMAEndpointLoadBalancer extends AtomicBoolean implements EgressEnd
             .doFinally(
                 signalType -> {
                   synchronized (EWMAEndpointLoadBalancer.this) {
+                    egressEndpointFactoryPool.release(factory);
                     activeEndpoints.remove(endpoint);
                   }
                 })
