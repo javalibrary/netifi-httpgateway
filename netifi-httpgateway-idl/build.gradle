@@ -1,9 +1,5 @@
-plugins {
-    id 'com.google.protobuf' version '0.8.8'
-}
-
 dependencies {
-    compile "com.netifi:netifi-broker-client"
+    compile 'com.netifi:netifi-broker-client'
     compile 'com.google.protobuf:protobuf-java'
 }
 
@@ -21,11 +17,11 @@ protobuf {
     generatedFilesBaseDir = "${projectDir}/src/generated"
 
     protoc {
-        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+        artifact = 'com.google.protobuf:protoc'
     }
     plugins {
         rsocketRpc {
-            artifact = "io.rsocket.rpc:rsocket-rpc-protobuf:${rsocketRpcVersion}"
+            artifact = 'io.rsocket.rpc:rsocket-rpc-protobuf'
         }
     }
     generateProtoTasks {
@@ -37,9 +33,9 @@ protobuf {
 
 idea {
     module {
-        sourceDirs += file("src/main/proto")
-        sourceDirs += file("src/generated/main/java")
-        sourceDirs += file("src/generated/main/rsocketRpc")
+        sourceDirs += file('src/main/proto')
+        sourceDirs += file('src/generated/main/java')
+        sourceDirs += file('src/generated/main/rsocketRpc')
 
         generatedSourceDirs += file('src/generated/main/java')
         generatedSourceDirs += file('src/generated/main/rsocketRpc')
@@ -83,8 +79,8 @@ publishing {
                     url = 'http://github.com/netifi/netifi-httpgateway/'
                 }
                 issueManagement {
-                    system = "GitHub Issues"
-                    url = "https://github.com/netifi/netifi-httpgateway/issues"
+                    system = 'GitHub Issues'
+                    url = 'https://github.com/netifi/netifi-httpgateway/issues'
                 }
             }
         }

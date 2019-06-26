@@ -14,12 +14,12 @@
 package com.netifi.httpgateway.util;
 
 public final class HttpUtil {
-  public static final String OVERRIDE_GROUP  = "Override-Group";
-  public static final String OVERRIDE_DESTINATION  = "Override-Destination";
-  public static final String OVERRIDE_TAG  = "Override-Tag";
-  
+  public static final String OVERRIDE_GROUP = "Override-Group";
+  public static final String OVERRIDE_DESTINATION = "Override-Destination";
+  public static final String OVERRIDE_TAG = "Override-Tag";
+
   private HttpUtil() {}
-  
+
   public static String stripTrailingSlash(String source) {
     int length = source.length();
     if (source.lastIndexOf('/') == length) {
@@ -36,7 +36,7 @@ public final class HttpUtil {
       return source;
     }
   }
-  
+
   public static String stripLeadingSlash(String source) {
     if (source.charAt(0) == '/') {
       return source.substring(1);

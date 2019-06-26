@@ -16,16 +16,14 @@ package com.netifi.httpgateway.rsocket;
 import com.netifi.broker.BrokerClient;
 import com.netifi.common.tags.Tag;
 import com.netifi.common.tags.Tags;
-import com.netifi.httpgateway.config.BrokerClientSettings;
 import com.netifi.httpgateway.util.HttpUtil;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.rsocket.RSocket;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class BrokerClientRSocketSupplier implements RSocketSupplier {
@@ -33,27 +31,8 @@ public class BrokerClientRSocketSupplier implements RSocketSupplier {
   private final ConcurrentHashMap<String, RSocket> rsockets;
 
   @Autowired
-  public BrokerClientRSocketSupplier(BrokerClientSettings settings) {
-    BrokerClient.TcpBuilder builder = BrokerClient
-      .tcp()
-      .accessToken(settings.getAccessToken())
-      .accessKey(settings.getAccessKey());
-
-    if (settings.isSslDisabled()) {
-      builder = builder.disableSsl();
-    }
-
-    builder = builder
-      .host(settings.getBrokerHostname())
-      .port(settings.getBrokerPort())
-      .group(settings.getGroup());
-
-    if (settings.getDestination() != null && settings.getDestination().isEmpty()) {
-      builder = builder.destination(settings.getDestination());
-    }
-
-    brokerClient = builder.build();
-
+  public BrokerClientRSocketSupplier(BrokerClient brokerClient) {
+    this.brokerClient = brokerClient;
     this.rsockets = new ConcurrentHashMap<>();
   }
 
@@ -74,7 +53,8 @@ public class BrokerClientRSocketSupplier implements RSocketSupplier {
       return rsockets.computeIfAbsent(
           overrideGroup, s -> brokerClient.groupServiceSocket(overrideGroup, tags));
     }
-    return rsockets.computeIfAbsent(rSocketKey, s -> brokerClient.groupServiceSocket(rSocketKey, tags));
+    return rsockets.computeIfAbsent(
+        rSocketKey, s -> brokerClient.groupServiceSocket(rSocketKey, tags));
   }
 
   private Tags toTags(List<String> allAsString) {
