@@ -65,7 +65,8 @@ configurations {
 }
 
 dependencies {
-    compile project(':netifi-httpgateway-idl')
+    protobuf 'io.rsocket.rpc:rsocket-rpc-protobuf-idl'
+    protobuf 'com.netifi:netifi-httpgateway-proto'
 
     compile ('com.netifi:netifi-spring-boot-starter') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
@@ -77,7 +78,6 @@ dependencies {
     compile 'com.lmax:disruptor'
     compile 'io.projectreactor.addons:reactor-extra'
     compile 'com.orbitz.consul:consul-client'
-    protobuf 'io.rsocket.rpc:rsocket-rpc-protobuf-idl'
 
     testCompile 'junit:junit'
     testCompile 'org.mockito:mockito-core'
@@ -94,11 +94,11 @@ protobuf {
     generatedFilesBaseDir = "${projectDir}/src/generated"
 
     protoc {
-        artifact = 'com.google.protobuf:protoc'
+        artifact = "com.google.protobuf:protoc"
     }
     plugins {
         rsocketRpc {
-            artifact = 'io.rsocket.rpc:rsocket-rpc-protobuf'
+            artifact = "io.rsocket.rpc:rsocket-rpc-protobuf"
         }
     }
     generateProtoTasks {
@@ -109,13 +109,6 @@ protobuf {
             task.plugins {
                 rsocketRpc {}
             }
-
-            // Generate a descriptor
-            task.generateDescriptorSet = true
-            task.descriptorSetOptions.path =
-                    "${projectDir}/build/descriptors/${task.sourceSet.name}.dsc"
-            task.descriptorSetOptions.includeSourceInfo = true
-            task.descriptorSetOptions.includeImports = true
         }
     }
 }
@@ -124,16 +117,14 @@ clean {
     delete protobuf.generatedFilesBaseDir
 }
 
-
 idea {
     module {
-        testResourceDirs += file('src/test/proto')
-        testResourceDirs += file('src/generated/test/java')
-        testResourceDirs += file('src/generated/test/rsocketRpc')
+        sourceDirs += file("src/main/proto")
+        sourceDirs += file("src/generated/main/java")
+        sourceDirs += file("src/generated/main/rsocketRpc")
 
-        generatedSourceDirs += file('src/generated/test/java')
-        generatedSourceDirs += file('src/generated/test/rsocketRpc')
-
+        generatedSourceDirs += file('src/generated/main/java')
+        generatedSourceDirs += file('src/generated/main/rsocketRpc')
     }
 }
 
