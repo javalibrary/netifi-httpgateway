@@ -7,6 +7,7 @@ dependencyManagement {
     mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
   }
   dependencies {
+    dependency "com.netifi:netifi-httpgateway-proto:${netifiBomVersion}"
     dependency "com.arakelian:docker-junit-rule:${dockerVersion}"
     dependency "com.google.protobuf:protobuf-java-util:${protobufVersion}"
     dependency "com.google.protobuf:protobuf-java:${protobufVersion}"

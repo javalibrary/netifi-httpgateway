@@ -3,20 +3,19 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 
 ext {
     commonJvmArgs = [
-            '-XX:+IgnoreUnrecognizedVMOptions',
-            '-XshowSettings:vm',
-            '-XX:+UseG1GC',
-            '-XX:MaxGCPauseMillis=200',
-            '-XX:+AlwaysPreTouch',
-            '-XX:+UseStringDeduplication',
-            '-XX:+ExplicitGCInvokesConcurrent',
-            '-XX:+ParallelRefProcEnabled',
-            '-XX:+UnlockExperimentalVMOptions',
-            '-XX:+UseCGroupMemoryLimitForHeap',
-            '-XX:InitialRAMPercentage=70',
-            '-XX:MaxRAMPercentage=70',
-            '-Xlog:gc:gc.log::filecount=10,filesize=100M',
-            '-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector'
+        '-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector',
+        '-XshowSettings:vm',
+        '-XX:+AlwaysPreTouch',
+        '-XX:+DisableExplicitGC',
+        '-XX:+ExplicitGCInvokesConcurrent',
+        '-XX:+IgnoreUnrecognizedVMOptions',
+        '-XX:+FlightRecorder',
+        '-XX:+HeapDumpOnOutOfMemoryError',
+        '-XX:+ParallelRefProcEnabled',
+        '-XX:+PrintFlagsFinal',
+        '-XX:+UnlockExperimentalVMOptions',
+        '-XX:+UseG1GC',
+        '-XX:+UseStringDeduplication'
     ]
 }
 
@@ -65,7 +64,8 @@ configurations {
 }
 
 dependencies {
-    compile project(':netifi-httpgateway-idl')
+    protobuf 'io.rsocket.rpc:rsocket-rpc-protobuf-idl'
+    protobuf 'com.netifi:netifi-httpgateway-proto'
 
     compile ('com.netifi:netifi-spring-boot-starter') {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
@@ -77,7 +77,6 @@ dependencies {
     compile 'com.lmax:disruptor'
     compile 'io.projectreactor.addons:reactor-extra'
     compile 'com.orbitz.consul:consul-client'
-    protobuf 'io.rsocket.rpc:rsocket-rpc-protobuf-idl'
 
     testCompile 'junit:junit'
     testCompile 'org.mockito:mockito-core'
@@ -94,11 +93,11 @@ protobuf {
     generatedFilesBaseDir = "${projectDir}/src/generated"
 
     protoc {
-        artifact = 'com.google.protobuf:protoc'
+        artifact = "com.google.protobuf:protoc"
     }
     plugins {
         rsocketRpc {
-            artifact = 'io.rsocket.rpc:rsocket-rpc-protobuf'
+            artifact = "io.rsocket.rpc:rsocket-rpc-protobuf"
         }
     }
     generateProtoTasks {
@@ -109,13 +108,6 @@ protobuf {
             task.plugins {
                 rsocketRpc {}
             }
-
-            // Generate a descriptor
-            task.generateDescriptorSet = true
-            task.descriptorSetOptions.path =
-                    "${projectDir}/build/descriptors/${task.sourceSet.name}.dsc"
-            task.descriptorSetOptions.includeSourceInfo = true
-            task.descriptorSetOptions.includeImports = true
         }
     }
 }
@@ -124,35 +116,16 @@ clean {
     delete protobuf.generatedFilesBaseDir
 }
 
-
 idea {
     module {
-        testResourceDirs += file('src/test/proto')
-        testResourceDirs += file('src/generated/test/java')
-        testResourceDirs += file('src/generated/test/rsocketRpc')
+        sourceDirs += file("src/main/proto")
+        sourceDirs += file("src/generated/main/java")
+        sourceDirs += file("src/generated/main/rsocketRpc")
 
-        generatedSourceDirs += file('src/generated/test/java')
-        generatedSourceDirs += file('src/generated/test/rsocketRpc')
-
+        generatedSourceDirs += file('src/generated/main/java')
+        generatedSourceDirs += file('src/generated/main/rsocketRpc')
     }
 }
-
-applicationDefaultJvmArgs = [
-        '-XX:+IgnoreUnrecognizedVMOptions',
-        '-XshowSettings:vm',
-        '-XX:+UseG1GC',
-        '-XX:MaxGCPauseMillis=200',
-        '-XX:+AlwaysPreTouch',
-        '-XX:+UseStringDeduplication',
-        '-XX:+ExplicitGCInvokesConcurrent',
-        '-XX:+ParallelRefProcEnabled',
-        '-XX:+UnlockExperimentalVMOptions',
-        '-XX:+UseCGroupMemoryLimitForHeap',
-        '-XX:InitialRAMPercentage=70',
-        '-XX:MaxRAMPercentage=70',
-        '-Xlog:gc:gc.log::filecount=10,filesize=100M',
-        '-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector'
-]
 
 configurations.all {
     resolutionStrategy {

@@ -1,4 +1,3 @@
 rootProject.name = 'netifi-httpgateway'
 
 include 'netifi-httpgateway'
-include 'netifi-httpgateway-idl'
