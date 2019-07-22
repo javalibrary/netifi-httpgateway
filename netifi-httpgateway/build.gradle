@@ -3,20 +3,19 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 
 ext {
     commonJvmArgs = [
-            '-XX:+IgnoreUnrecognizedVMOptions',
-            '-XshowSettings:vm',
-            '-XX:+UseG1GC',
-            '-XX:MaxGCPauseMillis=200',
-            '-XX:+AlwaysPreTouch',
-            '-XX:+UseStringDeduplication',
-            '-XX:+ExplicitGCInvokesConcurrent',
-            '-XX:+ParallelRefProcEnabled',
-            '-XX:+UnlockExperimentalVMOptions',
-            '-XX:+UseCGroupMemoryLimitForHeap',
-            '-XX:InitialRAMPercentage=70',
-            '-XX:MaxRAMPercentage=70',
-            '-Xlog:gc:gc.log::filecount=10,filesize=100M',
-            '-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector'
+        '-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector',
+        '-XshowSettings:vm',
+        '-XX:+AlwaysPreTouch',
+        '-XX:+DisableExplicitGC',
+        '-XX:+ExplicitGCInvokesConcurrent',
+        '-XX:+IgnoreUnrecognizedVMOptions',
+        '-XX:+FlightRecorder',
+        '-XX:+HeapDumpOnOutOfMemoryError',
+        '-XX:+ParallelRefProcEnabled',
+        '-XX:+PrintFlagsFinal',
+        '-XX:+UnlockExperimentalVMOptions',
+        '-XX:+UseG1GC',
+        '-XX:+UseStringDeduplication'
     ]
 }
 
@@ -127,23 +126,6 @@ idea {
         generatedSourceDirs += file('src/generated/main/rsocketRpc')
     }
 }
-
-applicationDefaultJvmArgs = [
-        '-XX:+IgnoreUnrecognizedVMOptions',
-        '-XshowSettings:vm',
-        '-XX:+UseG1GC',
-        '-XX:MaxGCPauseMillis=200',
-        '-XX:+AlwaysPreTouch',
-        '-XX:+UseStringDeduplication',
-        '-XX:+ExplicitGCInvokesConcurrent',
-        '-XX:+ParallelRefProcEnabled',
-        '-XX:+UnlockExperimentalVMOptions',
-        '-XX:+UseCGroupMemoryLimitForHeap',
-        '-XX:InitialRAMPercentage=70',
-        '-XX:MaxRAMPercentage=70',
-        '-Xlog:gc:gc.log::filecount=10,filesize=100M',
-        '-DLog4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector'
-]
 
 configurations.all {
     resolutionStrategy {
